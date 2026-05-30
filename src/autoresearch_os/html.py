@@ -150,6 +150,12 @@ def write_research_html(
   </section>
 
   <section>
+    <h2>Convergence Progress</h2>
+    <p class="section-note">The system continues researching until objective completion, citation grounding, contradiction resolution, and open-question thresholds are satisfied.</p>
+    {_iteration_history_table(metrics)}
+  </section>
+
+  <section>
     <h2>Component Metrics</h2>
     {_component_table(metrics)}
   </section>
@@ -300,6 +306,28 @@ def _component_table(metrics: RunMetrics) -> str:
             "</tr>"
         )
     return "<table><thead><tr><th>Component</th><th>Agents</th><th>Time</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _iteration_history_table(metrics: RunMetrics) -> str:
+    rows = []
+    for item in metrics.iteration_history:
+        rows.append(
+            "<tr>"
+            f"<td>{item['iteration']}</td>"
+            f"<td>{item['overall_confidence']:.0%}</td>"
+            f"<td>{item['objective_completion']:.0%}</td>"
+            f"<td>{item['citation_grounding']:.0%}</td>"
+            f"<td>{item['contradiction_resolution']:.0%}</td>"
+            f"<td>{item['open_questions']}</td>"
+            f"<td>{escape(str(item['status']))}</td>"
+            "</tr>"
+        )
+    return (
+        "<table><thead><tr><th>Iteration</th><th>Confidence</th><th>Objective</th>"
+        "<th>Citations</th><th>Contradictions</th><th>Open Questions</th><th>Status</th></tr></thead><tbody>"
+        + "".join(rows)
+        + "</tbody></table>"
+    )
 
 
 def _claims_table(claims: list[Claim], evidence_by_id: dict[str, Evidence]) -> str:

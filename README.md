@@ -6,6 +6,23 @@ The key idea: do not optimize for an immediate answer. Optimize for a maintained
 
 This version is intentionally narrowed to legal research. `program.md` includes legal-domain metadata such as jurisdiction, practice area, authority hierarchy, required legal source types, risk posture, citation policy, and uncertainty policy.
 
+## Core Framing
+
+AutoResearch OS is not an agent with memory. It is a research control system that drives a research state toward measurable convergence.
+
+The core loop is:
+
+```text
+Research
+-> Truth Maintenance
+-> Evaluation
+-> Knowledge Gap Detection
+-> New Research Tasks
+-> Research Again
+```
+
+The final output is not just an answer. It is a grounded report backed by traceable claims, evidence, contradictions, confidence scores, and an explanation of why the system stopped researching.
+
 ## Why This Fits The Hackathon
 
 The Autoresearch Systems Hackathon asks for systems that help agents iteratively plan, search, and synthesize information over extended horizons. This repo focuses on:
@@ -180,6 +197,20 @@ Several runtime constants are tunable and persist in `tuning_params.json`:
 
 After each evaluation, the tuner nudges these values when the research state is weak. For example, low citation grounding raises the claim-support threshold and primary-source requirement; low contradiction resolution increases the contradiction penalty; too many open questions expands gap-task generation.
 
+## Convergence Criteria
+
+The runtime stops when the research program is satisfied:
+
+```text
+Objective Completion >= 90%
+Citation Grounding >= 90%
+Overall Confidence >= 85%
+Critical Open Questions <= 2
+Contradiction Resolution >= 80%
+```
+
+If these conditions are not met, the knowledge-gap detector creates new tasks and sends the system back through the research runtime.
+
 ## Final Metrics And Reports
 
 Every completed run emits `metrics.json`, adds a run metrics section to `final_report.md`, and generates both `final_report.html` and `final_report.pdf`. The HTML report is the clean demo artifact: it includes linked paper-style citations, a reasoning/rationale diagram, component-level metrics, hypothesis confidence, contradiction analysis, and source anchors. The metrics include:
@@ -191,6 +222,14 @@ Every completed run emits `metrics.json`, adds a run metrics section to `final_r
 - Iterations completed
 - Runtime in seconds
 - Final confidence and stop-condition status
+
+The CLI and HTML report also show convergence progress over iterations, so the demo makes the research process visible:
+
+```text
+Iteration 1: confidence 54%, open questions 14, status Continue
+Iteration 2: confidence 76%, open questions 6, status Continue
+Iteration 3: confidence 88%, open questions 1, status Converged
+```
 
 ## Demo
 

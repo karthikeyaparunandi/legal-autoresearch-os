@@ -81,11 +81,25 @@ def _format_metrics(metrics: dict) -> str:
         ("Stop conditions met", metrics["stop_conditions_met"]),
     ]
     agent_rows = [(name, count) for name, count in metrics["agent_breakdown"].items()]
+    history_rows = [
+        (
+            item["iteration"],
+            f"{item['overall_confidence']:.0%}",
+            f"{item['objective_completion']:.0%}",
+            f"{item['citation_grounding']:.0%}",
+            item["open_questions"],
+            item["status"],
+        )
+        for item in metrics.get("iteration_history", [])
+    ]
     return "\n".join(
         [
             "",
             f"{BOLD}{CYAN}Final Metrics{RESET}",
             _table(("Metric", "Value"), summary_rows),
+            "",
+            f"{BOLD}{CYAN}Convergence Progress{RESET}",
+            _wide_table(("Iter", "Confidence", "Objective", "Citations", "Open Qs", "Status"), history_rows),
             "",
             f"{BOLD}{YELLOW}Agent Breakdown{RESET}",
             _table(("Agent", "Count"), agent_rows),
@@ -105,6 +119,22 @@ def _table(headers: tuple[str, str], rows: list[tuple[str, object]]) -> str:
     ]
     for left, right in text_rows:
         lines.append(f"| {left.ljust(left_width)} | {right.rjust(right_width)} |")
+    lines.append(rule)
+    return "\n".join(lines)
+
+
+def _wide_table(headers: tuple[str, ...], rows: list[tuple[object, ...]]) -> str:
+    if not rows:
+        return f"{DIM}No iteration history available.{RESET}"
+    text_rows = [tuple(str(cell) for cell in row) for row in rows]
+    widths = [len(header) for header in headers]
+    for row in text_rows:
+        widths = [max(width, len(cell)) for width, cell in zip(widths, row)]
+    rule = "+-" + "-+-".join("-" * width for width in widths) + "-+"
+    header = "| " + " | ".join(f"{BOLD}{text.ljust(width)}{RESET}" for text, width in zip(headers, widths)) + " |"
+    lines = [rule, header, rule]
+    for row in text_rows:
+        lines.append("| " + " | ".join(cell.rjust(width) for cell, width in zip(row, widths)) + " |")
     lines.append(rule)
     return "\n".join(lines)
 

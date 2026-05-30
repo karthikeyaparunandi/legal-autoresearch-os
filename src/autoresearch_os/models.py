@@ -131,6 +131,7 @@ class RunMetrics:
     generated_at: str
     total_runtime_seconds: float
     component_metrics: dict[str, dict[str, float | int]]
+    iteration_history: list[dict[str, float | int | str | bool]]
     iterations_completed: int
     agents_spun_off: int
     agent_breakdown: dict[str, int]

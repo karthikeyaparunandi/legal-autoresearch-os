@@ -77,6 +77,7 @@ class ResearchRuntime:
         criticisms = []
         evaluation: Evaluation | None = None
         iterations_completed = 0
+        iteration_history: list[dict[str, float | int | str | bool]] = []
 
         self._write_program_state(program, tasks, hypotheses)
 
@@ -98,7 +99,9 @@ class ResearchRuntime:
             evaluation = evaluate(iteration, program, claims, evidence, contradictions, open_questions, tuning_params)
             component_seconds["evaluation"] += time.perf_counter() - timer
             timer = time.perf_counter()
-            next_tuning_params = tuning_params if stop_conditions_met(program, evaluation) else tune_params(tuning_params, evaluation)
+            did_stop = stop_conditions_met(program, evaluation)
+            iteration_history.append(_iteration_snapshot(iteration, evaluation, evidence, contradictions, open_questions, did_stop))
+            next_tuning_params = tuning_params if did_stop else tune_params(tuning_params, evaluation)
             component_seconds["auto_tuning"] += time.perf_counter() - timer
 
             self._write_iteration_state(
@@ -112,7 +115,7 @@ class ResearchRuntime:
                 tuning_params,
                 next_tuning_params,
             )
-            if stop_conditions_met(program, evaluation):
+            if did_stop:
                 break
 
             tuning_params = next_tuning_params
@@ -153,6 +156,7 @@ class ResearchRuntime:
             stop_conditions_met(program, evaluation),
             final_artifacts,
             component_seconds,
+            iteration_history,
         )
         timer = time.perf_counter()
         self._write_final_outputs(program, claims, evidence, contradictions, open_questions, evaluation, metrics)
@@ -172,6 +176,7 @@ class ResearchRuntime:
             stop_conditions_met(program, evaluation),
             final_artifacts,
             component_seconds,
+            iteration_history,
         )
         write_json(self.out_dir / "metrics.json", metrics)
         self._write_final_outputs(program, claims, evidence, contradictions, open_questions, evaluation, metrics)
@@ -236,6 +241,7 @@ class ResearchRuntime:
         did_stop,
         final_artifacts,
         component_seconds,
+        iteration_history,
     ) -> RunMetrics:
         one_shot_agents = {"program_generator", "planner_orchestrator", "hypothesis_agent", "report_generator"}
         agent_breakdown = {
@@ -272,6 +278,7 @@ class ResearchRuntime:
             generated_at=datetime.now(UTC).isoformat(),
             total_runtime_seconds=round(elapsed, 3),
             component_metrics=component_metrics,
+            iteration_history=iteration_history,
             iterations_completed=iterations_completed,
             agents_spun_off=sum(agent_breakdown.values()),
             agent_breakdown=agent_breakdown,
@@ -309,3 +316,20 @@ def _extract_entities(text: str) -> list[str]:
         if token[:1].isupper() or token.upper() in {"AI", "US", "U.S."}:
             candidates.append(token)
     return sorted(set(candidates))
+
+
+def _iteration_snapshot(iteration: int, evaluation: Evaluation, evidence, contradictions, open_questions, did_stop: bool) -> dict[str, float | int | str | bool]:
+    return {
+        "iteration": iteration,
+        "overall_confidence": evaluation.overall_confidence,
+        "objective_completion": evaluation.objective_completion,
+        "evidence_coverage": evaluation.evidence_coverage,
+        "citation_grounding": evaluation.citation_grounding,
+        "contradiction_resolution": evaluation.contradiction_resolution,
+        "source_diversity": evaluation.source_diversity,
+        "evidence_count": len(evidence),
+        "contradictions": len(contradictions),
+        "open_questions": len(open_questions),
+        "status": "Converged" if did_stop else "Continue",
+        "stop_conditions_met": did_stop,
+    }
