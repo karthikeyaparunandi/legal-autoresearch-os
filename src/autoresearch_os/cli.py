@@ -123,6 +123,9 @@ def _format_metrics(metrics: dict) -> str:
         ("Raindrop target", metrics.get("raindrop_target") or "none"),
         ("Raindrop feedback", metrics.get("raindrop_feedback", {}).get("verdict", "none")),
     ]
+    if metrics.get("llm_scoring_enabled"):
+        final_rows.append(("Deterministic conf.", f"{metrics.get('deterministic_confidence', 0):.0%}"))
+        final_rows.append(("LLM score adj.", f"{metrics.get('llm_score_adjustment', 0):+.0%}"))
     retrieval = metrics.get("retrieval_metrics", {})
     retrieval_rows = [
         ("Live retrieval", "enabled" if retrieval.get("enabled") else "disabled"),

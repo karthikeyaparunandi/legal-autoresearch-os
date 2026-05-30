@@ -595,6 +595,59 @@ def test_blocked_source_metrics_lower_confidence():
     assert blocked.overall_confidence < clean.overall_confidence
 
 
+def test_evaluator_uses_llm_scoring_adjustment():
+    class FakeReasoner:
+        enabled = True
+
+        def reason_json(self, agent_name, instruction, payload, timeout_seconds=30.0):
+            assert agent_name == "evaluator_agent"
+            assert payload["deterministic_confidence"] > 0
+            return {"score_adjustment": -0.06, "rationale": "Citations only partially support the claim."}
+
+    program = ResearchProgram(
+        objective="Can a startup use AI-generated contract templates?",
+        subquestions=["UPL risk?", "Liability risk?"],
+        evidence_requirements=[],
+        success_metrics=[],
+    )
+    evidence = [
+        Evidence(
+            source_id="source_001",
+            title="UPL source",
+            url="https://www.law.cornell.edu/wex/unauthorized_practice_of_law",
+            source_type="bar_ethics",
+            excerpt="Unauthorized practice of law can involve legal advice.",
+            supports=["h001"],
+            reliability=0.9,
+        ),
+        Evidence(
+            source_id="source_002",
+            title="Warranty source",
+            url="https://www.law.cornell.edu/ucc/2/2-313",
+            source_type="uniform_code",
+            excerpt="Express warranties can arise from affirmations of fact.",
+            supports=["h001"],
+            reliability=0.9,
+        ),
+    ]
+    claims = [
+        Claim(
+            claim_id="c001",
+            claim="AI-generated contract templates can create UPL and liability risk.",
+            supporting_sources=["source_001", "source_002"],
+            confidence=0.9,
+            status="supported",
+        )
+    ]
+
+    evaluation = evaluate(1, program, claims, evidence, [], [], reasoner=FakeReasoner())
+
+    assert evaluation.llm_scoring_enabled is True
+    assert evaluation.llm_score_adjustment == -0.06
+    assert evaluation.overall_confidence == round(evaluation.deterministic_confidence - 0.06, 2)
+    assert "partially support" in evaluation.llm_score_rationale
+
+
 def test_detect_blocked_source_variants():
     assert detect_blocked_source("Please verify you are human before continuing.") == "captcha_detected"
     assert detect_blocked_source("Access denied. You have been blocked.") == "access_denied"

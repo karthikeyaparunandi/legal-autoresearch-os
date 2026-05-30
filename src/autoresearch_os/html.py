@@ -178,6 +178,8 @@ def write_research_html(
     <summary>Research Trace And Metrics</summary>
     <h3>Convergence Progress</h3>
     {_iteration_history_table(metrics)}
+    <h3>LLM Scoring Audit</h3>
+    {_llm_scoring_block(evaluation)}
     <h3>Component Metrics</h3>
     {_component_table(metrics)}
     <h3>Agent Tool Loops</h3>
@@ -460,6 +462,19 @@ def _raindrop_feedback_block(metrics: RunMetrics) -> str:
         f"{findings}"
         "<h3>Recommended Next Steps</h3>"
         f"{recommendations}"
+    )
+
+
+def _llm_scoring_block(evaluation: Evaluation) -> str:
+    if not evaluation.llm_scoring_enabled:
+        return "<p>LLM scoring audit was not used for this run.</p>"
+    return (
+        "<table><tbody>"
+        f"<tr><th>Deterministic confidence</th><td>{evaluation.deterministic_confidence:.0%}</td></tr>"
+        f"<tr><th>LLM adjustment</th><td>{evaluation.llm_score_adjustment:+.0%}</td></tr>"
+        f"<tr><th>Final confidence</th><td>{evaluation.overall_confidence:.0%}</td></tr>"
+        f"<tr><th>Rationale</th><td>{escape(evaluation.llm_score_rationale)}</td></tr>"
+        "</tbody></table>"
     )
 
 

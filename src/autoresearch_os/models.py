@@ -134,6 +134,10 @@ class Evaluation:
     confidence_cap: float
     open_question_count: int
     overall_confidence: float
+    deterministic_confidence: float = 0.0
+    llm_scoring_enabled: bool = False
+    llm_score_adjustment: float = 0.0
+    llm_score_rationale: str = ""
 
 
 @dataclass
@@ -164,6 +168,9 @@ class RunMetrics:
     stop_conditions_met: bool
     generated_artifacts: list[str]
     raindrop_feedback: dict[str, Any] = field(default_factory=dict)
+    deterministic_confidence: float = 0.0
+    llm_scoring_enabled: bool = False
+    llm_score_adjustment: float = 0.0
 
 
 def to_jsonable(value: Any) -> Any:

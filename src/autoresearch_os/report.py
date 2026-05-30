@@ -75,6 +75,8 @@ def build_report(
             "",
             "## Appendix: Research Trace",
             f"- Overall confidence: {evaluation.overall_confidence:.0%}",
+            f"- Deterministic confidence: {evaluation.deterministic_confidence:.0%}",
+            f"- LLM scoring adjustment: {evaluation.llm_score_adjustment:+.0%}" if evaluation.llm_scoring_enabled else "- LLM scoring adjustment: not used",
             f"- Objective completion: {evaluation.objective_completion:.0%}",
             f"- Evidence coverage: {evaluation.evidence_coverage:.0%}",
             f"- Citation grounding: {evaluation.citation_grounding:.0%}",
@@ -83,6 +85,9 @@ def build_report(
             f"- Mean claim confidence: {evaluation.mean_claim_confidence:.0%}",
         ]
     )
+
+    if evaluation.llm_scoring_enabled and evaluation.llm_score_rationale:
+        lines.extend(["", "### LLM Scoring Audit", evaluation.llm_score_rationale])
 
     if contradictions:
         lines.extend(["", "### Contradictions"])

@@ -276,6 +276,13 @@ The evaluator tracks:
 - open questions
 - final confidence
 
+Scoring has two layers:
+
+1. A deterministic base score combines objective completion, evidence coverage, source diversity, contradiction resolution, citation grounding, mean claim confidence, primary-authority coverage, and confidence stability. It subtracts penalties for open questions and blocked sources, then applies confidence caps for thin or weak evidence.
+2. When LLM reasoning is enabled, the central `evaluator_agent` performs a bounded scoring audit. It checks whether the claims actually answer the objective and whether cited excerpts support those claims. The LLM can adjust the deterministic score by at most `-8%` to `+4%`, and positive adjustments are blocked when open questions remain.
+
+The report and `metrics.json` record deterministic confidence, LLM adjustment, final confidence, and the LLM scoring rationale when the audit runs.
+
 The runtime stops when the research program is satisfied:
 
 ```text

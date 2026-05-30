@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from .models import Claim, Contradiction, Evaluation, Evidence, ResearchProgram, TuningParams
 
 
@@ -26,6 +28,7 @@ def evaluate(
     params: TuningParams | None = None,
     previous_evaluation: Evaluation | None = None,
     retrieval_metrics: dict | None = None,
+    reasoner: Any | None = None,
 ) -> Evaluation:
     params = params or TuningParams()
     evidence_by_id = {item.source_id: item for item in evidence}
@@ -58,6 +61,19 @@ def evaluate(
     overall = max(0.0, overall - open_question_penalty - blocked_source_penalty)
     confidence_cap = _confidence_cap(claims, evidence, retrieval_metrics)
     overall = min(overall, confidence_cap)
+    deterministic_overall = overall
+    llm_adjustment, llm_rationale = _llm_score_adjustment(
+        reasoner,
+        program,
+        claims,
+        evidence,
+        contradictions,
+        open_questions,
+        deterministic_overall,
+        confidence_cap,
+    )
+    if llm_adjustment:
+        overall = max(0.0, min(confidence_cap, overall + llm_adjustment))
     return Evaluation(
         iteration=iteration,
         objective_completion=round(objective_completion, 2),
@@ -74,6 +90,10 @@ def evaluate(
         confidence_cap=round(confidence_cap, 2),
         open_question_count=len(open_questions),
         overall_confidence=round(overall, 2),
+        deterministic_confidence=round(deterministic_overall, 2),
+        llm_scoring_enabled=bool(llm_rationale),
+        llm_score_adjustment=round(llm_adjustment, 2),
+        llm_score_rationale=llm_rationale,
     )
 
 
@@ -144,3 +164,70 @@ def _confidence_cap(claims: list[Claim], evidence: list[Evidence], retrieval_met
 
 def _is_primary_source(item: Evidence) -> bool:
     return item.source_type in PRIMARY_SOURCE_TYPES
+
+
+def _llm_score_adjustment(
+    reasoner: Any | None,
+    program: ResearchProgram,
+    claims: list[Claim],
+    evidence: list[Evidence],
+    contradictions: list[Contradiction],
+    open_questions: list[str],
+    deterministic_confidence: float,
+    confidence_cap: float,
+) -> tuple[float, str]:
+    if not reasoner or not getattr(reasoner, "enabled", False):
+        return 0.0, ""
+    evidence_by_id = {item.source_id: item for item in evidence}
+    payload = {
+        "objective": program.objective,
+        "deterministic_confidence": round(deterministic_confidence, 2),
+        "confidence_cap": round(confidence_cap, 2),
+        "claims": [
+            {
+                "claim_id": claim.claim_id,
+                "claim": claim.claim,
+                "status": claim.status,
+                "confidence": claim.confidence,
+                "supporting_sources": [
+                    {
+                        "source_id": source_id,
+                        "title": evidence_by_id[source_id].title,
+                        "source_type": evidence_by_id[source_id].source_type,
+                        "excerpt": evidence_by_id[source_id].excerpt[:450],
+                    }
+                    for source_id in claim.supporting_sources
+                    if source_id in evidence_by_id
+                ],
+            }
+            for claim in claims[:6]
+        ],
+        "contradictions": [contradiction.__dict__ for contradiction in contradictions[:6]],
+        "open_questions": open_questions[:8],
+    }
+    judgment = reasoner.reason_json(
+        "evaluator_agent",
+        (
+            "Audit the deterministic legal research score. Judge whether the claims actually answer "
+            "the objective and whether the cited excerpts support the claims. Return JSON with "
+            "{\"score_adjustment\": number, \"rationale\": \"...\"}. score_adjustment must be "
+            "between -0.08 and 0.04. Use negative adjustments for source-claim mismatch, evasive "
+            "claims, missing controlling authority, or material open questions. Use positive "
+            "adjustments only for clearly grounded, directly responsive research."
+        ),
+        payload,
+        timeout_seconds=20.0,
+    )
+    if not isinstance(judgment, dict):
+        return 0.0, ""
+    try:
+        adjustment = float(judgment.get("score_adjustment", 0.0))
+    except (TypeError, ValueError):
+        adjustment = 0.0
+    adjustment = max(-0.08, min(0.04, adjustment))
+    if open_questions and adjustment > 0:
+        adjustment = 0.0
+    rationale = str(judgment.get("rationale", "")).strip()[:500]
+    if not rationale:
+        rationale = "LLM scoring audit completed without rationale."
+    return adjustment, rationale

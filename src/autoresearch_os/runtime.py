@@ -217,10 +217,13 @@ class ResearchRuntime:
                     tuning_params,
                     previous_evaluation,
                     retrieval_metrics,
+                    reasoner,
                 )
                 span.record_output(
                     {
                         "overall_confidence": evaluation.overall_confidence,
+                        "deterministic_confidence": evaluation.deterministic_confidence,
+                        "llm_score_adjustment": evaluation.llm_score_adjustment,
                         "citation_grounding": evaluation.citation_grounding,
                         "primary_authority_coverage": evaluation.primary_authority_coverage,
                         "blocked_source_penalty": evaluation.blocked_source_penalty,
@@ -525,6 +528,9 @@ class ResearchRuntime:
             stop_conditions_met=did_stop,
             generated_artifacts=final_artifacts,
             raindrop_feedback=raindrop_feedback or {},
+            deterministic_confidence=evaluation.deterministic_confidence,
+            llm_scoring_enabled=evaluation.llm_scoring_enabled,
+            llm_score_adjustment=evaluation.llm_score_adjustment,
         )
 
     def _append_gap_tasks(self, tasks, open_questions):
