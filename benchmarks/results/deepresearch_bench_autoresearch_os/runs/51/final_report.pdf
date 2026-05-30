@@ -1,0 +1,276 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 4 0 R 5 0 R] /Count 3 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 9 0 R >> >> /Contents 6 0 R >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 9 0 R >> >> /Contents 7 0 R >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 9 0 R >> >> /Contents 8 0 R >>
+endobj
+6 0 obj
+<< /Length 1872 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(AutoResearch OS Grounded Legal Research Report) Tj
+T*
+() Tj
+T*
+(GROUNDED RESEARCH REPORT) Tj
+T*
+() Tj
+T*
+(EXECUTIVE SUMMARY) Tj
+T*
+(The runtime did not reach a well-supported conclusion yet.) Tj
+T*
+() Tj
+T*
+(OBJECTIVE) Tj
+T*
+(From 2020 to 2050, how many elderly people will there be in Japan? What is their consumption) Tj
+T*
+(potential across various aspects such as clothing, food, housing, and transportation? Based) Tj
+T*
+(on population projections, elderly consumer willingness, and potential changes in their) Tj
+T*
+(consumption habits, please produce a market size analysis report for the elderly) Tj
+T*
+(demographic.) Tj
+T*
+() Tj
+T*
+(FINDINGS) Tj
+T*
+(c001: The strongest answer will depend on source quality rather than source volume.) Tj
+T*
+(  - Status: weak) Tj
+T*
+(  - Confidence: 0%) Tj
+T*
+(  - Supporting sources: None) Tj
+T*
+(  - Contradicting sources: None) Tj
+T*
+() Tj
+T*
+(c002: Contradictions are likely to expose the most important follow-up questions.) Tj
+T*
+(  - Status: weak) Tj
+T*
+(  - Confidence: 0%) Tj
+T*
+(  - Supporting sources: None) Tj
+T*
+(  - Contradicting sources: None) Tj
+T*
+() Tj
+T*
+(c003: A sufficient answer must identify limits and uncertainty, not only a conclusion.) Tj
+T*
+(  - Status: weak) Tj
+T*
+(  - Confidence: 0%) Tj
+T*
+(  - Supporting sources: None) Tj
+T*
+(  - Contradicting sources: None) Tj
+T*
+() Tj
+T*
+(EVIDENCE TABLE) Tj
+T*
+(   Source    Type    Reliability    Excerpt) Tj
+T*
+(   ---    ---    ---:    ---) Tj
+T*
+() Tj
+T*
+(CONTRADICTIONS) Tj
+T*
+(  - No explicit contradictions detected.) Tj
+T*
+() Tj
+T*
+(CONFIDENCE SCORES) Tj
+T*
+(  - Objective completion: 0%) Tj
+T*
+(  - Evidence coverage: 0%) Tj
+T*
+(  - Source diversity: 0%) Tj
+T*
+(  - Primary authority coverage: 0%) Tj
+T*
+(  - Contradiction resolution: 100%) Tj
+T*
+(  - Citation grounding: 0%) Tj
+T*
+(  - Mean claim confidence: 0%) Tj
+T*
+ET
+endstream
+endobj
+7 0 obj
+<< /Length 1786 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(  - Weakest claim confidence: 0%) Tj
+T*
+(  - Confidence stability: 100%) Tj
+T*
+(  - Open-question penalty: -25%) Tj
+T*
+(  - Blocked-source penalty: -0%) Tj
+T*
+(  - Confidence cap: 82%) Tj
+T*
+(  - Overall confidence: 0%) Tj
+T*
+() Tj
+T*
+(RUN METRICS) Tj
+T*
+(  - Total runtime: 0.013 seconds) Tj
+T*
+(  - Iterations completed: 4) Tj
+T*
+(  - Agents spun off: 48) Tj
+T*
+(  - Tasks generated: 12) Tj
+T*
+(  - Hypotheses generated: 3) Tj
+T*
+(  - Evidence records collected: 0) Tj
+T*
+(  - Source categories: 0) Tj
+T*
+(  - Claims evaluated: 3) Tj
+T*
+(  - Supported claims: 0) Tj
+T*
+(  - Contradictions detected: 0) Tj
+T*
+(  - Contradictions resolved: 0) Tj
+T*
+(  - Open questions remaining: 6) Tj
+T*
+(  - Stop conditions met: False) Tj
+T*
+() Tj
+T*
+(Agent Breakdown) Tj
+T*
+(  - program_generator: 1) Tj
+T*
+(  - planner_orchestrator: 1) Tj
+T*
+(  - hypothesis_agent: 1) Tj
+T*
+(  - hypothesis_refinement_agent: 4) Tj
+T*
+(  - web_search_agent: 4) Tj
+T*
+(  - academic_agent: 4) Tj
+T*
+(  - legal_agent: 4) Tj
+T*
+(  - company_intelligence_agent: 4) Tj
+T*
+(  - social_signal_agent: 4) Tj
+T*
+(  - extraction_agent: 4) Tj
+T*
+(  - critic_agent: 4) Tj
+T*
+(  - evaluator_agent: 4) Tj
+T*
+(  - knowledge_gap_detector: 4) Tj
+T*
+(  - auto_tuner: 4) Tj
+T*
+(  - report_generator: 1) Tj
+T*
+() Tj
+T*
+(LIMITATIONS) Tj
+T*
+(  - This prototype uses deterministic baseline agents and a small built-in evidence fixture) Tj
+T*
+(for the demo domain.) Tj
+T*
+(  - A production deployment should replace the fixture with live legal, academic, web, and) Tj
+T*
+(company-intelligence search agents.) Tj
+T*
+() Tj
+T*
+(OPEN QUESTIONS) Tj
+T*
+(  - What additional authoritative evidence would resolve claim c001: The strongest answer) Tj
+T*
+(will depend on source quality rather than source volume.) Tj
+T*
+ET
+endstream
+endobj
+8 0 obj
+<< /Length 603 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(  - What additional authoritative evidence would resolve claim c002: Contradictions are) Tj
+T*
+(likely to expose the most important follow-up questions.) Tj
+T*
+(  - What additional authoritative evidence would resolve claim c003: A sufficient answer) Tj
+T*
+(must identify limits and uncertainty, not only a conclusion.) Tj
+T*
+(  - Are all program subquestions represented by explicit claims?) Tj
+T*
+(  - Critic follow-up: c001: no supporting evidence yet.) Tj
+T*
+(  - Critic follow-up: c001: confidence below support threshold \(0%\).) Tj
+T*
+() Tj
+T*
+(SOURCE LIST) Tj
+T*
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000127 00000 n 
+0000000253 00000 n 
+0000000379 00000 n 
+0000000505 00000 n 
+0000002429 00000 n 
+0000004267 00000 n 
+0000004921 00000 n 
+trailer
+<< /Size 10 /Root 1 0 R >>
+startxref
+4991
+%%EOF

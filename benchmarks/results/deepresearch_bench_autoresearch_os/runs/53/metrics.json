@@ -1,0 +1,478 @@
+{
+  "generated_at": "2026-05-30T23:14:48.626344+00:00",
+  "total_runtime_seconds": 0.011,
+  "component_metrics": {
+    "program_generation": {
+      "seconds": 0.0,
+      "agents": 1
+    },
+    "planning": {
+      "seconds": 0.0007,
+      "agents": 5
+    },
+    "hypothesis_generation": {
+      "seconds": 0.0003,
+      "agents": 1
+    },
+    "evidence_collection": {
+      "seconds": 0.0005,
+      "agents": 24
+    },
+    "claim_synthesis": {
+      "seconds": 0.0001,
+      "agents": 4
+    },
+    "critique": {
+      "seconds": 0.0004,
+      "agents": 4
+    },
+    "gap_detection": {
+      "seconds": 0.0,
+      "agents": 4
+    },
+    "evaluation": {
+      "seconds": 0.0001,
+      "agents": 4
+    },
+    "auto_tuning": {
+      "seconds": 0.0,
+      "agents": 4
+    },
+    "report_generation": {
+      "seconds": 0.0013,
+      "agents": 1
+    }
+  },
+  "iteration_history": [
+    {
+      "iteration": 1,
+      "overall_confidence": 0.0,
+      "objective_completion": 0.0,
+      "evidence_coverage": 0.0,
+      "citation_grounding": 0.0,
+      "primary_authority_coverage": 0.0,
+      "mean_claim_confidence": 0.0,
+      "weakest_claim_confidence": 0.0,
+      "confidence_stability": 0.0,
+      "open_question_penalty": 0.2,
+      "blocked_source_penalty": 0.0,
+      "confidence_cap": 0.82,
+      "contradiction_resolution": 1.0,
+      "source_diversity": 0.0,
+      "evidence_count": 0,
+      "contradictions": 0,
+      "open_questions": 4,
+      "status": "Continue",
+      "stop_conditions_met": false
+    },
+    {
+      "iteration": 2,
+      "overall_confidence": 0.0,
+      "objective_completion": 0.0,
+      "evidence_coverage": 0.0,
+      "citation_grounding": 0.0,
+      "primary_authority_coverage": 0.0,
+      "mean_claim_confidence": 0.0,
+      "weakest_claim_confidence": 0.0,
+      "confidence_stability": 1.0,
+      "open_question_penalty": 0.25,
+      "blocked_source_penalty": 0.0,
+      "confidence_cap": 0.82,
+      "contradiction_resolution": 1.0,
+      "source_diversity": 0.0,
+      "evidence_count": 0,
+      "contradictions": 0,
+      "open_questions": 5,
+      "status": "Continue",
+      "stop_conditions_met": false
+    },
+    {
+      "iteration": 3,
+      "overall_confidence": 0.0,
+      "objective_completion": 0.0,
+      "evidence_coverage": 0.0,
+      "citation_grounding": 0.0,
+      "primary_authority_coverage": 0.0,
+      "mean_claim_confidence": 0.0,
+      "weakest_claim_confidence": 0.0,
+      "confidence_stability": 1.0,
+      "open_question_penalty": 0.25,
+      "blocked_source_penalty": 0.0,
+      "confidence_cap": 0.82,
+      "contradiction_resolution": 1.0,
+      "source_diversity": 0.0,
+      "evidence_count": 0,
+      "contradictions": 0,
+      "open_questions": 6,
+      "status": "Continue",
+      "stop_conditions_met": false
+    },
+    {
+      "iteration": 4,
+      "overall_confidence": 0.0,
+      "objective_completion": 0.0,
+      "evidence_coverage": 0.0,
+      "citation_grounding": 0.0,
+      "primary_authority_coverage": 0.0,
+      "mean_claim_confidence": 0.0,
+      "weakest_claim_confidence": 0.0,
+      "confidence_stability": 1.0,
+      "open_question_penalty": 0.25,
+      "blocked_source_penalty": 0.0,
+      "confidence_cap": 0.82,
+      "contradiction_resolution": 1.0,
+      "source_diversity": 0.0,
+      "evidence_count": 0,
+      "contradictions": 0,
+      "open_questions": 6,
+      "status": "Continue",
+      "stop_conditions_met": false
+    }
+  ],
+  "retrieval_metrics": {
+    "enabled": false,
+    "attempted_urls": 0,
+    "successful_urls": 0,
+    "failed_urls": 0,
+    "blocked_sources": 0,
+    "blocked_urls": [],
+    "block_reasons": {},
+    "retrieved_urls": [],
+    "errors": {},
+    "fallback_used": false,
+    "modal_enabled": false
+  },
+  "agent_traces": [
+    {
+      "name": "hypothesis_agent",
+      "goal": "Generate and refine candidate legal theories.",
+      "tools": [
+        "generate_baseline_hypotheses"
+      ],
+      "steps": [
+        "tool:generate_baseline_hypotheses",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 3
+    },
+    {
+      "name": "knowledge_agent_pool",
+      "goal": "Retrieve real sources and extract structured evidence.",
+      "tools": [
+        "collect_evidence"
+      ],
+      "steps": [
+        "tool:collect_evidence",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 0
+    },
+    {
+      "name": "critic_agent",
+      "goal": "Attack claims, find gaps, and surface contradictions.",
+      "tools": [
+        "critique_claims"
+      ],
+      "steps": [
+        "tool:critique_claims",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 6
+    },
+    {
+      "name": "hypothesis_refinement_agent",
+      "goal": "Revise hypotheses from critic, evidence, and knowledge-gap feedback.",
+      "tools": [],
+      "steps": [
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 3
+    },
+    {
+      "name": "knowledge_agent_pool",
+      "goal": "Retrieve real sources and extract structured evidence.",
+      "tools": [
+        "collect_evidence"
+      ],
+      "steps": [
+        "tool:collect_evidence",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 0
+    },
+    {
+      "name": "critic_agent",
+      "goal": "Attack claims, find gaps, and surface contradictions.",
+      "tools": [
+        "critique_claims"
+      ],
+      "steps": [
+        "tool:critique_claims",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 6
+    },
+    {
+      "name": "knowledge_agent_pool",
+      "goal": "Retrieve real sources and extract structured evidence.",
+      "tools": [
+        "collect_evidence"
+      ],
+      "steps": [
+        "tool:collect_evidence",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 0
+    },
+    {
+      "name": "critic_agent",
+      "goal": "Attack claims, find gaps, and surface contradictions.",
+      "tools": [
+        "critique_claims"
+      ],
+      "steps": [
+        "tool:critique_claims",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 6
+    },
+    {
+      "name": "hypothesis_refinement_agent",
+      "goal": "Revise hypotheses from critic, evidence, and knowledge-gap feedback.",
+      "tools": [],
+      "steps": [
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 3
+    },
+    {
+      "name": "knowledge_agent_pool",
+      "goal": "Retrieve real sources and extract structured evidence.",
+      "tools": [
+        "collect_evidence"
+      ],
+      "steps": [
+        "tool:collect_evidence",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 0
+    },
+    {
+      "name": "critic_agent",
+      "goal": "Attack claims, find gaps, and surface contradictions.",
+      "tools": [
+        "critique_claims"
+      ],
+      "steps": [
+        "tool:critique_claims",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 6
+    },
+    {
+      "name": "knowledge_agent_pool",
+      "goal": "Retrieve real sources and extract structured evidence.",
+      "tools": [
+        "collect_evidence"
+      ],
+      "steps": [
+        "tool:collect_evidence",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 0
+    },
+    {
+      "name": "critic_agent",
+      "goal": "Attack claims, find gaps, and surface contradictions.",
+      "tools": [
+        "critique_claims"
+      ],
+      "steps": [
+        "tool:critique_claims",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 6
+    },
+    {
+      "name": "hypothesis_refinement_agent",
+      "goal": "Revise hypotheses from critic, evidence, and knowledge-gap feedback.",
+      "tools": [],
+      "steps": [
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 3
+    },
+    {
+      "name": "knowledge_agent_pool",
+      "goal": "Retrieve real sources and extract structured evidence.",
+      "tools": [
+        "collect_evidence"
+      ],
+      "steps": [
+        "tool:collect_evidence",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 0
+    },
+    {
+      "name": "critic_agent",
+      "goal": "Attack claims, find gaps, and surface contradictions.",
+      "tools": [
+        "critique_claims"
+      ],
+      "steps": [
+        "tool:critique_claims",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 6
+    },
+    {
+      "name": "knowledge_agent_pool",
+      "goal": "Retrieve real sources and extract structured evidence.",
+      "tools": [
+        "collect_evidence"
+      ],
+      "steps": [
+        "tool:collect_evidence",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 0
+    },
+    {
+      "name": "critic_agent",
+      "goal": "Attack claims, find gaps, and surface contradictions.",
+      "tools": [
+        "critique_claims"
+      ],
+      "steps": [
+        "tool:critique_claims",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 6
+    },
+    {
+      "name": "hypothesis_refinement_agent",
+      "goal": "Revise hypotheses from critic, evidence, and knowledge-gap feedback.",
+      "tools": [],
+      "steps": [
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 3
+    },
+    {
+      "name": "knowledge_agent_pool",
+      "goal": "Retrieve real sources and extract structured evidence.",
+      "tools": [
+        "collect_evidence"
+      ],
+      "steps": [
+        "tool:collect_evidence",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 0
+    },
+    {
+      "name": "critic_agent",
+      "goal": "Attack claims, find gaps, and surface contradictions.",
+      "tools": [
+        "critique_claims"
+      ],
+      "steps": [
+        "tool:critique_claims",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 6
+    }
+  ],
+  "llm_reasoning_enabled": true,
+  "llm_model": "gpt-5-mini",
+  "iterations_completed": 4,
+  "agents_spun_off": 48,
+  "agent_breakdown": {
+    "program_generator": 1,
+    "planner_orchestrator": 1,
+    "hypothesis_agent": 1,
+    "hypothesis_refinement_agent": 4,
+    "web_search_agent": 4,
+    "academic_agent": 4,
+    "legal_agent": 4,
+    "company_intelligence_agent": 4,
+    "social_signal_agent": 4,
+    "extraction_agent": 4,
+    "critic_agent": 4,
+    "evaluator_agent": 4,
+    "knowledge_gap_detector": 4,
+    "auto_tuner": 4,
+    "report_generator": 1
+  },
+  "tasks_count": 12,
+  "hypotheses_count": 3,
+  "evidence_count": 0,
+  "source_type_count": 0,
+  "claims_count": 3,
+  "supported_claims_count": 0,
+  "contradictions_count": 0,
+  "resolved_contradictions_count": 0,
+  "open_questions_count": 6,
+  "final_confidence": 0.0,
+  "stop_conditions_met": false,
+  "generated_artifacts": [
+    "program.md",
+    "legal_metadata.json",
+    "tuning_params.json",
+    "tasks.json",
+    "hypotheses.json",
+    "claims.json",
+    "evidence/",
+    "contradictions.json",
+    "confidence_scores.json",
+    "open_questions.json",
+    "metrics.json",
+    "agent_skills.json",
+    "final_report.md",
+    "final_report.html",
+    "final_report.pdf"
+  ]
+}

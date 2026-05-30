@@ -1,0 +1,17 @@
+{
+  "iteration": 3,
+  "objective_completion": 0.0,
+  "evidence_coverage": 0.0,
+  "source_diversity": 0.0,
+  "primary_authority_coverage": 0.0,
+  "contradiction_resolution": 1.0,
+  "citation_grounding": 0.0,
+  "mean_claim_confidence": 0.0,
+  "weakest_claim_confidence": 0.0,
+  "confidence_stability": 1.0,
+  "open_question_penalty": 0.25,
+  "blocked_source_penalty": 0.0,
+  "confidence_cap": 0.82,
+  "open_question_count": 6,
+  "overall_confidence": 0.0
+}

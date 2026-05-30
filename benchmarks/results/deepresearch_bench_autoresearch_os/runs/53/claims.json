@@ -1,0 +1,29 @@
+[
+  {
+    "claim_id": "c001",
+    "claim": "The strongest answer will depend on source quality rather than source volume.",
+    "supporting_sources": [],
+    "contradicting_sources": [],
+    "confidence": 0.0,
+    "status": "weak",
+    "objective_refs": []
+  },
+  {
+    "claim_id": "c002",
+    "claim": "Contradictions are likely to expose the most important follow-up questions.",
+    "supporting_sources": [],
+    "contradicting_sources": [],
+    "confidence": 0.0,
+    "status": "weak",
+    "objective_refs": []
+  },
+  {
+    "claim_id": "c003",
+    "claim": "A sufficient answer must identify limits and uncertainty, not only a conclusion.",
+    "supporting_sources": [],
+    "contradicting_sources": [],
+    "confidence": 0.0,
+    "status": "weak",
+    "objective_refs": []
+  }
+]

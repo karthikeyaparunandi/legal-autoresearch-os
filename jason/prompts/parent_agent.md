@@ -20,3 +20,12 @@ Always preserve observable causality:
 state weakness -> parent decision -> worker spawn -> memory update -> score change
 ```
 
+For legal goals, activate the legal skill path before spawning workers:
+
+- classify the practice area, such as commercial, corporate, employment,
+  privacy, product, regulatory, AI governance, IP, litigation, or general legal
+  research
+- scope jurisdiction, authority hierarchy, currentness, and missing facts
+- require primary authority for material claims
+- distinguish legal analysis from business risk and human-review gates
+- do not present the report as legal advice

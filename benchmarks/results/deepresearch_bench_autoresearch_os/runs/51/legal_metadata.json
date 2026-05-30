@@ -1,0 +1,22 @@
+{
+  "domain": "legal",
+  "jurisdiction": "United States",
+  "practice_area": "copyright and software",
+  "authority_hierarchy": [
+    "statute",
+    "binding_case_law",
+    "agency_guidance",
+    "persuasive_case_law",
+    "secondary_source",
+    "expert_analysis"
+  ],
+  "required_source_types": [
+    "statute",
+    "case_law",
+    "agency_guidance"
+  ],
+  "citation_style": "source_id plus URL",
+  "risk_posture": "startup decision support, not legal advice",
+  "temporal_sensitivity": "high",
+  "uncertainty_policy": "Surface unsettled doctrine, jurisdiction limits, and missing primary authority."
+}

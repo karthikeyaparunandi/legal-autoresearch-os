@@ -1,0 +1,20 @@
+[
+  {
+    "hypothesis_id": "h001",
+    "statement": "The strongest answer will depend on source quality rather than source volume.",
+    "rationale": "Research confidence needs authoritative evidence.",
+    "status": "open"
+  },
+  {
+    "hypothesis_id": "h002",
+    "statement": "Contradictions are likely to expose the most important follow-up questions.",
+    "rationale": "Unresolved conflicts drive the next research tasks.",
+    "status": "open"
+  },
+  {
+    "hypothesis_id": "h003",
+    "statement": "A sufficient answer must identify limits and uncertainty, not only a conclusion.",
+    "rationale": "Research reports should be decision-grade.",
+    "status": "open"
+  }
+]
