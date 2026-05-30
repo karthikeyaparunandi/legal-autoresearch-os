@@ -146,14 +146,19 @@ def build_report(
     return "\n".join(lines) + "\n"
 
 def _executive_summary(claims: list[Claim], evaluation: Evaluation) -> str:
-    supported = [claim.claim for claim in claims if claim.status == "supported"]
+    supported = [claim for claim in claims if claim.status == "supported"]
     if not supported:
         return "The runtime did not reach a well-supported conclusion yet."
-    answer = " ".join(supported[:2])
+    answer = " ".join(_claim_with_citations(claim) for claim in supported[:2])
     return (
         f"Based on the cited authorities, the answer is supported at "
         f"{evaluation.overall_confidence:.0%} confidence: {answer}"
     )
+
+
+def _claim_with_citations(claim: Claim) -> str:
+    citations = " ".join(f"[{_citation_label(source_id)}]" for source_id in claim.supporting_sources[:3])
+    return f"{claim.claim} {citations}".strip()
 
 
 def _citation_label(source_id: str) -> str:

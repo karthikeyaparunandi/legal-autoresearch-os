@@ -1,6 +1,6 @@
 # Modal Agents Reference
 
-AutoResearch OS uses the same high-level scaling idea as `modal-labs/openai-agents-python-example`: keep one orchestrator in charge of the research state, then fan out bounded worker jobs on Modal.
+Legal AutoResearch OS uses the same high-level scaling idea as `modal-labs/openai-agents-python-example`: keep one orchestrator in charge of the research state, then fan out bounded worker jobs on Modal.
 
 ## Reference Pattern
 
@@ -12,9 +12,9 @@ The Modal example is a general-purpose coding-agent harness with:
 - Modal-backed sandboxes for isolated long-running work
 - skills that give workers domain-specific guidance
 
-## AutoResearch OS Adaptation
+## Legal AutoResearch OS Adaptation
 
-AutoResearch OS applies that pattern to legal research:
+Legal AutoResearch OS applies that pattern to legal research:
 
 - `ResearchRuntime` is the orchestrator. It owns `program.md`, task planning, truth-maintenance state, evaluation, tuning, and reporting.
 - `hypothesis_agent`, `critic_agent`, and `knowledge_agent_pool` are the local role agents. They have explicit goals, tools, loop steps, traces, and OpenAI Agents SDK reasoning calls.

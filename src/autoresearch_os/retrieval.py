@@ -154,7 +154,7 @@ def fetch_url_text(url: str, timeout_seconds: float = 8.0) -> tuple[str, str]:
     request = Request(
         url,
         headers={
-            "User-Agent": "AutoResearchOS/0.1 legal research prototype",
+            "User-Agent": "LegalAutoResearchOS/0.1 legal research prototype",
             "Accept": "text/html,application/xhtml+xml,text/plain;q=0.9,*/*;q=0.5",
         },
     )
@@ -240,7 +240,7 @@ def _search_web(query: str, timeout_seconds: float = 8.0) -> list[str]:
     request = Request(
         url,
         headers={
-            "User-Agent": "AutoResearchOS/0.1 legal research prototype",
+            "User-Agent": "LegalAutoResearchOS/0.1 legal research prototype",
             "Accept": "text/html,application/xhtml+xml,text/plain;q=0.9,*/*;q=0.5",
         },
     )

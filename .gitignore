@@ -7,8 +7,13 @@ dist/
 build/
 *.egg-info/
 gt_repo/
+*_gt_repo/
 demo_gt_repo/
 demo_gt_repo*/
+demo_report_polish/
+*_report_check/
+web_search_smoke*/
+modal_url_smoke/
 agent_skills.json
 .env.local
 .DS_Store

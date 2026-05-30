@@ -65,7 +65,7 @@ class CentralReasoner:
             name=agent_name,
             model=self.model,
             instructions=(
-                "You are an OpenAI Agents SDK role agent inside AutoResearch OS, a legal "
+                "You are an OpenAI Agents SDK role agent inside Legal AutoResearch OS, a legal "
                 "research control system. Reason carefully, prefer primary authority, "
                 "identify uncertainty, and output compact JSON that the runtime can consume."
             ),

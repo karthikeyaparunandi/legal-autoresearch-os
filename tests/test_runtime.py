@@ -51,7 +51,7 @@ def test_runtime_writes_truth_maintenance_repo(tmp_path):
     assert "## Raindrop Feedback" in report
     assert "## Appendix: Research Trace" in report
     html = (tmp_path / "gt_repo" / "final_report.html").read_text(encoding="utf-8")
-    assert "<title>AutoResearch OS Legal Research Report</title>" in html
+    assert "<title>Legal AutoResearch OS Research Report</title>" in html
     assert "Question Presented" in html
     assert "Short Answer" in html
     assert "Raindrop Feedback" in html

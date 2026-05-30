@@ -1,12 +1,12 @@
-# AutoResearch OS
+# Legal AutoResearch OS
 
-AutoResearch OS is a legal autoresearch runtime for the Modal Autoresearch Systems Hackathon. It turns a user goal into an executable research program, runs specialized agents through an iterative control loop, maintains a persistent truth repository, evaluates convergence, and emits a grounded report with citations, metrics, and a reasoning trace.
+Legal AutoResearch OS is a legal research control system for the Modal Autoresearch Systems Hackathon. It turns a legal question into an executable research program, runs specialized agents through hypothesis/evidence/critic loops, maintains a persistent truth repository, evaluates convergence, and emits a grounded legal memo with citations, metrics, and a reasoning trace.
 
 The prototype is intentionally narrowed to legal research. Each run records legal metadata such as jurisdiction, practice area, authority hierarchy, required source types, citation policy, risk posture, and uncertainty policy.
 
 ## The Idea
 
-AutoResearch OS is not just an agent with memory. It is a research control system that keeps improving a structured research state until measurable objectives are satisfied.
+Legal AutoResearch OS is not just an agent with memory. It is a research control system that keeps improving a structured legal research state until measurable objectives are satisfied.
 
 ```text
 Research
@@ -122,7 +122,7 @@ flowchart LR
     eval --> gaps["Knowledge Gap Detector"]
     gaps --> converged{"Research State<br/>Converged?"}
     converged -- "No: new tasks" --> runtime
-    converged -- "Yes" --> report["Grounded Report<br/>HTML · PDF · Markdown"]
+    converged -- "Yes" --> report["Grounded Legal Memo<br/>HTML · PDF · Markdown"]
 ```
 
 ### Runtime Detail
@@ -299,7 +299,7 @@ The runtime also stops early when the research state plateaus: if confidence, ev
 
 ## Legal Metadata And Tuning
 
-Legal quality depends on different assumptions than generic web research. AutoResearch OS records those assumptions in `program.md` and `legal_metadata.json`:
+Legal quality depends on different assumptions than generic web research. Legal AutoResearch OS records those assumptions in `program.md` and `legal_metadata.json`:
 
 - jurisdiction and practice area
 - legal authority hierarchy
@@ -349,7 +349,7 @@ The shared `agent_skills.json` is intentionally ignored by git because it is loc
 
 ## Raindrop Workshop Tracing
 
-Raindrop Workshop is optional, but it is the best debugging surface for the whole control loop. When `--raindrop` is enabled, AutoResearch OS records each major research phase as a Raindrop tool span. Useful spans include:
+Raindrop Workshop is optional, but it is the best debugging surface for the whole control loop. When `--raindrop` is enabled, Legal AutoResearch OS records each major research phase as a Raindrop tool span. Useful spans include:
 
 - `program_generator`
 - `planner_orchestrator`

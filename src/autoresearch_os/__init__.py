@@ -1,4 +1,4 @@
-"""AutoResearch OS: self-evaluating autonomous research runtime."""
+"""Legal AutoResearch OS: self-evaluating legal research control system."""
 
 __all__ = ["__version__"]
 

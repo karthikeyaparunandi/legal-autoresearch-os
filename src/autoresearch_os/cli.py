@@ -26,7 +26,7 @@ RED = "\033[31m"
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="autoresearch", description="Run the AutoResearch OS control loop.")
+    parser = argparse.ArgumentParser(prog="autoresearch", description="Run the Legal AutoResearch OS control loop.")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     run_parser = subparsers.add_parser("run", help="Run a research program for a goal.")

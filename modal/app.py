@@ -1,4 +1,4 @@
-"""Modal acceleration for AutoResearch OS live retrieval.
+"""Modal acceleration for Legal AutoResearch OS live retrieval.
 
 Install and authenticate Modal separately:
 
@@ -47,7 +47,7 @@ except ImportError:  # Keeps the local repo dependency-free.
 
 if modal:
     app_factory = getattr(modal, "App", None) or getattr(modal, "Stub", None)
-    app = app_factory("autoresearch-os")
+    app = app_factory("legal-autoresearch-os")
     image = (
         modal.Image.debian_slim(python_version="3.12")
         .pip_install("openai-agents>=0.3.0")

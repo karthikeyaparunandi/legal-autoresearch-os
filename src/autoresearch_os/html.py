@@ -114,13 +114,13 @@ def write_research_html(
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AutoResearch OS Legal Research Report</title>
+  <title>Legal AutoResearch OS Research Report</title>
   <style>{_report_css()}</style>
 </head>
 <body>
 <main>
   <header class="memo-header">
-    <p class="eyebrow">AutoResearch OS · Legal Research Memo</p>
+    <p class="eyebrow">Legal AutoResearch OS · Legal Research Memo</p>
     <h1>Legal Research Report</h1>
     <section class="question-panel" aria-label="Question presented">
       <span>Question Presented</span>
@@ -128,7 +128,7 @@ def write_research_html(
     </section>
     <section class="short-answer" aria-label="Short answer">
       <h2>Short Answer</h2>
-      <p>{escape(_executive_summary(claims, evaluation))}</p>
+      <p>{_executive_summary_html(claims, evidence_by_id, evaluation)}</p>
     </section>
     <div class="artifact-links">
       <a href="final_report.md">Markdown</a>
@@ -578,12 +578,27 @@ def _list_block(items: list[str]) -> str:
 
 
 def _executive_summary(claims: list[Claim], evaluation: Evaluation) -> str:
-    supported = [claim.claim for claim in claims if claim.status == "supported"]
+    supported = [claim for claim in claims if claim.status == "supported"]
     if not supported:
         return "The runtime did not reach a well-supported conclusion yet."
-    answer = " ".join(supported[:2])
+    answer = " ".join(claim.claim for claim in supported[:2])
     return (
         f"Based on the cited authorities, the answer is supported at "
+        f"{evaluation.overall_confidence:.0%} confidence: {answer}"
+    )
+
+
+def _executive_summary_html(claims: list[Claim], evidence_by_id: dict[str, Evidence], evaluation: Evaluation) -> str:
+    supported = [claim for claim in claims if claim.status == "supported"]
+    if not supported:
+        return "The runtime did not reach a well-supported conclusion yet."
+    cited_claims = []
+    for claim in supported[:2]:
+        citations = " ".join(_citation(source_id, evidence_by_id) for source_id in claim.supporting_sources[:3])
+        cited_claims.append(f"{escape(claim.claim)} {citations}".strip())
+    answer = " ".join(cited_claims)
+    return (
+        "Based on the cited authorities, the answer is supported at "
         f"{evaluation.overall_confidence:.0%} confidence: {answer}"
     )
 
