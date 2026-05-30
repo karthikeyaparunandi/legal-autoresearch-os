@@ -163,6 +163,11 @@ def write_research_html(
   </section>
 
   <section class="memo-section">
+    <h2>Raindrop Feedback</h2>
+    {_raindrop_feedback_block(metrics)}
+  </section>
+
+  <section class="memo-section">
     <h2>Sources</h2>
     <ol class="sources">
       {"".join(_source_item(item) for item in evidence)}
@@ -436,6 +441,26 @@ def _retrieval_table(metrics: RunMetrics) -> str:
     if blocked_rows:
         table += f"<h3>Blocked Sources</h3><ul>{blocked_rows}</ul>"
     return table
+
+
+def _raindrop_feedback_block(metrics: RunMetrics) -> str:
+    feedback = metrics.raindrop_feedback
+    if not feedback:
+        return "<p>No Raindrop feedback was generated for this run.</p>"
+    trace_focus = ", ".join(feedback.get("trace_focus", [])) or "none"
+    findings = _list_block([str(item) for item in feedback.get("findings", [])])
+    recommendations = _list_block([str(item) for item in feedback.get("recommendations", [])])
+    return (
+        "<table><tbody>"
+        f"<tr><th>Verdict</th><td>{escape(str(feedback.get('verdict', 'unknown')))}</td></tr>"
+        f"<tr><th>Summary</th><td>{escape(str(feedback.get('summary', '')))}</td></tr>"
+        f"<tr><th>Trace focus</th><td>{escape(trace_focus)}</td></tr>"
+        "</tbody></table>"
+        "<h3>Findings</h3>"
+        f"{findings}"
+        "<h3>Recommended Next Steps</h3>"
+        f"{recommendations}"
+    )
 
 
 def _iteration_history_table(metrics: RunMetrics) -> str:

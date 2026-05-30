@@ -14,6 +14,7 @@ from .models import Evaluation, RunMetrics, write_json
 from .pdf import write_pdf
 from .planner import plan_tasks
 from .program import generate_program, program_to_markdown
+from .raindrop_feedback import build_raindrop_feedback
 from .raindrop_tracing import RaindropTracer
 from .report import build_report
 from .skills import load_agent_skills, skills_path_for, update_agent_skills
@@ -35,6 +36,7 @@ BASE_AGENT_BREAKDOWN = {
     "evaluator_agent": 1,
     "knowledge_gap_detector": 1,
     "auto_tuner": 1,
+    "raindrop_feedback_agent": 1,
     "report_generator": 1,
 }
 
@@ -72,6 +74,7 @@ class ResearchRuntime:
             "gap_detection": 0.0,
             "evaluation": 0.0,
             "auto_tuning": 0.0,
+            "raindrop_feedback": 0.0,
             "report_generation": 0.0,
         }
         seed_texts = seed_texts or []
@@ -276,6 +279,7 @@ class ResearchRuntime:
             "open_questions.json",
             "metrics.json",
             "agent_skills.json",
+            "raindrop_feedback.json",
             "final_report.md",
             "final_report.html",
             "final_report.pdf",
@@ -300,6 +304,49 @@ class ResearchRuntime:
             reasoner.model,
             tracer.enabled,
             tracer.model_name if tracer.enabled else None,
+        )
+        timer = time.perf_counter()
+        with tracer.span(
+            "raindrop_feedback_agent",
+            {
+                "overall_confidence": metrics.final_confidence,
+                "open_questions": metrics.open_questions_count,
+                "stop_conditions_met": metrics.stop_conditions_met,
+            },
+        ) as span:
+            raindrop_feedback = build_raindrop_feedback(metrics)
+            write_json(self.out_dir / "raindrop_feedback.json", raindrop_feedback)
+            span.record_output(
+                {
+                    "verdict": raindrop_feedback["verdict"],
+                    "recommendations": len(raindrop_feedback["recommendations"]),
+                    "trace_focus": raindrop_feedback["trace_focus"],
+                }
+            )
+        component_seconds["raindrop_feedback"] += time.perf_counter() - timer
+
+        elapsed = time.perf_counter() - started_at
+        metrics = self._build_metrics(
+            elapsed,
+            iterations_completed,
+            tasks,
+            hypotheses,
+            evidence,
+            claims,
+            contradictions,
+            open_questions,
+            evaluation,
+            stop_conditions_met(program, evaluation),
+            final_artifacts,
+            component_seconds,
+            iteration_history,
+            retrieval_metrics,
+            agent_traces,
+            reasoner.enabled,
+            reasoner.model,
+            tracer.enabled,
+            tracer.model_name if tracer.enabled else None,
+            raindrop_feedback,
         )
         timer = time.perf_counter()
         with tracer.span("report_generator", {"artifacts": final_artifacts}) as span:
@@ -328,6 +375,7 @@ class ResearchRuntime:
             reasoner.model,
             tracer.enabled,
             tracer.model_name if tracer.enabled else None,
+            raindrop_feedback,
         )
         write_json(self.out_dir / "metrics.json", metrics)
         self._write_final_outputs(program, claims, evidence, contradictions, open_questions, evaluation, metrics)
@@ -408,8 +456,9 @@ class ResearchRuntime:
         llm_model,
         raindrop_enabled,
         raindrop_target,
+        raindrop_feedback=None,
     ) -> RunMetrics:
-        one_shot_agents = {"program_generator", "planner_orchestrator", "hypothesis_agent", "report_generator"}
+        one_shot_agents = {"program_generator", "planner_orchestrator", "hypothesis_agent", "raindrop_feedback_agent", "report_generator"}
         agent_breakdown = {
             name: count if name in one_shot_agents else count * iterations_completed
             for name, count in BASE_AGENT_BREAKDOWN.items()
@@ -439,6 +488,7 @@ class ResearchRuntime:
             "gap_detection": agent_breakdown["knowledge_gap_detector"],
             "evaluation": agent_breakdown["evaluator_agent"],
             "auto_tuning": agent_breakdown["auto_tuner"],
+            "raindrop_feedback": agent_breakdown["raindrop_feedback_agent"],
             "report_generation": agent_breakdown["report_generator"],
         }
         component_metrics = {
@@ -474,6 +524,7 @@ class ResearchRuntime:
             final_confidence=evaluation.overall_confidence,
             stop_conditions_met=did_stop,
             generated_artifacts=final_artifacts,
+            raindrop_feedback=raindrop_feedback or {},
         )
 
     def _append_gap_tasks(self, tasks, open_questions):

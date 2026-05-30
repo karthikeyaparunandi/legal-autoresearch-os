@@ -55,6 +55,21 @@ def build_report(
     )
     lines.extend([f"- {question}" for question in open_questions] or ["- None."])
 
+    if metrics and metrics.raindrop_feedback:
+        feedback = metrics.raindrop_feedback
+        lines.extend(
+            [
+                "",
+                "## Raindrop Feedback",
+                f"- Verdict: {feedback.get('verdict', 'unknown')}",
+                f"- Summary: {feedback.get('summary', 'No feedback summary available.')}",
+                f"- Trace focus: {', '.join(feedback.get('trace_focus', [])) or 'none'}",
+                "",
+                "### Recommended Next Steps",
+            ]
+        )
+        lines.extend([f"- {item}" for item in feedback.get("recommendations", [])] or ["- None."])
+
     lines.extend(
         [
             "",

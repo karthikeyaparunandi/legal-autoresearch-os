@@ -121,6 +121,7 @@ def _format_metrics(metrics: dict) -> str:
         ("LLM model", metrics.get("llm_model") or "none"),
         ("Raindrop tracing", "enabled" if metrics.get("raindrop_tracing_enabled") else "disabled"),
         ("Raindrop target", metrics.get("raindrop_target") or "none"),
+        ("Raindrop feedback", metrics.get("raindrop_feedback", {}).get("verdict", "none")),
     ]
     retrieval = metrics.get("retrieval_metrics", {})
     retrieval_rows = [

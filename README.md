@@ -239,6 +239,7 @@ gt_repo/
   contradictions.json
   confidence_scores.json
   metrics.json
+  raindrop_feedback.json
   open_questions.json
   evals/
   final_report.md
@@ -321,6 +322,7 @@ The CLI, `metrics.json`, Markdown report, HTML report, and PDF report include:
 - retrieval metrics
 - agent tool-loop traces
 - Raindrop tracing status
+- Raindrop feedback verdict and next-step recommendations
 - final confidence
 - stop-condition status
 
@@ -352,9 +354,12 @@ Raindrop Workshop is optional, but it is the best debugging surface for the whol
 - `hypothesis_refinement_agent`
 - `evaluator_agent`
 - `auto_tuner`
+- `raindrop_feedback_agent`
 - `report_generator`
 
 For example, the `knowledge_agent_pool` span records URL attempts, retrieved URLs, blocked/CAPTCHA sources, and fallback usage. The `evaluator_agent` span records confidence, citation grounding, primary-authority coverage, blocked-source penalty, and confidence cap. This makes Raindrop useful for explaining why the system trusted or distrusted a research result.
+
+After evaluation, the `raindrop_feedback_agent` turns the trace-shaped metrics into a concrete feedback artifact. It writes `raindrop_feedback.json`, adds a Raindrop Feedback section to the report, and recommends next-run actions such as enabling live retrieval, adding source URLs, increasing iterations, or inspecting specific Workshop spans.
 
 ## Modal Acceleration
 

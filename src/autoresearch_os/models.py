@@ -163,6 +163,7 @@ class RunMetrics:
     final_confidence: float
     stop_conditions_met: bool
     generated_artifacts: list[str]
+    raindrop_feedback: dict[str, Any] = field(default_factory=dict)
 
 
 def to_jsonable(value: Any) -> Any:

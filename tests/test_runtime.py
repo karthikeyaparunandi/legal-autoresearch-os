@@ -37,19 +37,24 @@ def test_runtime_writes_truth_maintenance_repo(tmp_path):
     assert metrics["iteration_history"][-1]["status"] in {"Continue", "Converged"}
     assert metrics["retrieval_metrics"]["enabled"] is False
     assert metrics["llm_reasoning_enabled"] is False
+    assert metrics["raindrop_feedback"]["verdict"] == "converged"
+    assert "evaluator_agent" in metrics["raindrop_feedback"]["trace_focus"]
     assert metrics["agent_traces"]
     assert metrics["agent_traces"][0]["tools"]
     assert (tmp_path / "gt_repo" / "claims.json").exists()
     assert (tmp_path / "gt_repo" / "evidence" / "iteration_001.json").exists()
+    assert (tmp_path / "gt_repo" / "raindrop_feedback.json").exists()
     report = (tmp_path / "gt_repo" / "final_report.md").read_text(encoding="utf-8")
     assert report.startswith("# Legal Research Report")
     assert "## Question Presented" in report
     assert "Can AI-generated code be copyrighted in the United States?" in report
+    assert "## Raindrop Feedback" in report
     assert "## Appendix: Research Trace" in report
     html = (tmp_path / "gt_repo" / "final_report.html").read_text(encoding="utf-8")
     assert "<title>AutoResearch OS Legal Research Report</title>" in html
     assert "Question Presented" in html
     assert "Short Answer" in html
+    assert "Raindrop Feedback" in html
     assert "Reasoning and rationale path" in html
     assert "<h3>Convergence Progress</h3>" in html
     assert "<h3>Component Metrics</h3>" in html
@@ -67,6 +72,9 @@ def test_runtime_auto_tunes_params_for_weak_research_state(tmp_path):
 
     params = json.loads((tmp_path / "gt_repo" / "tuning_params.json").read_text(encoding="utf-8"))
     assert params["min_primary_sources"] > 2
+    feedback = json.loads((tmp_path / "gt_repo" / "raindrop_feedback.json").read_text(encoding="utf-8"))
+    assert feedback["verdict"] == "needs_iteration"
+    assert feedback["next_run"]["enable_live_retrieval"] is True
 
 
 def test_runtime_persists_and_reuses_agent_skills(tmp_path):
@@ -368,6 +376,7 @@ def test_cli_metrics_formatter_shows_full_summary():
             "llm_model": None,
             "raindrop_tracing_enabled": False,
             "raindrop_target": None,
+            "raindrop_feedback": {"verdict": "converged"},
             "agent_traces": [
                 {
                     "name": "hypothesis_agent",
@@ -417,6 +426,7 @@ def test_cli_metrics_formatter_shows_full_summary():
     assert "Convergence Progress" in output
     assert "Live Retrieval" in output
     assert "Raindrop tracing" in output
+    assert "Raindrop feedback" in output
     assert "Agents spun off" in output
     assert "24" in output
     assert "Hypotheses" in output
