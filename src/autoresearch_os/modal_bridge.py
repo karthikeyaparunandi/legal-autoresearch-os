@@ -19,6 +19,8 @@ def evaluate_hypotheses_with_modal(
     live_retrieval: bool,
     source_urls: list[str],
     tuning_params: TuningParams,
+    api_key: str | None = None,
+    llm_model: str | None = None,
 ) -> tuple[list[Evidence], list[Claim], list[Contradiction], list[str], dict]:
     modal_app = _load_modal_app()
     if not getattr(modal_app, "modal", None):
@@ -32,6 +34,8 @@ def evaluate_hypotheses_with_modal(
             "live_retrieval": live_retrieval,
             "source_urls": source_urls,
             "tuning_params": asdict(tuning_params),
+            "api_key": api_key,
+            "llm_model": llm_model,
         }
         for hypothesis in hypotheses
     ]
@@ -103,6 +107,9 @@ def evaluate_hypotheses_with_modal(
                 )
             )
         criticisms.extend(result.get("criticisms", []))
+        if result.get("used_llm"):
+            retrieval_metrics["modal_agent_llm_calls"] = int(retrieval_metrics.get("modal_agent_llm_calls", 0)) + 1
+            retrieval_metrics["modal_agent_llm_model"] = result.get("llm_model")
         _merge_retrieval_metrics(retrieval_metrics, result.get("retrieval_metrics", {}))
 
     return evidence, claims, contradictions, criticisms, retrieval_metrics
@@ -194,6 +201,8 @@ def _empty_retrieval_metrics(live_retrieval: bool, modal_enabled: bool) -> dict:
         "errors": {},
         "fallback_used": False,
         "modal_hypothesis_agents": True,
+        "modal_agent_llm_calls": 0,
+        "modal_agent_llm_model": None,
     }
 
 

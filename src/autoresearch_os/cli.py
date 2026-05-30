@@ -117,6 +117,7 @@ def _format_metrics(metrics: dict) -> str:
         ("Live retrieval", "enabled" if retrieval.get("enabled") else "disabled"),
         ("Modal fan-out", "enabled" if retrieval.get("modal_enabled") else "disabled"),
         ("Modal hyp agents", "enabled" if retrieval.get("modal_hypothesis_agents") else "disabled"),
+        ("Modal LLM calls", retrieval.get("modal_agent_llm_calls", 0)),
         ("URLs attempted", retrieval.get("attempted_urls", 0)),
         ("URLs retrieved", retrieval.get("successful_urls", 0)),
         ("Blocked sources", retrieval.get("blocked_sources", 0)),

@@ -183,7 +183,7 @@ def test_modal_hypothesis_agent_pool_is_used_inside_runtime(tmp_path, monkeypatc
 
     calls = {"modal_pool": 0}
 
-    def fake_modal_pool(tasks, hypotheses, seed_texts, live_retrieval, source_urls, tuning_params):
+    def fake_modal_pool(tasks, hypotheses, seed_texts, live_retrieval, source_urls, tuning_params, api_key=None, llm_model=None):
         calls["modal_pool"] += 1
         from autoresearch_os.models import Claim, Evidence
 
@@ -224,18 +224,24 @@ def test_modal_hypothesis_agent_pool_is_used_inside_runtime(tmp_path, monkeypatc
                 "retrieved_urls": [],
                 "errors": {},
                 "fallback_used": False,
+                "modal_agent_llm_calls": len(hypotheses) if api_key else 0,
+                "modal_agent_llm_model": llm_model if api_key else None,
             },
         )
 
     monkeypatch.setattr(runtime_module, "evaluate_hypotheses_with_modal", fake_modal_pool)
-    runtime = ResearchRuntime(tmp_path / "gt_repo", max_iterations=1, live_retrieval=True, use_llm=False, use_modal=True)
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setattr(CentralReasoner, "reason_json", lambda self, agent_name, instruction, payload: None)
+    runtime = ResearchRuntime(tmp_path / "gt_repo", max_iterations=1, live_retrieval=True, use_llm=True, use_modal=True)
     runtime.run("Can AI-generated code be copyrighted in the United States?")
 
     metrics = json.loads((tmp_path / "gt_repo" / "metrics.json").read_text(encoding="utf-8"))
     assert calls["modal_pool"] == 1
     assert metrics["retrieval_metrics"]["modal_hypothesis_agents"] is True
+    assert metrics["retrieval_metrics"]["modal_agent_llm_calls"] == 4
     assert metrics["agent_breakdown"]["modal_hypothesis_agent"] == 4
-    assert any(trace["name"] == "modal_hypothesis_agent_pool" for trace in metrics["agent_traces"])
+    trace = next(trace for trace in metrics["agent_traces"] if trace["name"] == "modal_hypothesis_agent_pool")
+    assert trace["used_llm"] is True
 
 
 def test_runtime_requires_llm_key_when_llm_enabled(tmp_path, monkeypatch):

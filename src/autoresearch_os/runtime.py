@@ -125,14 +125,18 @@ class ResearchRuntime:
                         self.live_retrieval,
                         self.source_urls,
                         tuning_params,
+                        reasoner.api_key if reasoner.enabled else None,
+                        reasoner.model if reasoner.enabled else None,
                     )
+                    modal_llm_calls = int(retrieval_metrics.get("modal_agent_llm_calls", 0))
                     agent_traces.append(
                         AgentTrace(
                             "modal_hypothesis_agent_pool",
                             "Run one remote research worker per hypothesis.",
-                            ["collect_evidence", "claims_from_hypotheses", "critique_claims"],
-                            ["modal_map:evaluate_hypothesis_agent"],
-                            used_llm=False,
+                            ["collect_evidence", "claims_from_hypotheses", "critique_claims", "openai_agents_sdk"],
+                            ["modal_map:evaluate_hypothesis_agent", "remote_agent_reasoning"],
+                            used_llm=modal_llm_calls > 0,
+                            llm_model=str(retrieval_metrics.get("modal_agent_llm_model") or reasoner.model) if modal_llm_calls > 0 else None,
                             output_count=len(hypotheses),
                         )
                     )

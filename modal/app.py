@@ -29,6 +29,7 @@ if modal:
     app = modal.App("autoresearch-os")
     image = (
         modal.Image.debian_slim(python_version="3.12")
+        .pip_install("openai-agents>=0.3.0")
         .env({"PYTHONPATH": "/root"})
         .add_local_dir("src/autoresearch_os", "/root/autoresearch_os")
     )
@@ -77,6 +78,7 @@ if modal:
     def evaluate_hypothesis_agent(payload: dict) -> dict:
         from autoresearch_os.critic import critique_claims
         from autoresearch_os.knowledge import claims_from_hypotheses, collect_evidence
+        from autoresearch_os.llm import CentralReasoner
         from autoresearch_os.models import Hypothesis, Task, TuningParams
 
         hypothesis = Hypothesis(**payload["hypothesis"])
@@ -93,6 +95,27 @@ if modal:
             )
             claims = claims_from_hypotheses([hypothesis], evidence, params)
             contradictions, criticisms = critique_claims(claims)
+            reasoner = CentralReasoner(
+                model=payload.get("llm_model"),
+                api_key=payload.get("api_key"),
+                required=False,
+            )
+            reasoning = reasoner.reason_json(
+                "modal_hypothesis_agent",
+                (
+                    "Review this single-hypothesis legal research bundle. Return "
+                    "{\"criticisms\":[\"...\"],\"notes\":[\"...\"]}. Keep it concise."
+                ),
+                {
+                    "hypothesis": asdict(hypothesis),
+                    "evidence": [asdict(item) for item in evidence[:8]],
+                    "claims": [asdict(item) for item in claims],
+                    "contradictions": [asdict(item) for item in contradictions],
+                    "baseline_criticisms": criticisms,
+                },
+            )
+            if reasoning and isinstance(reasoning.get("criticisms"), list):
+                criticisms = [*criticisms, *[str(item) for item in reasoning["criticisms"][:3]]]
             return {
                 "status": "ok",
                 "hypothesis_id": hypothesis.hypothesis_id,
@@ -101,6 +124,8 @@ if modal:
                 "contradictions": [asdict(item) for item in contradictions],
                 "criticisms": criticisms,
                 "retrieval_metrics": retrieval_metrics,
+                "used_llm": bool(reasoning),
+                "llm_model": reasoner.model if reasoning else None,
             }
         except Exception as exc:
             return {

@@ -19,7 +19,7 @@ AutoResearch OS applies that pattern to legal research:
 - `ResearchRuntime` is the orchestrator. It owns `program.md`, task planning, truth-maintenance state, evaluation, tuning, and reporting.
 - `hypothesis_agent`, `critic_agent`, and `knowledge_agent_pool` are the local role agents. They have explicit goals, tools, loop steps, traces, and OpenAI Agents SDK reasoning calls.
 - `modal_hypothesis_agent_pool` is the distributed Modal agent pool. It runs one remote worker per hypothesis.
-- `modal/app.py` is the Modal worker layer. A worker retrieves evidence, synthesizes a claim, critiques that claim, and returns a scored bundle for one hypothesis.
+- `modal/app.py` is the Modal worker layer. A worker retrieves evidence, synthesizes a claim, critiques that claim, runs an OpenAI Agents SDK reasoning pass, and returns a scored bundle for one hypothesis.
 - `src/autoresearch_os/modal_bridge.py` is the local pool bridge. It dispatches hypothesis payloads to Modal concurrently with `evaluate_hypothesis_agent.map(...)`.
 - `legal_metadata.json` and `tuning_params.json` play the role of domain-specific operating context for the workers.
 
