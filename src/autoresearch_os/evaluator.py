@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .models import Claim, Contradiction, Evaluation, Evidence, ResearchProgram
+from .models import Claim, Contradiction, Evaluation, Evidence, ResearchProgram, TuningParams
 
 
 def evaluate(
@@ -10,22 +10,25 @@ def evaluate(
     evidence: list[Evidence],
     contradictions: list[Contradiction],
     open_questions: list[str],
+    params: TuningParams | None = None,
 ) -> Evaluation:
+    params = params or TuningParams()
     supported_claims = [claim for claim in claims if claim.status == "supported"]
     objective_completion = min(1.0, len(supported_claims) / max(1, len(program.subquestions) - 1))
     evidence_coverage = min(1.0, len(evidence) / max(1, len(program.subquestions)))
     source_types = {item.source_type for item in evidence}
-    source_diversity = min(1.0, len(source_types) / 4)
+    source_diversity = min(1.0, len(source_types) / params.target_source_diversity)
     resolved = [item for item in contradictions if item.resolution_status == "resolved"]
     contradiction_resolution = 1.0 if not contradictions else len(resolved) / len(contradictions)
     citation_grounding = 0.0 if not claims else sum(1 for claim in claims if claim.supporting_sources) / len(claims)
 
+    weights = params.evaluator_weights
     overall = (
-        0.25 * objective_completion
-        + 0.20 * evidence_coverage
-        + 0.15 * source_diversity
-        + 0.20 * contradiction_resolution
-        + 0.20 * citation_grounding
+        weights["objective_completion"] * objective_completion
+        + weights["evidence_coverage"] * evidence_coverage
+        + weights["source_diversity"] * source_diversity
+        + weights["contradiction_resolution"] * contradiction_resolution
+        + weights["citation_grounding"] * citation_grounding
     )
     return Evaluation(
         iteration=iteration,

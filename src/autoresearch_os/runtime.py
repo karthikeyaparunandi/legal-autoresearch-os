@@ -11,6 +11,7 @@ from .models import Evaluation, write_json
 from .planner import plan_tasks
 from .program import generate_program, program_to_markdown
 from .report import build_report
+from .tuning import load_tuning_params, tune_params
 
 
 class ResearchRuntime:
@@ -24,6 +25,7 @@ class ResearchRuntime:
         (self.out_dir / "evidence").mkdir(exist_ok=True)
         (self.out_dir / "evals").mkdir(exist_ok=True)
 
+        tuning_params = load_tuning_params(self.out_dir)
         program = generate_program(goal)
         tasks = plan_tasks(program)
         hypotheses = generate_hypotheses(program)
@@ -38,15 +40,27 @@ class ResearchRuntime:
 
         for iteration in range(1, self.max_iterations + 1):
             evidence = collect_evidence(tasks, hypotheses, seed_texts)
-            claims = claims_from_hypotheses(hypotheses, evidence)
+            claims = claims_from_hypotheses(hypotheses, evidence, tuning_params)
             contradictions, criticisms = critique_claims(claims)
-            open_questions = detect_gaps(program, claims, contradictions, criticisms)
-            evaluation = evaluate(iteration, program, claims, evidence, contradictions, open_questions)
+            open_questions = detect_gaps(program, claims, contradictions, criticisms, tuning_params)
+            evaluation = evaluate(iteration, program, claims, evidence, contradictions, open_questions, tuning_params)
+            next_tuning_params = tuning_params if stop_conditions_met(program, evaluation) else tune_params(tuning_params, evaluation)
 
-            self._write_iteration_state(iteration, evidence, claims, contradictions, criticisms, open_questions, evaluation)
+            self._write_iteration_state(
+                iteration,
+                evidence,
+                claims,
+                contradictions,
+                criticisms,
+                open_questions,
+                evaluation,
+                tuning_params,
+                next_tuning_params,
+            )
             if stop_conditions_met(program, evaluation):
                 break
 
+            tuning_params = next_tuning_params
             tasks = self._append_gap_tasks(tasks, open_questions)
 
         if evaluation is None:
@@ -61,15 +75,30 @@ class ResearchRuntime:
         write_json(self.out_dir / "tasks.json", tasks)
         write_json(self.out_dir / "hypotheses.json", hypotheses)
         write_json(self.out_dir / "entities.json", {"entities": _extract_entities(program.objective)})
+        write_json(self.out_dir / "legal_metadata.json", program.legal_metadata)
 
-    def _write_iteration_state(self, iteration, evidence, claims, contradictions, criticisms, open_questions, evaluation) -> None:
+    def _write_iteration_state(
+        self,
+        iteration,
+        evidence,
+        claims,
+        contradictions,
+        criticisms,
+        open_questions,
+        evaluation,
+        tuning_params,
+        next_tuning_params,
+    ) -> None:
         write_json(self.out_dir / "evidence" / f"iteration_{iteration:03d}.json", evidence)
         write_json(self.out_dir / "claims.json", claims)
         write_json(self.out_dir / "contradictions.json", contradictions)
         write_json(self.out_dir / "criticisms.json", criticisms)
         write_json(self.out_dir / "open_questions.json", {"open_questions": open_questions})
         write_json(self.out_dir / "confidence_scores.json", evaluation)
+        write_json(self.out_dir / "tuning_params.json", next_tuning_params)
         write_json(self.out_dir / "evals" / f"iteration_{iteration:03d}.json", evaluation)
+        write_json(self.out_dir / "evals" / f"tuning_params_{iteration:03d}.json", tuning_params)
+        write_json(self.out_dir / "evals" / f"next_tuning_params_{iteration:03d}.json", next_tuning_params)
 
     def _append_gap_tasks(self, tasks, open_questions):
         existing = {task.question for task in tasks}

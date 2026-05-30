@@ -4,6 +4,8 @@ AutoResearch OS is a self-evaluating autonomous research runtime with a truth-ma
 
 The key idea: do not optimize for an immediate answer. Optimize for a maintained research state with evidence, contradictions, confidence scores, and explicit stop conditions.
 
+This version is intentionally narrowed to legal research. `program.md` includes legal-domain metadata such as jurisdiction, practice area, authority hierarchy, required legal source types, risk posture, citation policy, and uncertainty policy.
+
 ## Why This Fits The Hackathon
 
 The Autoresearch Systems Hackathon asks for systems that help agents iteratively plan, search, and synthesize information over extended horizons. This repo focuses on:
@@ -35,6 +37,7 @@ flowchart LR
 flowchart TD
     goal["User Goal"] --> generator["Program Generator Agent"]
     generator --> program["program.md"]
+    generator --> legalMeta["legal_metadata.json"]
     program --> planner["Planner / Orchestrator"]
     planner --> tasks["Task DAG"]
 
@@ -60,6 +63,7 @@ flowchart TD
     critic --> claims["claims.json"]
 
     program --> gt["Truth Maintenance Repo"]
+    legalMeta --> gt
     tasks --> gt
     hypothesisFile --> gt
     evidence --> gt
@@ -68,6 +72,11 @@ flowchart TD
 
     gt --> evaluator["Evaluator Agent"]
     evaluator --> scores["confidence_scores.json"]
+    evaluator --> tuner["Auto-Tuner"]
+    tuner --> tuning["tuning_params.json"]
+    tuning --> planner
+    tuning --> critic
+    tuning --> evaluator
     scores --> stop{"Stop conditions met?"}
 
     stop -- "No" --> gaps["Knowledge Gap Detector"]
@@ -106,6 +115,8 @@ Each run writes a complete research state:
 ```text
 gt_repo/
   program.md
+  legal_metadata.json
+  tuning_params.json
   tasks.json
   entities.json
   hypotheses.json
@@ -117,6 +128,27 @@ gt_repo/
   evals/
   final_report.md
 ```
+
+## Legal Metadata And Tuning
+
+Legal research quality depends on different assumptions than generic web research. AutoResearch OS records those assumptions in `program.md` and `legal_metadata.json`:
+
+- Jurisdiction and practice area
+- Legal authority hierarchy
+- Required primary source types
+- Citation style
+- Risk posture and uncertainty policy
+
+Several runtime constants are tunable and persist in `tuning_params.json`:
+
+- `supported_claim_threshold`
+- `contradiction_penalty_weight`
+- `min_primary_sources`
+- `target_source_diversity`
+- `gap_task_limit`
+- `evaluator_weights`
+
+After each evaluation, the tuner nudges these values when the research state is weak. For example, low citation grounding raises the claim-support threshold and primary-source requirement; low contradiction resolution increases the contradiction penalty; too many open questions expands gap-task generation.
 
 ## Demo
 

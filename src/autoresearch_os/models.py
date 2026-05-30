@@ -15,12 +15,54 @@ class StopConditions:
 
 
 @dataclass
+class LegalMetadata:
+    domain: str = "legal"
+    jurisdiction: str = "United States"
+    practice_area: str = "copyright and software"
+    authority_hierarchy: list[str] = field(
+        default_factory=lambda: [
+            "statute",
+            "binding_case_law",
+            "agency_guidance",
+            "persuasive_case_law",
+            "secondary_source",
+            "expert_analysis",
+        ]
+    )
+    required_source_types: list[str] = field(default_factory=lambda: ["statute", "case_law", "agency_guidance"])
+    citation_style: str = "source_id plus URL"
+    risk_posture: str = "startup decision support, not legal advice"
+    temporal_sensitivity: str = "high"
+    uncertainty_policy: str = "Surface unsettled doctrine, jurisdiction limits, and missing primary authority."
+
+
+@dataclass
+class TuningParams:
+    supported_claim_threshold: float = 0.70
+    contradiction_penalty_weight: float = 0.25
+    min_primary_sources: int = 2
+    target_source_diversity: int = 4
+    gap_task_limit: int = 4
+    evaluator_weights: dict[str, float] = field(
+        default_factory=lambda: {
+            "objective_completion": 0.25,
+            "evidence_coverage": 0.20,
+            "source_diversity": 0.15,
+            "contradiction_resolution": 0.20,
+            "citation_grounding": 0.20,
+        }
+    )
+    learning_rate: float = 0.05
+
+
+@dataclass
 class ResearchProgram:
     objective: str
     subquestions: list[str]
     evidence_requirements: list[str]
     success_metrics: list[str]
     stop_conditions: StopConditions = field(default_factory=StopConditions)
+    legal_metadata: LegalMetadata = field(default_factory=LegalMetadata)
 
 
 @dataclass

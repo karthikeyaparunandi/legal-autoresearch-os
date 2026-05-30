@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 
-from .models import Claim, Evidence, Hypothesis, Task
+from .models import Claim, Evidence, Hypothesis, Task, TuningParams
 
 
 DEMO_EVIDENCE = [
@@ -80,15 +80,20 @@ def collect_evidence(tasks: list[Task], hypotheses: list[Hypothesis], seed_texts
     return evidence
 
 
-def claims_from_hypotheses(hypotheses: list[Hypothesis], evidence: list[Evidence]) -> list[Claim]:
+def claims_from_hypotheses(hypotheses: list[Hypothesis], evidence: list[Evidence], params: TuningParams | None = None) -> list[Claim]:
+    params = params or TuningParams()
     claims: list[Claim] = []
     for index, hypothesis in enumerate(hypotheses, start=1):
         supporting = [item.source_id for item in evidence if hypothesis.hypothesis_id in item.supports]
         contradicting = [item.source_id for item in evidence if hypothesis.hypothesis_id in item.contradicts]
         support_score = sum(item.reliability for item in evidence if item.source_id in supporting) / max(1, len(supporting))
-        contradiction_penalty = sum(item.reliability for item in evidence if item.source_id in contradicting) / max(1, len(contradicting)) * 0.25
+        contradiction_penalty = (
+            sum(item.reliability for item in evidence if item.source_id in contradicting)
+            / max(1, len(contradicting))
+            * params.contradiction_penalty_weight
+        )
         confidence = max(0.0, min(0.98, support_score - contradiction_penalty))
-        status = "supported" if confidence >= 0.7 else "contested" if contradicting else "weak"
+        status = "supported" if confidence >= params.supported_claim_threshold else "contested" if contradicting else "weak"
         claims.append(
             Claim(
                 claim_id=f"c{index:03d}",

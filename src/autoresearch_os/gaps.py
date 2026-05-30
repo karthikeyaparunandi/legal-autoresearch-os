@@ -1,9 +1,16 @@
 from __future__ import annotations
 
-from .models import Claim, Contradiction, ResearchProgram
+from .models import Claim, Contradiction, ResearchProgram, TuningParams
 
 
-def detect_gaps(program: ResearchProgram, claims: list[Claim], contradictions: list[Contradiction], criticisms: list[str]) -> list[str]:
+def detect_gaps(
+    program: ResearchProgram,
+    claims: list[Claim],
+    contradictions: list[Contradiction],
+    criticisms: list[str],
+    params: TuningParams | None = None,
+) -> list[str]:
+    params = params or TuningParams()
     questions: list[str] = []
 
     for claim in claims:
@@ -20,7 +27,7 @@ def detect_gaps(program: ResearchProgram, claims: list[Claim], contradictions: l
     for criticism in criticisms[:2]:
         questions.append(f"Critic follow-up: {criticism}")
 
-    return dedupe(questions)
+    return dedupe(questions)[: params.gap_task_limit]
 
 
 def dedupe(items: list[str]) -> list[str]:
