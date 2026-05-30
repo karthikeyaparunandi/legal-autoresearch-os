@@ -52,6 +52,8 @@ flowchart TD
         hypotheses --> critic
         critic --> knowledge
         knowledge --> extraction
+        extraction -- "evidence updates" --> hypotheses
+        critic -- "revise / split / discard" --> hypotheses
     end
 
     tasks --> hypotheses
@@ -109,6 +111,8 @@ flowchart TD
     converged -- "No" --> newTasks
     converged -- "Yes" --> report["Grounded Legal Report<br/>linked citations · reasoning diagram · metrics"]
 ```
+
+Inside the runtime, hypotheses are not static. The critic challenges each hypothesis, knowledge agents collect evidence, and extracted evidence feeds back into the hypothesis agent so the system can revise, split, or discard hypotheses before the truth-maintenance repo is updated.
 
 ## Quickstart
 
