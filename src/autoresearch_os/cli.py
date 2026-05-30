@@ -34,14 +34,14 @@ def main(argv: list[str] | None = None) -> int:
     run_parser.add_argument("--seed-text", action="append", default=[])
     run_parser.add_argument("--source-url", action="append", default=[], help="Additional live source URL to retrieve.")
     run_parser.add_argument("--offline", action="store_true", help="Disable live retrieval and use local fallback evidence.")
-    run_parser.add_argument("--no-llm", action="store_true", help="Disable central LLM reasoning and use deterministic fallback.")
+    run_parser.add_argument("--with-llm", action="store_true", help="Enable central LLM reasoning; requires OPENAI_API_KEY or OPEN_API_KEY.")
 
     demo_parser = subparsers.add_parser("demo", help="Run the built-in legal research demo.")
     demo_parser.add_argument("--out", default="demo_gt_repo", type=Path)
     demo_parser.add_argument("--max-iterations", default=4, type=int)
     demo_parser.add_argument("--source-url", action="append", default=[], help="Additional live source URL to retrieve.")
     demo_parser.add_argument("--offline", action="store_true", help="Disable live retrieval and use local fallback evidence.")
-    demo_parser.add_argument("--no-llm", action="store_true", help="Disable central LLM reasoning and use deterministic fallback.")
+    demo_parser.add_argument("--with-llm", action="store_true", help="Enable central LLM reasoning; requires OPENAI_API_KEY or OPEN_API_KEY.")
 
     args = parser.parse_args(argv)
 
@@ -57,13 +57,13 @@ def main(argv: list[str] | None = None) -> int:
         max_iterations=args.max_iterations,
         live_retrieval=not args.offline,
         source_urls=args.source_url,
-        use_llm=not args.no_llm,
+        use_llm=args.with_llm,
     )
     try:
         evaluation = runtime.run(goal, seed_texts=seed_texts)
     except (LLMConfigurationError, LLMReasoningError) as exc:
         print(f"{BOLD}{RED}LLM reasoning failed{RESET}: {exc}")
-        print(f"{DIM}Set OPENAI_API_KEY or OPEN_API_KEY, or pass --no-llm for deterministic fallback.{RESET}")
+        print(f"{DIM}Set OPENAI_API_KEY or OPEN_API_KEY, or omit --with-llm for deterministic fallback.{RESET}")
         return 2
     metrics_path = args.out / "metrics.json"
     html_path = (args.out / "final_report.html").resolve()

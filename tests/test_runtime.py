@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from autoresearch_os.cli import _format_metrics, _terminal_link
+from autoresearch_os.cli import main, _format_metrics, _terminal_link
 from autoresearch_os.llm import CentralReasoner, LLMConfigurationError
 from autoresearch_os.retrieval import fetch_url_text
 from autoresearch_os.runtime import ResearchRuntime
@@ -63,7 +63,7 @@ def test_runtime_auto_tunes_params_for_weak_research_state(tmp_path):
 def test_runtime_requires_llm_key_when_llm_enabled(tmp_path, monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("OPEN_API_KEY", raising=False)
-    runtime = ResearchRuntime(tmp_path / "gt_repo", max_iterations=1, live_retrieval=False)
+    runtime = ResearchRuntime(tmp_path / "gt_repo", max_iterations=1, live_retrieval=False, use_llm=True)
 
     try:
         runtime.run("Can AI-generated code be copyrighted?")
@@ -80,6 +80,17 @@ def test_reasoner_accepts_open_api_key_alias(monkeypatch):
     reasoner = CentralReasoner()
 
     assert reasoner.enabled is True
+
+
+def test_cli_defaults_to_deterministic_fallback(tmp_path, monkeypatch):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("OPEN_API_KEY", raising=False)
+
+    exit_code = main(["demo", "--offline", "--out", str(tmp_path / "gt_repo")])
+
+    assert exit_code == 0
+    metrics = json.loads((tmp_path / "gt_repo" / "metrics.json").read_text(encoding="utf-8"))
+    assert metrics["llm_reasoning_enabled"] is False
 
 
 def test_cli_metrics_formatter_shows_full_summary():

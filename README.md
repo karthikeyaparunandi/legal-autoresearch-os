@@ -23,7 +23,7 @@ Research
 
 The final output is not just an answer. It is a grounded report backed by traceable claims, evidence, contradictions, confidence scores, and an explanation of why the system stopped researching.
 
-The system uses a central reasoning LLM when `OPENAI_API_KEY` or `OPEN_API_KEY` is available. The role agents are tool-using workers coordinated by the runtime: each agent has a goal, tool set, step loop, mandatory LLM reasoning call, and structured output artifact. Without an API key, pass `--no-llm` to run the same loop with deterministic fallback reasoning.
+The system can use a central reasoning LLM when explicitly enabled with `--with-llm`. The role agents are tool-using workers coordinated by the runtime: each agent has a goal, tool set, step loop, optional LLM reasoning call, and structured output artifact. By default, the same loop runs with deterministic fallback reasoning so other users can try the project without an API key.
 
 ## Why This Fits The Hackathon
 
@@ -169,17 +169,19 @@ PYTHONPATH=src python -m autoresearch_os.cli run \
   --out gt_repo
 ```
 
-Disable central LLM reasoning for deterministic fallback runs:
-
-```bash
-autoresearch demo --no-llm --offline --out demo_gt_repo
-```
-
-By default, LLM reasoning is enforced:
+Enable central LLM reasoning explicitly:
 
 ```bash
 export OPENAI_API_KEY="..."
-autoresearch demo --out demo_gt_repo
+autoresearch demo --with-llm --out demo_gt_repo
+```
+
+The `OPEN_API_KEY` spelling is also accepted for local experiments. When `--with-llm` is passed, the runtime requires a key and fails loudly if the central LLM cannot be used.
+
+Run the deterministic fallback without a key:
+
+```bash
+autoresearch demo --offline --out demo_gt_repo
 ```
 
 ## Outputs
