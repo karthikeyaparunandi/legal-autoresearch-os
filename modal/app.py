@@ -107,6 +107,7 @@ if modal:
                     "{\"criticisms\":[\"...\"],\"notes\":[\"...\"]}. Keep it concise."
                 ),
                 {
+                    "learned_skills": payload.get("agent_skills", []),
                     "hypothesis": asdict(hypothesis),
                     "evidence": [asdict(item) for item in evidence[:8]],
                     "claims": [asdict(item) for item in claims],

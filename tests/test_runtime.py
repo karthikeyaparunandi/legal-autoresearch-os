@@ -65,6 +65,24 @@ def test_runtime_auto_tunes_params_for_weak_research_state(tmp_path):
     assert params["min_primary_sources"] > 2
 
 
+def test_runtime_persists_and_reuses_agent_skills(tmp_path):
+    runtime = ResearchRuntime(tmp_path / "gt_repo_1", max_iterations=1, live_retrieval=False, use_llm=False)
+    runtime.run("Assess a novel unresolved legal question with no provided sources")
+
+    shared_skills = tmp_path / "agent_skills.json"
+    run_skills = tmp_path / "gt_repo_1" / "agent_skills.json"
+    assert shared_skills.exists()
+    assert run_skills.exists()
+    skills = json.loads(shared_skills.read_text(encoding="utf-8"))["skills"]
+    assert "hypothesis_refinement_agent" in skills
+    assert any("open questions" in item for item in skills["hypothesis_refinement_agent"])
+
+    runtime = ResearchRuntime(tmp_path / "gt_repo_2", max_iterations=1, live_retrieval=False, use_llm=False)
+    runtime.run("Can AI-generated code be copyrighted in the United States?")
+    second_run_skills = json.loads((tmp_path / "gt_repo_2" / "agent_skills.json").read_text(encoding="utf-8"))["skills"]
+    assert any("open questions" in item for item in second_run_skills["hypothesis_refinement_agent"])
+
+
 def test_human_selection_counterpoint_scopes_rather_than_contradicts():
     hypotheses = [
         Hypothesis(
@@ -126,7 +144,7 @@ def test_inner_feedback_loop_refines_hypotheses(tmp_path, monkeypatch):
 
     calls = {"knowledge": 0, "refine": 0}
 
-    def fake_knowledge(tasks, hypotheses, seed_texts, live_retrieval, source_urls, reasoner, use_modal):
+    def fake_knowledge(tasks, hypotheses, seed_texts, live_retrieval, source_urls, reasoner, use_modal, agent_skills=None):
         calls["knowledge"] += 1
         from autoresearch_os.models import Evidence
 
@@ -155,7 +173,7 @@ def test_inner_feedback_loop_refines_hypotheses(tmp_path, monkeypatch):
             runtime_module.AgentTrace("knowledge_agent_pool", "fake", ["collect_evidence"]),
         )
 
-    def fake_critic(claims, reasoner):
+    def fake_critic(claims, reasoner, agent_skills=None):
         from autoresearch_os.models import Contradiction
 
         return (
@@ -164,7 +182,7 @@ def test_inner_feedback_loop_refines_hypotheses(tmp_path, monkeypatch):
             runtime_module.AgentTrace("critic_agent", "fake", ["critique_claims"]),
         )
 
-    def fake_refine(program, hypotheses, claims, contradictions, criticisms, open_questions, reasoner):
+    def fake_refine(program, hypotheses, claims, contradictions, criticisms, open_questions, reasoner, agent_skills=None):
         calls["refine"] += 1
         return hypotheses, runtime_module.AgentTrace("hypothesis_refinement_agent", "fake", [])
 
@@ -183,7 +201,7 @@ def test_modal_hypothesis_agent_pool_is_used_inside_runtime(tmp_path, monkeypatc
 
     calls = {"modal_pool": 0}
 
-    def fake_modal_pool(tasks, hypotheses, seed_texts, live_retrieval, source_urls, tuning_params, api_key=None, llm_model=None):
+    def fake_modal_pool(tasks, hypotheses, seed_texts, live_retrieval, source_urls, tuning_params, api_key=None, llm_model=None, agent_skills=None):
         calls["modal_pool"] += 1
         from autoresearch_os.models import Claim, Evidence
 

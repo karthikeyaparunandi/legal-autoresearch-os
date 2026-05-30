@@ -16,6 +16,7 @@ from .pdf import write_pdf
 from .planner import plan_tasks
 from .program import generate_program, program_to_markdown
 from .report import build_report
+from .skills import load_agent_skills, skills_path_for, update_agent_skills
 from .tuning import load_tuning_params, tune_params
 
 
@@ -77,6 +78,8 @@ class ResearchRuntime:
         (self.out_dir / "evals").mkdir(exist_ok=True)
 
         tuning_params = load_tuning_params(self.out_dir)
+        skills_path = skills_path_for(self.out_dir)
+        agent_skills = load_agent_skills(skills_path)
         reasoner = CentralReasoner(workspace=self.out_dir.parent, required=True) if self.use_llm else CentralReasoner(api_key="")
         agent_traces: list[AgentTrace] = []
         timer = time.perf_counter()
@@ -86,7 +89,7 @@ class ResearchRuntime:
         tasks = plan_tasks(program)
         component_seconds["planning"] += time.perf_counter() - timer
         timer = time.perf_counter()
-        hypotheses, trace = run_hypothesis_agent(program, reasoner)
+        hypotheses, trace = run_hypothesis_agent(program, reasoner, agent_skills)
         agent_traces.append(trace)
         component_seconds["hypothesis_generation"] += time.perf_counter() - timer
         evidence = []
@@ -127,6 +130,7 @@ class ResearchRuntime:
                         tuning_params,
                         reasoner.api_key if reasoner.enabled else None,
                         reasoner.model if reasoner.enabled else None,
+                        agent_skills,
                     )
                     modal_llm_calls = int(retrieval_metrics.get("modal_agent_llm_calls", 0))
                     agent_traces.append(
@@ -154,6 +158,7 @@ class ResearchRuntime:
                         self.source_urls,
                         reasoner,
                         self.use_modal,
+                        agent_skills,
                     )
                     agent_traces.append(trace)
                     component_seconds["evidence_collection"] += time.perf_counter() - timer
@@ -161,7 +166,7 @@ class ResearchRuntime:
                     claims = claims_from_hypotheses(hypotheses, evidence, tuning_params)
                     component_seconds["claim_synthesis"] += time.perf_counter() - timer
                     timer = time.perf_counter()
-                    contradictions, criticisms, trace = run_critic_agent(claims, reasoner)
+                    contradictions, criticisms, trace = run_critic_agent(claims, reasoner, agent_skills)
                     agent_traces.append(trace)
                     component_seconds["critique"] += time.perf_counter() - timer
                 timer = time.perf_counter()
@@ -178,6 +183,7 @@ class ResearchRuntime:
                     criticisms,
                     open_questions,
                     reasoner,
+                    agent_skills,
                 )
                 agent_traces.append(trace)
                 component_seconds["hypothesis_generation"] += time.perf_counter() - timer
@@ -223,6 +229,9 @@ class ResearchRuntime:
         if evaluation is None:
             raise RuntimeError("Research loop did not produce an evaluation.")
 
+        agent_skills = update_agent_skills(skills_path, agent_skills, evaluation, retrieval_metrics, contradictions, open_questions)
+        write_json(self.out_dir / "agent_skills.json", {"skills": agent_skills})
+
         elapsed = time.perf_counter() - started_at
         final_artifacts = [
             "program.md",
@@ -236,6 +245,7 @@ class ResearchRuntime:
             "confidence_scores.json",
             "open_questions.json",
             "metrics.json",
+            "agent_skills.json",
             "final_report.md",
             "final_report.html",
             "final_report.pdf",

@@ -9,4 +9,5 @@ build/
 gt_repo/
 demo_gt_repo/
 demo_gt_repo*/
+agent_skills.json
 .DS_Store

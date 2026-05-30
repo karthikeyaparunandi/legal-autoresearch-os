@@ -28,11 +28,12 @@ class Tool:
 
 
 class ResearchAgent:
-    def __init__(self, name: str, goal: str, tools: list[Tool], reasoner: CentralReasoner) -> None:
+    def __init__(self, name: str, goal: str, tools: list[Tool], reasoner: CentralReasoner, skills: list[str] | None = None) -> None:
         self.name = name
         self.goal = goal
         self.tools = {tool.name: tool for tool in tools}
         self.reasoner = reasoner
+        self.skills = skills or []
         self.trace = AgentTrace(
             name=name,
             goal=goal,
@@ -47,15 +48,16 @@ class ResearchAgent:
 
     def reason_json(self, instruction: str, payload: dict) -> dict | None:
         self.trace.steps.append("llm_reasoning" if self.reasoner.enabled else "deterministic_fallback")
-        return self.reasoner.reason_json(self.name, instruction, payload)
+        return self.reasoner.reason_json(self.name, instruction, {"learned_skills": self.skills, **payload})
 
 
-def run_hypothesis_agent(program: ResearchProgram, reasoner: CentralReasoner) -> tuple[list[Hypothesis], AgentTrace]:
+def run_hypothesis_agent(program: ResearchProgram, reasoner: CentralReasoner, agent_skills: dict[str, list[str]] | None = None) -> tuple[list[Hypothesis], AgentTrace]:
     agent = ResearchAgent(
         "hypothesis_agent",
         "Generate and refine candidate legal theories.",
         [Tool("generate_baseline_hypotheses", generate_hypotheses)],
         reasoner,
+        (agent_skills or {}).get("hypothesis_agent", []),
     )
     hypotheses = agent.tool("generate_baseline_hypotheses", program)
     revised = agent.reason_json(
@@ -76,12 +78,14 @@ def run_hypothesis_refinement_agent(
     criticisms: list[str],
     open_questions: list[str],
     reasoner: CentralReasoner,
+    agent_skills: dict[str, list[str]] | None = None,
 ) -> tuple[list[Hypothesis], AgentTrace]:
     agent = ResearchAgent(
         "hypothesis_refinement_agent",
         "Revise hypotheses from critic, evidence, and knowledge-gap feedback.",
         [],
         reasoner,
+        (agent_skills or {}).get("hypothesis_refinement_agent", []),
     )
     revised = agent.reason_json(
         (
@@ -106,12 +110,13 @@ def run_hypothesis_refinement_agent(
     return hypotheses, agent.trace
 
 
-def run_critic_agent(claims: list[Claim], reasoner: CentralReasoner) -> tuple[list, list[str], AgentTrace]:
+def run_critic_agent(claims: list[Claim], reasoner: CentralReasoner, agent_skills: dict[str, list[str]] | None = None) -> tuple[list, list[str], AgentTrace]:
     agent = ResearchAgent(
         "critic_agent",
         "Attack claims, find gaps, and surface contradictions.",
         [Tool("critique_claims", critique_claims)],
         reasoner,
+        (agent_skills or {}).get("critic_agent", []),
     )
     contradictions, criticisms = agent.tool("critique_claims", claims)
     critique = agent.reason_json(
@@ -132,12 +137,14 @@ def run_knowledge_agent(
     source_urls: list[str],
     reasoner: CentralReasoner,
     use_modal: bool,
+    agent_skills: dict[str, list[str]] | None = None,
 ) -> tuple[list[Evidence], dict, AgentTrace]:
     agent = ResearchAgent(
         "knowledge_agent_pool",
         "Retrieve real sources and extract structured evidence.",
         [Tool("collect_evidence", collect_evidence)],
         reasoner,
+        (agent_skills or {}).get("knowledge_agent_pool", []),
     )
     evidence, retrieval_metrics = agent.tool(
         "collect_evidence",

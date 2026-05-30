@@ -21,6 +21,7 @@ def evaluate_hypotheses_with_modal(
     tuning_params: TuningParams,
     api_key: str | None = None,
     llm_model: str | None = None,
+    agent_skills: dict[str, list[str]] | None = None,
 ) -> tuple[list[Evidence], list[Claim], list[Contradiction], list[str], dict]:
     modal_app = _load_modal_app()
     if not getattr(modal_app, "modal", None):
@@ -36,6 +37,7 @@ def evaluate_hypotheses_with_modal(
             "tuning_params": asdict(tuning_params),
             "api_key": api_key,
             "llm_model": llm_model,
+            "agent_skills": (agent_skills or {}).get("modal_hypothesis_agent", []),
         }
         for hypothesis in hypotheses
     ]

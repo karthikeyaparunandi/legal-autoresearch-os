@@ -308,6 +308,20 @@ The CLI, `metrics.json`, Markdown report, HTML report, and PDF report include:
 - final confidence
 - stop-condition status
 
+## Agent Skill Learning
+
+Agents improve across queries through a persistent `agent_skills.json` file written beside your run directories. Each run snapshots the active skills into its truth-maintenance repo as `agent_skills.json`, then updates the shared skill memory from convergence results, blocked retrievals, citation grounding, contradictions, and open questions.
+
+Those learned skills are fed into future OpenAI Agents SDK prompts for:
+
+- `hypothesis_agent`
+- `knowledge_agent_pool`
+- `critic_agent`
+- `hypothesis_refinement_agent`
+- `modal_hypothesis_agent`
+
+The shared `agent_skills.json` is intentionally ignored by git because it is local run memory. Delete it to reset learned behavior.
+
 ## Modal Acceleration
 
 `modal/app.py` defines the remote workers used by `autoresearch demo --modal` and `autoresearch run --modal`. The stronger path is the `modal_hypothesis_agent_pool`: each hypothesis is sent to a separate Modal worker that retrieves evidence, synthesizes a claim, critiques that claim, runs an OpenAI Agents SDK reasoning pass, and returns a scored research bundle to the local orchestrator. URL-level retrieval fan-out is still available as a lower-level tool.
