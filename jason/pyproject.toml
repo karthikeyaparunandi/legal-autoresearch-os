@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "jason-autoresearch"
+version = "0.1.0"
+description = "State-driven AutoResearch agent built with the OpenAI Agents SDK."
+requires-python = ">=3.11"
+dependencies = [
+  "openai-agents>=0.6.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+jason-autoresearch = "jason.main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+

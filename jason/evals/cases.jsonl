@@ -1,0 +1,1 @@
+{"id":"ai_copyright","goal":"Can AI-generated code be copyrighted in the United States, and what legal risks would a startup face if it relies heavily on AI-generated software?","min_iterations":2,"required_agents":["citation_verifier_agent","legal_authority_agent","startup_risk_agent"]}
