@@ -45,11 +45,14 @@ class TuningParams:
     gap_task_limit: int = 4
     evaluator_weights: dict[str, float] = field(
         default_factory=lambda: {
-            "objective_completion": 0.25,
-            "evidence_coverage": 0.20,
-            "source_diversity": 0.15,
-            "contradiction_resolution": 0.20,
-            "citation_grounding": 0.20,
+            "objective_completion": 0.18,
+            "evidence_coverage": 0.12,
+            "source_diversity": 0.07,
+            "contradiction_resolution": 0.10,
+            "citation_grounding": 0.15,
+            "mean_claim_confidence": 0.18,
+            "primary_authority_coverage": 0.15,
+            "confidence_stability": 0.05,
         }
     )
     learning_rate: float = 0.05
@@ -120,8 +123,14 @@ class Evaluation:
     objective_completion: float
     evidence_coverage: float
     source_diversity: float
+    primary_authority_coverage: float
     contradiction_resolution: float
     citation_grounding: float
+    mean_claim_confidence: float
+    weakest_claim_confidence: float
+    confidence_stability: float
+    open_question_penalty: float
+    confidence_cap: float
     open_question_count: int
     overall_confidence: float
 

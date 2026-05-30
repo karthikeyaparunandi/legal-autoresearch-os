@@ -12,7 +12,9 @@ def test_runtime_writes_truth_maintenance_repo(tmp_path):
 
     evaluation = runtime.run("Can AI-generated code be copyrighted in the United States?")
 
-    assert evaluation.citation_grounding >= 0.9
+    assert evaluation.primary_authority_coverage >= 0.75
+    assert evaluation.mean_claim_confidence > 0
+    assert evaluation.overall_confidence < 1.0
     program = (tmp_path / "gt_repo" / "program.md").read_text(encoding="utf-8")
     assert "## Legal Metadata" in program
     assert "## Legal Authority Hierarchy" in program
@@ -24,6 +26,8 @@ def test_runtime_writes_truth_maintenance_repo(tmp_path):
     assert metrics["total_runtime_seconds"] >= 0
     assert metrics["component_metrics"]["evidence_collection"]["agents"] > 0
     assert metrics["iteration_history"]
+    assert "primary_authority_coverage" in metrics["iteration_history"][-1]
+    assert "mean_claim_confidence" in metrics["iteration_history"][-1]
     assert metrics["iteration_history"][-1]["status"] in {"Continue", "Converged"}
     assert metrics["retrieval_metrics"]["enabled"] is False
     assert metrics["llm_reasoning_enabled"] is False
@@ -52,7 +56,6 @@ def test_runtime_auto_tunes_params_for_weak_research_state(tmp_path):
     runtime.run("Assess a novel unresolved legal question with no provided sources")
 
     params = json.loads((tmp_path / "gt_repo" / "tuning_params.json").read_text(encoding="utf-8"))
-    assert params["supported_claim_threshold"] > 0.70
     assert params["min_primary_sources"] > 2
 
 

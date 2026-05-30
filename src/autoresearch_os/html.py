@@ -135,6 +135,8 @@ def write_research_html(
     <p>{escape(program.objective)}</p>
     <div class="meta-grid">
       {_metric_card("Final confidence", f"{metrics.final_confidence:.0%}")}
+      {_metric_card("Mean claim confidence", f"{evaluation.mean_claim_confidence:.0%}")}
+      {_metric_card("Primary authority coverage", f"{evaluation.primary_authority_coverage:.0%}")}
       {_metric_card("Agents spun off", str(metrics.agents_spun_off))}
       {_metric_card("Hypotheses", str(metrics.hypotheses_count))}
       {_metric_card("Runtime", f"{metrics.total_runtime_seconds:.3f}s")}
@@ -358,6 +360,8 @@ def _iteration_history_table(metrics: RunMetrics) -> str:
             f"<td>{item['overall_confidence']:.0%}</td>"
             f"<td>{item['objective_completion']:.0%}</td>"
             f"<td>{item['citation_grounding']:.0%}</td>"
+            f"<td>{item.get('primary_authority_coverage', 0):.0%}</td>"
+            f"<td>{item.get('mean_claim_confidence', 0):.0%}</td>"
             f"<td>{item['contradiction_resolution']:.0%}</td>"
             f"<td>{item['open_questions']}</td>"
             f"<td>{escape(str(item['status']))}</td>"
@@ -365,7 +369,8 @@ def _iteration_history_table(metrics: RunMetrics) -> str:
         )
     return (
         "<table><thead><tr><th>Iteration</th><th>Confidence</th><th>Objective</th>"
-        "<th>Citations</th><th>Contradictions</th><th>Open Questions</th><th>Status</th></tr></thead><tbody>"
+        "<th>Citations</th><th>Primary Authority</th><th>Claim Confidence</th><th>Contradictions</th>"
+        "<th>Open Questions</th><th>Status</th></tr></thead><tbody>"
         + "".join(rows)
         + "</tbody></table>"
     )

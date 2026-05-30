@@ -89,6 +89,7 @@ class ResearchRuntime:
         open_questions = ["Initial research state has not been evaluated."]
         criticisms = []
         evaluation: Evaluation | None = None
+        previous_evaluation: Evaluation | None = None
         iterations_completed = 0
         iteration_history: list[dict[str, float | int | str | bool]] = []
         retrieval_metrics = {
@@ -127,7 +128,16 @@ class ResearchRuntime:
             open_questions = detect_gaps(program, claims, contradictions, criticisms, tuning_params)
             component_seconds["gap_detection"] += time.perf_counter() - timer
             timer = time.perf_counter()
-            evaluation = evaluate(iteration, program, claims, evidence, contradictions, open_questions, tuning_params)
+            evaluation = evaluate(
+                iteration,
+                program,
+                claims,
+                evidence,
+                contradictions,
+                open_questions,
+                tuning_params,
+                previous_evaluation,
+            )
             component_seconds["evaluation"] += time.perf_counter() - timer
             timer = time.perf_counter()
             did_stop = stop_conditions_met(program, evaluation)
@@ -149,6 +159,7 @@ class ResearchRuntime:
             if did_stop:
                 break
 
+            previous_evaluation = evaluation
             tuning_params = next_tuning_params
             timer = time.perf_counter()
             tasks = self._append_gap_tasks(tasks, open_questions)
@@ -372,6 +383,12 @@ def _iteration_snapshot(iteration: int, evaluation: Evaluation, evidence, contra
         "objective_completion": evaluation.objective_completion,
         "evidence_coverage": evaluation.evidence_coverage,
         "citation_grounding": evaluation.citation_grounding,
+        "primary_authority_coverage": evaluation.primary_authority_coverage,
+        "mean_claim_confidence": evaluation.mean_claim_confidence,
+        "weakest_claim_confidence": evaluation.weakest_claim_confidence,
+        "confidence_stability": evaluation.confidence_stability,
+        "open_question_penalty": evaluation.open_question_penalty,
+        "confidence_cap": evaluation.confidence_cap,
         "contradiction_resolution": evaluation.contradiction_resolution,
         "source_diversity": evaluation.source_diversity,
         "evidence_count": len(evidence),

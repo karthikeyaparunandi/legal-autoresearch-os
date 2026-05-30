@@ -117,6 +117,8 @@ def _format_metrics(metrics: dict) -> str:
             f"{item['overall_confidence']:.0%}",
             f"{item['objective_completion']:.0%}",
             f"{item['citation_grounding']:.0%}",
+            f"{item.get('primary_authority_coverage', 0):.0%}",
+            f"{item.get('mean_claim_confidence', 0):.0%}",
             item["open_questions"],
             item["status"],
         )
@@ -129,7 +131,10 @@ def _format_metrics(metrics: dict) -> str:
             _table(("Metric", "Value"), summary_rows),
             "",
             f"{BOLD}{CYAN}Convergence Progress{RESET}",
-            _wide_table(("Iter", "Confidence", "Objective", "Citations", "Open Qs", "Status"), history_rows),
+            _wide_table(
+                ("Iter", "Confidence", "Objective", "Citations", "Primary", "Claim Conf", "Open Qs", "Status"),
+                history_rows,
+            ),
             "",
             f"{BOLD}{CYAN}Live Retrieval{RESET}",
             _table(("Metric", "Value"), retrieval_rows),
