@@ -6,7 +6,7 @@ from typing import Any, Callable
 from .critic import critique_claims
 from .hypotheses import generate_hypotheses
 from .knowledge import collect_evidence
-from .models import Claim, Evidence, Hypothesis, ResearchProgram, Task
+from .models import Claim, Contradiction, Evidence, Hypothesis, ResearchProgram, Task
 from .llm import CentralReasoner
 
 
@@ -64,6 +64,44 @@ def run_hypothesis_agent(program: ResearchProgram, reasoner: CentralReasoner) ->
     )
     if revised and isinstance(revised.get("hypotheses"), list):
         hypotheses = _hypotheses_from_llm(revised["hypotheses"], hypotheses)
+    agent.trace.output_count = len(hypotheses)
+    return hypotheses, agent.trace
+
+
+def run_hypothesis_refinement_agent(
+    program: ResearchProgram,
+    hypotheses: list[Hypothesis],
+    claims: list[Claim],
+    contradictions: list[Contradiction],
+    criticisms: list[str],
+    open_questions: list[str],
+    reasoner: CentralReasoner,
+) -> tuple[list[Hypothesis], AgentTrace]:
+    agent = ResearchAgent(
+        "hypothesis_refinement_agent",
+        "Revise hypotheses from critic, evidence, and knowledge-gap feedback.",
+        [],
+        reasoner,
+    )
+    revised = agent.reason_json(
+        (
+            "Revise or preserve these legal hypotheses using critic feedback and open questions. "
+            "Prefer scoped hypotheses over unresolved contradictions. Preserve IDs when the theory is still valid. "
+            "Return {\"hypotheses\":[{\"hypothesis_id\":\"h001\",\"statement\":\"...\",\"rationale\":\"...\"}]}"
+        ),
+        {
+            "objective": program.objective,
+            "hypotheses": [h.__dict__ for h in hypotheses],
+            "claims": [claim.__dict__ for claim in claims],
+            "contradictions": [contradiction.__dict__ for contradiction in contradictions],
+            "criticisms": criticisms[:6],
+            "open_questions": open_questions[:6],
+        },
+    )
+    if revised and isinstance(revised.get("hypotheses"), list):
+        hypotheses = _hypotheses_from_llm(revised["hypotheses"], hypotheses)
+    else:
+        hypotheses = _deterministic_refine_hypotheses(hypotheses, contradictions, open_questions)
     agent.trace.output_count = len(hypotheses)
     return hypotheses, agent.trace
 
@@ -131,9 +169,35 @@ def _hypotheses_from_llm(items: list, fallback: list[Hypothesis]) -> list[Hypoth
             continue
         hypotheses.append(
             Hypothesis(
-                hypothesis_id=f"h{index:03d}",
+                hypothesis_id=str(item.get("hypothesis_id") or f"h{index:03d}"),
                 statement=str(item["statement"]),
                 rationale=str(item.get("rationale", "LLM-refined hypothesis.")),
             )
         )
     return hypotheses or fallback
+
+
+def _deterministic_refine_hypotheses(
+    hypotheses: list[Hypothesis],
+    contradictions: list[Contradiction],
+    open_questions: list[str],
+) -> list[Hypothesis]:
+    if not contradictions and not open_questions:
+        return hypotheses
+    refined: list[Hypothesis] = []
+    for hypothesis in hypotheses:
+        statement = hypothesis.statement
+        rationale = hypothesis.rationale
+        lower = statement.lower()
+        if "pure ai" in lower or "solely by an ai" in lower:
+            statement = "Pure AI-generated code remains unlikely to be copyrightable, while AI-assisted code must be separately evaluated for human authorship."
+            rationale = "Critic feedback scoped the apparent conflict: pure autonomous output and human-controlled AI assistance are distinct legal categories."
+        refined.append(
+            Hypothesis(
+                hypothesis_id=hypothesis.hypothesis_id,
+                statement=statement,
+                rationale=rationale,
+                status=hypothesis.status,
+            )
+        )
+    return refined

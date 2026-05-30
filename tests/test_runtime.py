@@ -120,6 +120,63 @@ def test_demo_fallback_evidence_does_not_create_false_contradiction():
     assert not any("h001" in item.contradicts for item in evidence)
 
 
+def test_inner_feedback_loop_refines_hypotheses(tmp_path, monkeypatch):
+    import autoresearch_os.runtime as runtime_module
+
+    calls = {"knowledge": 0, "refine": 0}
+
+    def fake_knowledge(tasks, hypotheses, seed_texts, live_retrieval, source_urls, reasoner, use_modal):
+        calls["knowledge"] += 1
+        from autoresearch_os.models import Evidence
+
+        return (
+            [
+                Evidence(
+                    source_id="source_001",
+                    title="Primary source",
+                    url="https://example.test/primary",
+                    source_type="agency_guidance",
+                    excerpt="Human authorship is required.",
+                    supports=["h001"],
+                    reliability=0.95,
+                )
+            ],
+            {
+                "enabled": False,
+                "attempted_urls": 0,
+                "successful_urls": 0,
+                "failed_urls": 0,
+                "retrieved_urls": [],
+                "errors": {},
+                "fallback_used": True,
+                "modal_enabled": False,
+            },
+            runtime_module.AgentTrace("knowledge_agent_pool", "fake", ["collect_evidence"]),
+        )
+
+    def fake_critic(claims, reasoner):
+        from autoresearch_os.models import Contradiction
+
+        return (
+            [Contradiction(claim=claims[0].claim, supporting_sources=["source_001"], contradicting_sources=["source_002"])],
+            ["Needs scoped hypothesis."],
+            runtime_module.AgentTrace("critic_agent", "fake", ["critique_claims"]),
+        )
+
+    def fake_refine(program, hypotheses, claims, contradictions, criticisms, open_questions, reasoner):
+        calls["refine"] += 1
+        return hypotheses, runtime_module.AgentTrace("hypothesis_refinement_agent", "fake", [])
+
+    monkeypatch.setattr(runtime_module, "run_knowledge_agent", fake_knowledge)
+    monkeypatch.setattr(runtime_module, "run_critic_agent", fake_critic)
+    monkeypatch.setattr(runtime_module, "run_hypothesis_refinement_agent", fake_refine)
+
+    runtime = ResearchRuntime(tmp_path / "gt_repo", max_iterations=1, live_retrieval=False, use_llm=False, feedback_rounds=2)
+    runtime.run("Can AI-generated code be copyrighted in the United States?")
+
+    assert calls == {"knowledge": 2, "refine": 1}
+
+
 def test_runtime_requires_llm_key_when_llm_enabled(tmp_path, monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("OPEN_API_KEY", raising=False)

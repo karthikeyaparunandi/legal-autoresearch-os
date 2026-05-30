@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 import time
 
-from .agents import AgentTrace, run_critic_agent, run_hypothesis_agent, run_knowledge_agent
+from .agents import AgentTrace, run_critic_agent, run_hypothesis_agent, run_hypothesis_refinement_agent, run_knowledge_agent
 from .evaluator import evaluate, stop_conditions_met
 from .gaps import detect_gaps
 from .html import write_research_html
@@ -45,6 +45,7 @@ class ResearchRuntime:
         source_urls: list[str] | None = None,
         use_llm: bool = True,
         use_modal: bool = False,
+        feedback_rounds: int = 2,
     ) -> None:
         self.out_dir = out_dir
         self.max_iterations = max_iterations
@@ -52,6 +53,7 @@ class ResearchRuntime:
         self.source_urls = source_urls or []
         self.use_llm = use_llm
         self.use_modal = use_modal
+        self.feedback_rounds = max(1, feedback_rounds)
 
     def run(self, goal: str, seed_texts: list[str] | None = None) -> Evaluation:
         started_at = time.perf_counter()
@@ -108,28 +110,43 @@ class ResearchRuntime:
 
         for iteration in range(1, self.max_iterations + 1):
             iterations_completed = iteration
-            timer = time.perf_counter()
-            evidence, retrieval_metrics, trace = run_knowledge_agent(
-                tasks,
-                hypotheses,
-                seed_texts,
-                self.live_retrieval,
-                self.source_urls,
-                reasoner,
-                self.use_modal,
-            )
-            agent_traces.append(trace)
-            component_seconds["evidence_collection"] += time.perf_counter() - timer
-            timer = time.perf_counter()
-            claims = claims_from_hypotheses(hypotheses, evidence, tuning_params)
-            component_seconds["claim_synthesis"] += time.perf_counter() - timer
-            timer = time.perf_counter()
-            contradictions, criticisms, trace = run_critic_agent(claims, reasoner)
-            agent_traces.append(trace)
-            component_seconds["critique"] += time.perf_counter() - timer
-            timer = time.perf_counter()
-            open_questions = detect_gaps(program, claims, contradictions, criticisms, tuning_params)
-            component_seconds["gap_detection"] += time.perf_counter() - timer
+            for feedback_round in range(1, self.feedback_rounds + 1):
+                timer = time.perf_counter()
+                evidence, retrieval_metrics, trace = run_knowledge_agent(
+                    tasks,
+                    hypotheses,
+                    seed_texts,
+                    self.live_retrieval,
+                    self.source_urls,
+                    reasoner,
+                    self.use_modal,
+                )
+                agent_traces.append(trace)
+                component_seconds["evidence_collection"] += time.perf_counter() - timer
+                timer = time.perf_counter()
+                claims = claims_from_hypotheses(hypotheses, evidence, tuning_params)
+                component_seconds["claim_synthesis"] += time.perf_counter() - timer
+                timer = time.perf_counter()
+                contradictions, criticisms, trace = run_critic_agent(claims, reasoner)
+                agent_traces.append(trace)
+                component_seconds["critique"] += time.perf_counter() - timer
+                timer = time.perf_counter()
+                open_questions = detect_gaps(program, claims, contradictions, criticisms, tuning_params)
+                component_seconds["gap_detection"] += time.perf_counter() - timer
+                if feedback_round >= self.feedback_rounds or not (contradictions or open_questions):
+                    break
+                timer = time.perf_counter()
+                hypotheses, trace = run_hypothesis_refinement_agent(
+                    program,
+                    hypotheses,
+                    claims,
+                    contradictions,
+                    criticisms,
+                    open_questions,
+                    reasoner,
+                )
+                agent_traces.append(trace)
+                component_seconds["hypothesis_generation"] += time.perf_counter() - timer
             timer = time.perf_counter()
             evaluation = evaluate(
                 iteration,

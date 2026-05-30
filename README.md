@@ -60,6 +60,12 @@ Run deterministic fallback mode for offline tests or no-key demos:
 PYTHONPATH=src python -m autoresearch_os.cli demo --offline --no-llm --out demo_gt_repo
 ```
 
+Control the inner hypothesis/knowledge/critic feedback loop:
+
+```bash
+PYTHONPATH=src python -m autoresearch_os.cli demo --feedback-rounds 2 --out demo_gt_repo
+```
+
 Run your own legal question:
 
 ```bash
@@ -186,7 +192,7 @@ flowchart TD
     converged -- "Yes" --> report["Grounded Legal Report<br/>linked citations · reasoning diagram · metrics"]
 ```
 
-The hypothesis, critic, and knowledge agents form an inner feedback loop. Hypotheses are challenged by the critic, tested by knowledge agents, updated from extracted evidence, and revised before the truth repo is evaluated.
+The hypothesis, critic, and knowledge agents form an inner feedback loop. Hypotheses are challenged by the critic, tested by knowledge agents, updated from extracted evidence, and revised before the truth repo is evaluated. `--feedback-rounds` controls how many times that inner loop may run inside a single outer research iteration.
 
 ## Agents
 
@@ -195,6 +201,7 @@ The current runtime exposes these agent roles:
 - `program_generator`: creates the legal research program and metadata.
 - `planner_orchestrator`: turns the program into task structure.
 - `hypothesis_agent`: generates and refines candidate legal theories.
+- `hypothesis_refinement_agent`: revises hypotheses from critic findings, contradictions, and knowledge gaps.
 - `knowledge_agent_pool`: retrieves and structures evidence from live or fallback sources.
 - `critic_agent`: attacks claims, finds contradictions, and raises weaknesses.
 - `evaluator_agent`: scores the research state against convergence criteria.

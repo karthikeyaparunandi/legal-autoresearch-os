@@ -37,6 +37,7 @@ def main(argv: list[str] | None = None) -> int:
     run_parser.add_argument("--offline", action="store_true", help="Disable live retrieval and use local fallback evidence.")
     run_parser.add_argument("--no-llm", action="store_true", help="Disable central LLM reasoning and use deterministic fallback.")
     run_parser.add_argument("--modal", action="store_true", help="Use Modal to fan out live source retrieval.")
+    run_parser.add_argument("--feedback-rounds", default=2, type=int, help="Inner hypothesis/knowledge/critic feedback rounds per iteration.")
 
     demo_parser = subparsers.add_parser("demo", help="Run the built-in legal research demo.")
     demo_parser.add_argument("--out", default="demo_gt_repo", type=Path)
@@ -45,6 +46,7 @@ def main(argv: list[str] | None = None) -> int:
     demo_parser.add_argument("--offline", action="store_true", help="Disable live retrieval and use local fallback evidence.")
     demo_parser.add_argument("--no-llm", action="store_true", help="Disable central LLM reasoning and use deterministic fallback.")
     demo_parser.add_argument("--modal", action="store_true", help="Use Modal to fan out live source retrieval.")
+    demo_parser.add_argument("--feedback-rounds", default=2, type=int, help="Inner hypothesis/knowledge/critic feedback rounds per iteration.")
 
     args = parser.parse_args(argv)
 
@@ -62,6 +64,7 @@ def main(argv: list[str] | None = None) -> int:
         source_urls=args.source_url,
         use_llm=not args.no_llm,
         use_modal=args.modal,
+        feedback_rounds=args.feedback_rounds,
     )
     try:
         evaluation = runtime.run(goal, seed_texts=seed_texts)
