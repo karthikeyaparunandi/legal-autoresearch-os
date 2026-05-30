@@ -1,0 +1,21 @@
+{
+  "iteration": 2,
+  "objective_completion": 0.75,
+  "evidence_coverage": 0.6,
+  "source_diversity": 0.33,
+  "primary_authority_coverage": 1.0,
+  "contradiction_resolution": 1.0,
+  "citation_grounding": 1.0,
+  "mean_claim_confidence": 0.95,
+  "weakest_claim_confidence": 0.95,
+  "confidence_stability": 1.0,
+  "open_question_penalty": 0.15,
+  "blocked_source_penalty": 0.0,
+  "confidence_cap": 0.9,
+  "open_question_count": 3,
+  "overall_confidence": 0.64,
+  "deterministic_confidence": 0.7,
+  "llm_scoring_enabled": true,
+  "llm_score_adjustment": -0.06,
+  "llm_score_rationale": "The claims are plausible answers to the objective but the cited excerpts do not materially support key assertions. All three claims invoke unauthorized practice of law (UPL), state variation, and regulatory risk, yet supporting sources are limited to tertiary LII WEX entries and a UCC warranty provision; they do not include primary controlling authority (state UPL statutes, state bar ethics opinions, ABA guidance, or relevant case law). As a result: (1) c001\u2019s UPL conclusion is asserted without "
+}

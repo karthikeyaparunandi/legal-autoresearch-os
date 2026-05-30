@@ -1,0 +1,93 @@
+[
+  {
+    "task_id": "t001",
+    "title": "What legal issue is raised by: Can a startup use AI-generated contract templates",
+    "question": "What legal issue is raised by: Can a startup use AI-generated contract templates for customers, and what liability risks arise under U.S. law??",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "task_id": "t002",
+    "title": "Which jurisdiction, governing law, and authority hierarchy control the analysis",
+    "question": "Which jurisdiction, governing law, and authority hierarchy control the analysis?",
+    "depends_on": [
+      "t001"
+    ],
+    "status": "pending"
+  },
+  {
+    "task_id": "t003",
+    "title": "Which primary legal authorities support or contradict the likely answer",
+    "question": "Which primary legal authorities support or contradict the likely answer?",
+    "depends_on": [
+      "t001"
+    ],
+    "status": "pending"
+  },
+  {
+    "task_id": "t004",
+    "title": "What practical legal risks, compliance duties, or liability exposure follow",
+    "question": "What practical legal risks, compliance duties, or liability exposure follow?",
+    "depends_on": [
+      "t001"
+    ],
+    "status": "pending"
+  },
+  {
+    "task_id": "t005",
+    "title": "Which unsettled legal questions or factual assumptions could change the answer",
+    "question": "Which unsettled legal questions or factual assumptions could change the answer?",
+    "depends_on": [
+      "t001"
+    ],
+    "status": "pending"
+  },
+  {
+    "task_id": "t006",
+    "title": "Synthesize grounded answer",
+    "question": "Which answer is best supported once claims, evidence, and contradictions are considered?",
+    "depends_on": [
+      "t001",
+      "t002",
+      "t003",
+      "t004",
+      "t005"
+    ],
+    "status": "pending"
+  },
+  {
+    "task_id": "t007",
+    "title": "Resolve knowledge gap",
+    "question": "Are all program subquestions represented by explicit claims?",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "task_id": "t008",
+    "title": "Resolve knowledge gap",
+    "question": "Critic follow-up: Supporting sources are unspecified secondary materials; the claims lack citation to primary authority (state UPL statutes, bar ethics opinions, controlling case law) needed to evaluate legal boundaries rigorously.",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "task_id": "t009",
+    "title": "Resolve knowledge gap",
+    "question": "Critic follow-up: The assertion that customization \u201ccan cross into UPL in many states\u201d is overbroad without state-by-state examples or citations identifying which jurisdictions treat template customization as UPL.",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "task_id": "t010",
+    "title": "Resolve knowledge gap",
+    "question": "Critic follow-up: Supporting sources are not identified as primary law\u2014no state UPL statutes, state bar ethics opinions, ABA guidance, or caselaw are cited; add specific statutory and opinion citations.",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "task_id": "t011",
+    "title": "Resolve knowledge gap",
+    "question": "Critic follow-up: Source set is narrow (three items); weak diversity\u2014need state-by-state analysis for jurisdictions with expansive or divergent UPL rules (e.g., CA, NY, TX).",
+    "depends_on": [],
+    "status": "pending"
+  }
+]

@@ -1,0 +1,41 @@
+[
+  {
+    "claim_id": "c001",
+    "claim": "Under U.S. law a startup can generally publish and distribute generic AI-generated contract templates as self\u2011help information, but creating or customizing documents to a customer's specific facts, drafting strategy, or jurisdictional choices can cross into unauthorized practice of law (UPL) in many states.",
+    "supporting_sources": [
+      "source_004",
+      "source_005",
+      "source_007"
+    ],
+    "contradicting_sources": [],
+    "confidence": 0.95,
+    "status": "supported",
+    "objective_refs": []
+  },
+  {
+    "claim_id": "c002",
+    "claim": "Customer\u2011facing AI contract templates can give rise to civil liability (express/implicit warranty, negligent misrepresentation, negligence, and unfair/deceptive\u2011practice claims) and regulatory risk if marketed or represented as reliable legal products without adequate disclaimers, quality controls, or lawyer oversight.",
+    "supporting_sources": [
+      "source_004",
+      "source_005",
+      "source_007"
+    ],
+    "contradicting_sources": [],
+    "confidence": 0.95,
+    "status": "supported",
+    "objective_refs": []
+  },
+  {
+    "claim_id": "c003",
+    "claim": "A decision\u2011grade legal analysis about using AI templates requires identifying the target jurisdictions, customer types (consumer vs. business), use cases (e.g., transactional vs. litigation documents), and whether lawyer review or disclaimers are provided, because UPL rules, contract enforceability, and consumer protections vary materially by state and context.",
+    "supporting_sources": [
+      "source_004",
+      "source_005",
+      "source_007"
+    ],
+    "contradicting_sources": [],
+    "confidence": 0.95,
+    "status": "supported",
+    "objective_refs": []
+  }
+]

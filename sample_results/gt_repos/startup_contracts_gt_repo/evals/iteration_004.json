@@ -1,0 +1,21 @@
+{
+  "iteration": 4,
+  "objective_completion": 0.75,
+  "evidence_coverage": 0.6,
+  "source_diversity": 0.33,
+  "primary_authority_coverage": 1.0,
+  "contradiction_resolution": 1.0,
+  "citation_grounding": 1.0,
+  "mean_claim_confidence": 0.95,
+  "weakest_claim_confidence": 0.95,
+  "confidence_stability": 1.0,
+  "open_question_penalty": 0.15,
+  "blocked_source_penalty": 0.0,
+  "confidence_cap": 0.9,
+  "open_question_count": 3,
+  "overall_confidence": 0.63,
+  "deterministic_confidence": 0.7,
+  "llm_scoring_enabled": true,
+  "llm_score_adjustment": -0.07,
+  "llm_score_rationale": "Claims c001\u2013c003 are conceptually responsive to the objective and accurately flag key liability categories (UPL risk for tailored/transactional work; warranty/misrepresentation/consumer protection/FTC exposure; need for jurisdictional analysis). However the cited supporting excerpts (source_005\u2013007: LII Wex entries and UCC \u00a72-313) do not meaningfully support the core assertions about unauthorized practice of law, state-by-state UPL variability, ABA opinions, FTC/UDAP exposure, or how courts trea"
+}

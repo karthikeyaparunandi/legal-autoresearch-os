@@ -1,0 +1,21 @@
+{
+  "iteration": 1,
+  "objective_completion": 0.75,
+  "evidence_coverage": 0.6,
+  "source_diversity": 0.33,
+  "primary_authority_coverage": 1.0,
+  "contradiction_resolution": 1.0,
+  "citation_grounding": 1.0,
+  "mean_claim_confidence": 0.95,
+  "weakest_claim_confidence": 0.95,
+  "confidence_stability": 0.0,
+  "open_question_penalty": 0.15,
+  "blocked_source_penalty": 0.0,
+  "confidence_cap": 0.9,
+  "open_question_count": 3,
+  "overall_confidence": 0.59,
+  "deterministic_confidence": 0.65,
+  "llm_scoring_enabled": true,
+  "llm_score_adjustment": -0.06,
+  "llm_score_rationale": "The claims broadly address the objective (permissibility of distributing AI templates and attendant liability risks) and the recommended decision-framework is sound. However the cited supporting excerpts do not substantively support the specific legal conclusions: the sources are tertiary/definition snippets (Wex) and a UCC warranty provision that do not establish unauthorized practice of law rules, state-by-state UPL treatment of template customization, or case law/regulatory authority for negl"
+}

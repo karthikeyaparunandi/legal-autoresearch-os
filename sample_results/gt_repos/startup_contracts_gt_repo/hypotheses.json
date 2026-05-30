@@ -1,0 +1,20 @@
+[
+  {
+    "hypothesis_id": "h001",
+    "statement": "Under U.S. law a startup can generally publish and distribute generic AI-generated contract templates as self\u2011help information, but creating or customizing documents to a customer's specific facts, drafting strategy, or jurisdictional choices can cross into unauthorized practice of law (UPL) in many states.",
+    "rationale": "Authority primarily: state UPL statutes/regulations, state bar ethics opinions, and related case law which distinguish generic legal information from individualized legal advice. Uncertainty: high\u2014whether a given feature (Q&A tailoring, clause selection, filled\u2011in fields, jurisdictional advice) constitutes UPL is fact\u2011 and state\u2011specific; enforcement likelihood varies by jurisdiction and by whether a licensed lawyer supervises output.",
+    "status": "open"
+  },
+  {
+    "hypothesis_id": "h002",
+    "statement": "Customer\u2011facing AI contract templates can give rise to civil liability (express/implicit warranty, negligent misrepresentation, negligence, and unfair/deceptive\u2011practice claims) and regulatory risk if marketed or represented as reliable legal products without adequate disclaimers, quality controls, or lawyer oversight.",
+    "rationale": "Authority primarily: state common law (negligence, negligent misrepresentation, warranty), state UDAP/consumer\u2011protection statutes and enforcement (and federal FTC/consumer protection enforcement), and cases addressing online legal services. Uncertainty: medium\u2014liability exposure depends on representations made, disclaimer prominence and enforceability, the customer\u2019s reliance and harm, whether users are consumers or sophisticated businesses, and state law differences.",
+    "status": "open"
+  },
+  {
+    "hypothesis_id": "h003",
+    "statement": "A decision\u2011grade legal analysis about using AI templates requires identifying the target jurisdictions, customer types (consumer vs. business), use cases (e.g., transactional vs. litigation documents), and whether lawyer review or disclaimers are provided, because UPL rules, contract enforceability, and consumer protections vary materially by state and context.",
+    "rationale": "Authority primarily: state statutes/regulations on UPL and consumer protection, state bar advisory opinions, and pertinent case law\u2014these govern scope of permissible self\u2011help tools and regulatory enforcement. Uncertainty: low\u2011to\u2011medium\u2014the need for jurisdiction and fact specificity is clear, but precise outcomes and enforcement risk thresholds will differ by state and factual detail.",
+    "status": "open"
+  }
+]

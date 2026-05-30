@@ -1,0 +1,21 @@
+{
+  "iteration": 3,
+  "objective_completion": 0.75,
+  "evidence_coverage": 0.6,
+  "source_diversity": 0.33,
+  "primary_authority_coverage": 1.0,
+  "contradiction_resolution": 1.0,
+  "citation_grounding": 1.0,
+  "mean_claim_confidence": 0.95,
+  "weakest_claim_confidence": 0.95,
+  "confidence_stability": 1.0,
+  "open_question_penalty": 0.15,
+  "blocked_source_penalty": 0.0,
+  "confidence_cap": 0.9,
+  "open_question_count": 3,
+  "overall_confidence": 0.64,
+  "deterministic_confidence": 0.7,
+  "llm_scoring_enabled": true,
+  "llm_score_adjustment": -0.06,
+  "llm_score_rationale": "The high-level claims are plausible but the provided supporting excerpts (warranty, misrepresentation, UCC) do not establish key legal points asserted\u2014particularly unauthorized practice of law boundaries, state UPL statutes/case law, bar ethics guidance, and UDAP/regulatory standards. Research therefore overstates confidence: material controlling authorities and jurisdictional sources are missing, so downgrade accordingly."
+}

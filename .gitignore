@@ -18,6 +18,10 @@ agent_skills.json
 .env.local
 .DS_Store
 
+# Curated demo artifacts for the hackathon presentation.
+!sample_results/
+!sample_results/**
+
 # Secrets and LegalBench experiment artifacts (do not commit)
 .env
 .env.local

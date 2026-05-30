@@ -1,0 +1,377 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 4 0 R 5 0 R 6 0 R] /Count 4 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 11 0 R >> >> /Contents 7 0 R >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 11 0 R >> >> /Contents 8 0 R >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 11 0 R >> >> /Contents 9 0 R >>
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 11 0 R >> >> /Contents 10 0 R >>
+endobj
+7 0 obj
+<< /Length 3213 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(Legal AutoResearch OS Research Report) Tj
+T*
+() Tj
+T*
+(LEGAL RESEARCH REPORT) Tj
+T*
+() Tj
+T*
+(QUESTION PRESENTED) Tj
+T*
+(Can a startup use AI-generated contract templates for customers, and what liability risks) Tj
+T*
+(arise under U.S. law?) Tj
+T*
+() Tj
+T*
+(SHORT ANSWER) Tj
+T*
+(Based on the cited authorities, the answer is supported at 64% confidence: Under U.S. law a) Tj
+T*
+(startup can generally publish and distribute generic AI-generated contract templates as) Tj
+T*
+(self?help information, but creating or customizing documents to a customer's specific facts,) Tj
+T*
+(drafting strategy, or jurisdictional choices can cross into unauthorized practice of law) Tj
+T*
+(\(UPL\) in many states. [4] [5] [7] Customer?facing AI contract templates can give rise to) Tj
+T*
+(civil liability \(express/implicit warranty, negligent misrepresentation, negligence, and) Tj
+T*
+(unfair/deceptive?practice claims\) and regulatory risk if marketed or represented as reliable) Tj
+T*
+(legal products without adequate disclaimers, quality controls, or lawyer oversight. [4] [5]) Tj
+T*
+([7]) Tj
+T*
+() Tj
+T*
+(KEY FINDINGS) Tj
+T*
+(1. Under U.S. law a startup can generally publish and distribute generic AI-generated) Tj
+T*
+(contract templates as self?help information, but creating or customizing documents to a) Tj
+T*
+(customer's specific facts, drafting strategy, or jurisdictional choices can cross into) Tj
+T*
+(unauthorized practice of law \(UPL\) in many states. \(95% confidence; [4], [5], [7]\).) Tj
+T*
+(2. Customer?facing AI contract templates can give rise to civil liability \(express/implicit) Tj
+T*
+(warranty, negligent misrepresentation, negligence, and unfair/deceptive?practice claims\) and) Tj
+T*
+(regulatory risk if marketed or represented as reliable legal products without adequate) Tj
+T*
+(disclaimers, quality controls, or lawyer oversight. \(95% confidence; [4], [5], [7]\).) Tj
+T*
+(3. A decision?grade legal analysis about using AI templates requires identifying the target) Tj
+T*
+(jurisdictions, customer types \(consumer vs. business\), use cases \(e.g., transactional vs.) Tj
+T*
+(litigation documents\), and whether lawyer review or disclaimers are provided, because UPL) Tj
+T*
+(rules, contract enforceability, and consumer protections vary materially by state and) Tj
+T*
+(context. \(95% confidence; [4], [5], [7]\).) Tj
+T*
+() Tj
+T*
+(REASONING RATIONALE) Tj
+T*
+(The system generated hypotheses, collected legal evidence, criticized the claims for) Tj
+T*
+(contradictions, evaluated citation grounding and source quality, then repeated the loop) Tj
+T*
+(until the research state stopped improving or satisfied the configured objectives.) Tj
+T*
+() Tj
+T*
+(SOURCES) Tj
+T*
+(  - [4] warranty    Wex    US Law    LII / Legal Information Institute.) Tj
+T*
+(https://www.law.cornell.edu/wex/warranty) Tj
+T*
+(  - [5] misrepresentation    Wex    US Law    LII / Legal Information Institute.) Tj
+T*
+(https://www.law.cornell.edu/wex/misrepresentation) Tj
+T*
+(  - [7] § 2-313. Express Warranties by Affirmation, Promise, Description, Sample.    Uniform) Tj
+T*
+(Commercial Code    US Law    LII / Legal Information Institute.) Tj
+T*
+(https://www.law.cornell.edu/ucc/2/2-313) Tj
+T*
+() Tj
+T*
+ET
+endstream
+endobj
+8 0 obj
+<< /Length 2729 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(OPEN QUESTIONS) Tj
+T*
+(  - Are all program subquestions represented by explicit claims?) Tj
+T*
+(  - Critic follow-up: No primary authority cited for UPL boundaries?missing state UPL) Tj
+T*
+(statutes, controlling case law, and state bar opinions that define when drafting/customizing) Tj
+T*
+(becomes unauthorized practice.) Tj
+T*
+(  - Critic follow-up: Fails to address lawyer ethics obligations and guidance \(e.g., rules) Tj
+T*
+(on unauthorized practice, supervisory duties, advertising/misleading communications, and) Tj
+T*
+(confidentiality\) or cite relevant bar opinions about using AI tools.) Tj
+T*
+() Tj
+T*
+(RAINDROP FEEDBACK) Tj
+T*
+(  - Verdict: plateaued) Tj
+T*
+(  - Summary: The run stopped because confidence and evidence coverage stopped improving.) Tj
+T*
+(  - Trace focus: evaluator_agent, knowledge_gap_detector, auto_tuner) Tj
+T*
+() Tj
+T*
+(Recommended Next Steps) Tj
+T*
+(  - Increase max iterations or add seed/source material for the unresolved gaps.) Tj
+T*
+(  - Inspect evaluator_agent and knowledge_gap_detector spans to see which quality gate) Tj
+T*
+(failed.) Tj
+T*
+() Tj
+T*
+(APPENDIX: RESEARCH TRACE) Tj
+T*
+(  - Overall confidence: 64%) Tj
+T*
+(  - Deterministic confidence: 70%) Tj
+T*
+(  - LLM scoring adjustment: -6%) Tj
+T*
+(  - Objective completion: 75%) Tj
+T*
+(  - Evidence coverage: 60%) Tj
+T*
+(  - Citation grounding: 100%) Tj
+T*
+(  - Primary authority coverage: 100%) Tj
+T*
+(  - Contradiction resolution: 100%) Tj
+T*
+(  - Mean claim confidence: 95%) Tj
+T*
+() Tj
+T*
+(LLM Scoring Audit) Tj
+T*
+(The high-level claims are plausible but the provided supporting excerpts \(warranty,) Tj
+T*
+(misrepresentation, UCC\) do not establish key legal points asserted?particularly unauthorized) Tj
+T*
+(practice of law boundaries, state UPL statutes/case law, bar ethics guidance, and) Tj
+T*
+(UDAP/regulatory standards. Research therefore overstates confidence: material controlling) Tj
+T*
+(authorities and jurisdictional sources are missing, so downgrade accordingly.) Tj
+T*
+() Tj
+T*
+(Contradictions) Tj
+T*
+(  - No explicit contradictions detected.) Tj
+T*
+() Tj
+T*
+(All Claims) Tj
+T*
+(  - c001: Under U.S. law a startup can generally publish and distribute generic AI-generated) Tj
+T*
+(contract templates as self?help information, but creating or customizing documents to a) Tj
+T*
+(customer's specific facts, drafting strategy, or jurisdictional choices can cross into) Tj
+T*
+(unauthorized practice of law \(UPL\) in many states.) Tj
+T*
+(Status: supported; confidence: 95%; supporting sources: [4], [5], [7].) Tj
+T*
+(  - c002: Customer?facing AI contract templates can give rise to civil liability) Tj
+T*
+(\(express/implicit warranty, negligent misrepresentation, negligence, and) Tj
+T*
+ET
+endstream
+endobj
+9 0 obj
+<< /Length 2068 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(unfair/deceptive?practice claims\) and regulatory risk if marketed or represented as reliable) Tj
+T*
+(legal products without adequate disclaimers, quality controls, or lawyer oversight.) Tj
+T*
+(Status: supported; confidence: 95%; supporting sources: [4], [5], [7].) Tj
+T*
+(  - c003: A decision?grade legal analysis about using AI templates requires identifying the) Tj
+T*
+(target jurisdictions, customer types \(consumer vs. business\), use cases \(e.g., transactional) Tj
+T*
+(vs. litigation documents\), and whether lawyer review or disclaimers are provided, because) Tj
+T*
+(UPL rules, contract enforceability, and consumer protections vary materially by state and) Tj
+T*
+(context.) Tj
+T*
+(Status: supported; confidence: 95%; supporting sources: [4], [5], [7].) Tj
+T*
+() Tj
+T*
+(Metrics) Tj
+T*
+(  - Total runtime: 152.405 seconds) Tj
+T*
+(  - Iterations completed: 3) Tj
+T*
+(  - Agents spun off: 42) Tj
+T*
+(  - Tasks generated: 11) Tj
+T*
+(  - Hypotheses generated: 3) Tj
+T*
+(  - Evidence records collected: 3) Tj
+T*
+(  - Source categories: 2) Tj
+T*
+(  - Claims evaluated: 3) Tj
+T*
+(  - Supported claims: 3) Tj
+T*
+(  - Contradictions detected: 0) Tj
+T*
+(  - Contradictions resolved: 0) Tj
+T*
+(  - Open questions remaining: 3) Tj
+T*
+(  - Stop conditions met: False) Tj
+T*
+(  - Raindrop tracing: disabled) Tj
+T*
+() Tj
+T*
+(Agent Breakdown) Tj
+T*
+(  - program_generator: 1) Tj
+T*
+(  - planner_orchestrator: 1) Tj
+T*
+(  - hypothesis_agent: 1) Tj
+T*
+(  - hypothesis_refinement_agent: 0) Tj
+T*
+(  - web_search_agent: 3) Tj
+T*
+(  - academic_agent: 3) Tj
+T*
+(  - legal_agent: 3) Tj
+T*
+(  - company_intelligence_agent: 3) Tj
+T*
+(  - social_signal_agent: 3) Tj
+T*
+(  - extraction_agent: 3) Tj
+T*
+(  - critic_agent: 3) Tj
+T*
+(  - evaluator_agent: 3) Tj
+T*
+(  - knowledge_gap_detector: 3) Tj
+T*
+(  - auto_tuner: 3) Tj
+T*
+(  - raindrop_feedback_agent: 1) Tj
+T*
+(  - report_generator: 1) Tj
+T*
+(  - modal_url_fetch_agent: 7) Tj
+T*
+() Tj
+T*
+(LEGAL METADATA) Tj
+T*
+(  - Jurisdiction: United States) Tj
+T*
+(  - Practice area: copyright and software) Tj
+T*
+ET
+endstream
+endobj
+10 0 obj
+<< /Length 310 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(  - Risk posture: startup decision support, not legal advice) Tj
+T*
+(  - Authority hierarchy: statute, binding_case_law, agency_guidance, persuasive_case_law,) Tj
+T*
+(secondary_source, expert_analysis) Tj
+T*
+(  - Required source types: statute, case_law, agency_guidance) Tj
+T*
+ET
+endstream
+endobj
+11 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 12
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000133 00000 n 
+0000000260 00000 n 
+0000000387 00000 n 
+0000000514 00000 n 
+0000000642 00000 n 
+0000003907 00000 n 
+0000006688 00000 n 
+0000008808 00000 n 
+0000009170 00000 n 
+trailer
+<< /Size 12 /Root 1 0 R >>
+startxref
+9241
+%%EOF
