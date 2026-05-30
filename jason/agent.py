@@ -7,7 +7,10 @@ import os
 
 from .evaluator import evaluate_state, snapshot_from_eval
 from .harness import DEFAULT_STOP_CONDITIONS, run_offline
+from .context_broker import ContextBroker
+from .legal_skills import LEGAL_AUTHORITY_HIERARCHY, match_legal_skills
 from .memory import ResearchTask, TruthRepo
+from .program import build_program_seed
 from .scheduler import schedule_from_evaluation
 from .workers import run_worker
 
@@ -18,11 +21,13 @@ except ImportError:  # pragma: no cover - exercised only without SDK dependency 
     Agent = None
     Runner = None
 
-    def function_tool(func):
+    def function_tool(func=None, **_kwargs):
+        if func is None:
+            return lambda wrapped: wrapped
         return func
 
 
-DEFAULT_MODEL = "gpt-5-mini"
+DEFAULT_MODEL = "gpt-5.5"
 
 
 @function_tool
@@ -31,34 +36,122 @@ def initialize_research_program(goal: str, repo_dir: str) -> str:
     repo = TruthRepo(Path(repo_dir))
     if repo.load_state(include_events=False)["program"]:
         return json.dumps({"status": "already_initialized", "repo_dir": repo_dir})
+    seed = build_program_seed(goal)
     repo.write_program(
-        objective=goal,
-        subquestions=[
-            "What primary authority controls the research question?",
-            "Which competing hypotheses should be maintained?",
-            "What evidence supports or contradicts each claim?",
-            "What practical risks or downstream implications matter?",
-        ],
-        stop_conditions=DEFAULT_STOP_CONDITIONS,
+        objective=seed.objective,
+        subquestions=seed.subquestions,
+        stop_conditions=seed.stop_conditions,
     )
-    repo.upsert_claim("c001", "Pure AI-generated code is unlikely to be copyrightable without human authorship.", confidence=0.38)
-    repo.upsert_claim("c002", "AI-assisted code may be copyrightable when humans contribute expressive control.", confidence=0.48)
-    repo.upsert_claim("c003", "The legal boundary depends on prompting versus human selection, arrangement, and editing.", confidence=0.44)
-    repo.upsert_claim("c004", "Startups face provenance, licensing, and diligence risks from AI-generated code.", confidence=0.35)
-    repo.add_contradiction(
-        "k001",
-        "c001",
-        "Pure AI output is not protectable, but AI-assisted output can contain human-authored expression.",
-        resolved=False,
-    )
+    for claim in seed.claims:
+        repo.upsert_claim(claim.claim_id, claim.claim, confidence=claim.confidence)
+    for contradiction in seed.contradictions:
+        repo.add_contradiction(
+            contradiction.contradiction_id,
+            contradiction.claim_id,
+            contradiction.note,
+            resolved=False,
+        )
     repo.record_agent_run("hypothesis_agent", "bootstrap", "Created initial competing hypotheses and claim map.")
     return json.dumps({"status": "initialized", "repo_dir": repo_dir})
 
 
 @function_tool
 def read_truth_repo(repo_dir: str) -> str:
-    """Read the current Truth Maintenance Repo state as JSON."""
+    """Read the full Truth Maintenance Repo state as JSON. Use only for debugging small repos."""
     return json.dumps(TruthRepo(Path(repo_dir)).load_state())
+
+
+@function_tool
+def list_legal_skills(goal: str = "") -> str:
+    """List Jason legal skills and the ones matched to a legal research goal."""
+    matched = {skill.name for skill in match_legal_skills(goal)} if goal else set()
+    skills = [
+        {
+            "name": skill.name,
+            "description": skill.description,
+            "matched": skill.name in matched,
+            "required_source_types": list(skill.required_source_types),
+            "output_checks": list(skill.output_checks),
+        }
+        for skill in match_legal_skills(goal)
+    ]
+    if not goal:
+        from .legal_skills import LEGAL_SKILLS
+
+        skills = [
+            {
+                "name": skill.name,
+                "description": skill.description,
+                "matched": False,
+                "required_source_types": list(skill.required_source_types),
+                "output_checks": list(skill.output_checks),
+            }
+            for skill in LEGAL_SKILLS
+        ]
+    return json.dumps(
+        {
+            "authority_hierarchy": list(LEGAL_AUTHORITY_HIERARCHY),
+            "matched_skill_names": sorted(matched),
+            "skills": skills,
+        }
+    )
+
+
+@function_tool
+def read_control_slice(repo_dir: str, budget_bytes: int = 12_000) -> str:
+    """Read the bounded parent-loop context slice from the Truth Repo."""
+    repo = TruthRepo(Path(repo_dir))
+    return json.dumps(ContextBroker(repo).control_slice(budget_bytes=budget_bytes))
+
+
+@function_tool
+def read_claim_context(repo_dir: str, claim_id: str, budget_bytes: int = 24_000) -> str:
+    """Read scoped claim context with linked evidence and provenance."""
+    repo = TruthRepo(Path(repo_dir))
+    return json.dumps(ContextBroker(repo).claim_context(claim_id, budget_bytes=budget_bytes))
+
+
+@function_tool
+def read_contradiction_context(repo_dir: str, contradiction_id: str, budget_bytes: int = 24_000) -> str:
+    """Read scoped contradiction context with linked claim/evidence provenance."""
+    repo = TruthRepo(Path(repo_dir))
+    return json.dumps(ContextBroker(repo).contradiction_context(contradiction_id, budget_bytes=budget_bytes))
+
+
+@function_tool
+def read_task_context(repo_dir: str, task_id: str, budget_bytes: int = 24_000) -> str:
+    """Read scoped context for a specific worker task."""
+    repo = TruthRepo(Path(repo_dir))
+    return json.dumps(ContextBroker(repo).task_context(task_id, budget_bytes=budget_bytes))
+
+
+def search_truth_repo_evidence_impl(
+    repo_dir: str,
+    query: str = "",
+    source_types: list[str] | None = None,
+    claim_id: str | None = None,
+    accepted: bool | None = True,
+    budget_bytes: int = 24_000,
+    limit: int = 10,
+) -> str:
+    repo = TruthRepo(Path(repo_dir))
+    return json.dumps(
+        ContextBroker(repo).search_evidence(
+            query=query,
+            source_types=source_types,
+            claim_id=claim_id,
+            accepted=accepted,
+            budget_bytes=budget_bytes,
+            limit=limit,
+        )
+    )
+
+
+search_truth_repo_evidence = function_tool(
+    search_truth_repo_evidence_impl,
+    name_override="search_truth_repo_evidence",
+    description_override="Search scoped Truth Repo evidence by query, source type, claim, and acceptance status.",
+)
 
 
 @function_tool
@@ -76,6 +169,7 @@ def schedule_targeted_workers(repo_dir: str, evaluation_json: str) -> str:
     repo = TruthRepo(Path(repo_dir))
     evaluation = json.loads(evaluation_json)
     tasks = schedule_from_evaluation(snapshot_from_eval(evaluation), repo.existing_task_goals())
+    repo.record_planner_run(int(evaluation.get("iteration", 0)), evaluation, tasks)
     repo.append_event(
         "parent_decision",
         {
@@ -126,7 +220,12 @@ def build_parent_agent(model: str | None = None):
         instructions=_parent_instructions(),
         tools=[
             initialize_research_program,
-            read_truth_repo,
+            list_legal_skills,
+            read_control_slice,
+            read_claim_context,
+            read_contradiction_context,
+            read_task_context,
+            search_truth_repo_evidence,
             evaluate_truth_repo,
             schedule_targeted_workers,
             run_pending_workers,
@@ -143,8 +242,8 @@ async def run_agent(goal: str, repo_dir: Path, max_iterations: int = 3, model: s
         f"Research goal: {goal}\n"
         f"Truth repo directory: {repo_dir}\n"
         f"Maximum iterations: {max_iterations}\n\n"
-        "Run the state-driven autoresearch loop. Initialize memory, evaluate state, "
-        "spawn targeted workers based on measured weaknesses, run workers, repeat until "
+        "Run the state-driven autoresearch loop. Initialize memory, read the bounded "
+        "control slice, evaluate state, spawn targeted workers based on measured weaknesses, run workers, repeat until "
         "stop conditions pass or max iterations is reached, then write the final report. "
         "Return a concise JSON summary with repo path, iterations, final status, and report path."
     )
@@ -186,9 +285,17 @@ Control loop:
 6. Write a final report grounded in the Truth Repo.
 
 Important:
-- Use the Truth Repo as operational memory.
+- Use read_control_slice for parent-loop state. Use read_claim_context,
+  read_contradiction_context, or read_task_context when a decision needs
+  detailed evidence. Use search_truth_repo_evidence to find prior evidence
+  before spawning duplicate work. Do not read the full repo unless debugging a small run.
 - Spawn workers from concrete gaps, not vibes.
 - Do not claim a source supports a claim unless an evidence record says so.
+- For legal goals, activate Jason's legal skills: scope jurisdiction and authority
+  hierarchy first, distinguish binding authority from guidance or commentary,
+  preserve date sensitivity, and flag human-review gates instead of presenting
+  the output as legal advice. Use list_legal_skills when you need the matched
+  practice-area checks.
 - Return concise JSON at the end.
 """
 
