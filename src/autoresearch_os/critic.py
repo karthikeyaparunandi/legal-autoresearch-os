@@ -11,7 +11,11 @@ def critique_claims(claims: list[Claim]) -> tuple[list[Contradiction], list[str]
         if not claim.supporting_sources:
             criticisms.append(f"{claim.claim_id}: no supporting evidence yet.")
         if claim.contradicting_sources:
-            can_scope = "Pure AI-generated" in claim.claim and claim.supporting_sources
+            claim_lower = claim.claim.lower()
+            can_scope = bool(
+                claim.supporting_sources
+                and ("pure ai" in claim_lower or "solely by an ai" in claim_lower or "without meaningful human" in claim_lower)
+            )
             contradictions.append(
                 Contradiction(
                     claim=claim.claim,

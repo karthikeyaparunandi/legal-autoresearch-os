@@ -36,6 +36,15 @@ DEMO_EVIDENCE = [
     ),
     Evidence(
         source_id="source_004",
+        title="Copyright Office registration consequence for non-human authorship",
+        url="https://www.copyright.gov/ai/",
+        source_type="agency_guidance",
+        excerpt="If material lacks sufficient human authorship, registration may need to exclude that material, creating ownership and diligence risk for software companies.",
+        supports=["h004"],
+        reliability=0.88,
+    ),
+    Evidence(
+        source_id="source_005",
         title="Open source and AI code provenance diligence pattern",
         url="local://startup-risk-analysis",
         source_type="domain_analysis",
@@ -44,13 +53,12 @@ DEMO_EVIDENCE = [
         reliability=0.72,
     ),
     Evidence(
-        source_id="source_005",
+        source_id="source_006",
         title="Human selection and arrangement counterpoint",
         url="local://human-control-counterpoint",
         source_type="expert_analysis",
         excerpt="Some AI-assisted outputs may include protectable human expression when a person controls selection, arrangement, editing, or code-level changes.",
         supports=["h002", "h003"],
-        contradicts=["h001"],
         reliability=0.68,
     ),
 ]

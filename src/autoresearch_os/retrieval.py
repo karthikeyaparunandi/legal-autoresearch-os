@@ -62,9 +62,9 @@ def retrieve_live_evidence(
             stats.errors[url] = exc.__class__.__name__
             continue
 
-        if not text:
+        if not text or _is_low_signal_retrieval(text):
             stats.failed_urls += 1
-            stats.errors[url] = "empty_response"
+            stats.errors[url] = "low_signal_response" if text else "empty_response"
             continue
 
         stats.successful_urls += 1
@@ -180,6 +180,8 @@ def _best_excerpt(text: str, task_text: str) -> str:
     sentences = re.split(r"(?<=[.!?])\s+", text)
     keywords = [word for word in re.findall(r"[a-zA-Z]{5,}", task_text.lower()) if word not in {"which", "would", "could"}]
     for sentence in sentences:
+        if _is_low_signal_sentence(sentence):
+            continue
         lower = sentence.lower()
         if any(keyword in lower for keyword in ["authorship", "copyright", "artificial intelligence", "generated"]):
             return sentence[:550]
@@ -209,8 +211,29 @@ def _infer_supports(url: str, text: str, hypotheses: list[Hypothesis]) -> list[s
 def _infer_contradictions(url: str, text: str, hypotheses: list[Hypothesis]) -> list[str]:
     lower = f"{url} {text}".lower()
     contradicts: set[str] = set()
-    if any(term in lower for term in ["selection", "arrangement", "human-authored", "human authored"]):
+    if any(term in lower for term in ["ai-generated works are copyrightable without human authorship", "non-human author can own copyright"]):
         for hypothesis in hypotheses:
             if "pure ai-generated" in hypothesis.statement.lower():
                 contradicts.add(hypothesis.hypothesis_id)
     return sorted(contradicts)
+
+
+def _is_low_signal_retrieval(text: str) -> bool:
+    lower = text[:1200].lower()
+    return any(
+        marker in lower
+        for marker in [
+            "please complete the captcha",
+            "request access",
+            "enable javascript",
+            "access denied",
+        ]
+    )
+
+
+def _is_low_signal_sentence(sentence: str) -> bool:
+    cleaned = sentence.strip()
+    if len(cleaned) < 40:
+        return True
+    lower = cleaned.lower()
+    return lower in {"support us!", "main content", "navigation"} or "skip to" in lower

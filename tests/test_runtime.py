@@ -3,9 +3,12 @@ from __future__ import annotations
 import json
 
 from autoresearch_os.cli import main, _format_metrics, _terminal_link
+from autoresearch_os.critic import critique_claims
+from autoresearch_os.knowledge import collect_evidence
 from autoresearch_os.llm import CentralReasoner, LLMConfigurationError, LLMReasoningError
+from autoresearch_os.models import Claim, Hypothesis, Task
 from autoresearch_os.modal_bridge import ModalIntegrationError
-from autoresearch_os.retrieval import fetch_url_text
+from autoresearch_os.retrieval import _infer_contradictions, fetch_url_text
 from autoresearch_os.runtime import ResearchRuntime
 
 
@@ -59,6 +62,62 @@ def test_runtime_auto_tunes_params_for_weak_research_state(tmp_path):
 
     params = json.loads((tmp_path / "gt_repo" / "tuning_params.json").read_text(encoding="utf-8"))
     assert params["min_primary_sources"] > 2
+
+
+def test_human_selection_counterpoint_scopes_rather_than_contradicts():
+    hypotheses = [
+        Hypothesis(
+            hypothesis_id="h001",
+            statement="Pure AI-generated code without meaningful human creative contribution is unlikely to be copyrightable.",
+            rationale="Human authorship is required.",
+        )
+    ]
+
+    contradictions = _infer_contradictions(
+        "local://human-control-counterpoint",
+        "Some AI-assisted outputs may include protectable human expression when a person controls selection and arrangement.",
+        hypotheses,
+    )
+
+    assert contradictions == []
+
+
+def test_critic_resolves_scoped_ai_authorship_contradiction():
+    contradictions, criticisms = critique_claims(
+        [
+            Claim(
+                claim_id="c001",
+                claim="Code generated solely by an AI, without meaningful human creative contribution, is unlikely to be copyrightable.",
+                supporting_sources=["source_001"],
+                contradicting_sources=["source_002"],
+                confidence=0.72,
+                status="supported",
+            )
+        ]
+    )
+
+    assert contradictions[0].resolution_status == "resolved"
+    assert not criticisms
+
+
+def test_demo_fallback_evidence_does_not_create_false_contradiction():
+    tasks = [Task(task_id="t001", title="AI copyright", question="Can AI-generated code be copyrighted?")]
+    hypotheses = [
+        Hypothesis(
+            hypothesis_id="h001",
+            statement="Code generated solely by an AI, without meaningful human creative contribution, is unlikely to be copyrightable.",
+            rationale="Human authorship is required.",
+        ),
+        Hypothesis(
+            hypothesis_id="h002",
+            statement="AI-assisted code with human selection and arrangement can be copyrightable.",
+            rationale="Human expression can still matter.",
+        ),
+    ]
+
+    evidence, _stats = collect_evidence(tasks, hypotheses, live_retrieval=False)
+
+    assert not any("h001" in item.contradicts for item in evidence)
 
 
 def test_runtime_requires_llm_key_when_llm_enabled(tmp_path, monkeypatch):
