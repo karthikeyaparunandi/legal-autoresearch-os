@@ -16,6 +16,21 @@ The Autoresearch Systems Hackathon asks for systems that help agents iteratively
 
 ## Architecture
 
+### High-Level Flow
+
+```mermaid
+flowchart LR
+    user["User Goal"] --> program["Research Program"]
+    program --> runtime["Research Runtime"]
+    runtime --> repo["Truth Maintenance Repo"]
+    repo --> eval["Self-Evaluation"]
+    eval --> decision{"Enough confidence?"}
+    decision -- "No" --> runtime
+    decision -- "Yes" --> report["Grounded Report"]
+```
+
+### Detailed Runtime
+
 ```mermaid
 flowchart TD
     goal["User Goal"] --> generator["Program Generator Agent"]
