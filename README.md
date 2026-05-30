@@ -16,17 +16,51 @@ The Autoresearch Systems Hackathon asks for systems that help agents iteratively
 
 ## Architecture
 
-```text
-User Goal
-  -> Program Generator
-  -> Planner / Orchestrator
-  -> Hypothesis Agent
-  -> Knowledge Agent Pool
-  -> Critic Agent
-  -> Truth Maintenance Repo
-  -> Evaluator
-  -> Knowledge Gap Detector
-  -> Grounded Report
+```mermaid
+flowchart TD
+    goal["User Goal"] --> generator["Program Generator Agent"]
+    generator --> program["program.md"]
+    program --> planner["Planner / Orchestrator"]
+    planner --> tasks["Task DAG"]
+
+    tasks --> hypotheses["Hypothesis Agent"]
+    hypotheses --> hypothesisFile["hypotheses.json"]
+
+    tasks --> knowledge["Knowledge Agent Pool"]
+    knowledge --> web["Web Search Agent"]
+    knowledge --> academic["Academic Agent"]
+    knowledge --> legal["Legal Agent"]
+    knowledge --> company["Company Intelligence Agent"]
+    knowledge --> social["Social Signal Agent"]
+    web --> extraction["Extraction Agent"]
+    academic --> extraction
+    legal --> extraction
+    company --> extraction
+    social --> extraction
+    extraction --> evidence["evidence/*.json"]
+
+    hypothesisFile --> critic["Critic Agent"]
+    evidence --> critic
+    critic --> contradictions["contradictions.json"]
+    critic --> claims["claims.json"]
+
+    program --> gt["Truth Maintenance Repo"]
+    tasks --> gt
+    hypothesisFile --> gt
+    evidence --> gt
+    claims --> gt
+    contradictions --> gt
+
+    gt --> evaluator["Evaluator Agent"]
+    evaluator --> scores["confidence_scores.json"]
+    scores --> stop{"Stop conditions met?"}
+
+    stop -- "No" --> gaps["Knowledge Gap Detector"]
+    gaps --> openQuestions["open_questions.json"]
+    openQuestions --> planner
+
+    stop -- "Yes" --> report["Grounded Research Report"]
+    report --> finalReport["final_report.md"]
 ```
 
 ## Quickstart
