@@ -8,6 +8,7 @@ from .critic import critique_claims
 from .evaluator import evaluate, stop_conditions_met
 from .gaps import detect_gaps
 from .hypotheses import generate_hypotheses
+from .html import write_html
 from .knowledge import claims_from_hypotheses, collect_evidence
 from .models import Evaluation, RunMetrics, write_json
 from .pdf import write_pdf
@@ -104,6 +105,7 @@ class ResearchRuntime:
             "open_questions.json",
             "metrics.json",
             "final_report.md",
+            "final_report.html",
             "final_report.pdf",
         ]
         metrics = self._build_metrics(
@@ -123,6 +125,7 @@ class ResearchRuntime:
 
         report = build_report(program, claims, evidence, contradictions, open_questions, evaluation, metrics)
         (self.out_dir / "final_report.md").write_text(report, encoding="utf-8")
+        write_html(self.out_dir / "final_report.html", "AutoResearch OS Grounded Legal Research Report", report)
         write_pdf(self.out_dir / "final_report.pdf", "AutoResearch OS Grounded Legal Research Report", report)
         return evaluation
 

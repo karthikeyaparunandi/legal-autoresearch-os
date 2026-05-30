@@ -128,6 +128,7 @@ gt_repo/
   open_questions.json
   evals/
   final_report.md
+  final_report.html
   final_report.pdf
 ```
 
@@ -154,7 +155,7 @@ After each evaluation, the tuner nudges these values when the research state is 
 
 ## Final Metrics And PDF Report
 
-Every completed run emits `metrics.json`, adds a run metrics section to `final_report.md`, and generates `final_report.pdf`. The metrics include:
+Every completed run emits `metrics.json`, adds a run metrics section to `final_report.md`, and generates both `final_report.html` and `final_report.pdf`. The metrics include:
 
 - Number of agents spun off
 - Agent-by-agent invocation breakdown

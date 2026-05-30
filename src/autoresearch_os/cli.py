@@ -41,6 +41,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Research complete: overall_confidence={evaluation.overall_confidence:.0%}")
     print(f"Truth-maintenance repo: {args.out.resolve()}")
     print(f"Final report: {(args.out / 'final_report.md').resolve()}")
+    print(f"HTML report: {(args.out / 'final_report.html').resolve()}")
     print(f"PDF report: {(args.out / 'final_report.pdf').resolve()}")
     metrics_path = args.out / "metrics.json"
     if metrics_path.exists():

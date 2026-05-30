@@ -26,6 +26,9 @@ def test_runtime_writes_truth_maintenance_repo(tmp_path):
     report = (tmp_path / "gt_repo" / "final_report.md").read_text(encoding="utf-8")
     assert report.startswith("# Grounded Research Report")
     assert "## Run Metrics" in report
+    html = (tmp_path / "gt_repo" / "final_report.html").read_text(encoding="utf-8")
+    assert "<title>AutoResearch OS Grounded Legal Research Report</title>" in html
+    assert "<h2>Run Metrics</h2>" in html
     assert (tmp_path / "gt_repo" / "final_report.pdf").read_bytes().startswith(b"%PDF")
 
 
