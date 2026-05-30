@@ -17,3 +17,9 @@ modal_url_smoke/
 agent_skills.json
 .env.local
 .DS_Store
+
+# Secrets and LegalBench experiment artifacts (do not commit)
+.env
+.env.local
+legalbench_data/
+legalbench_runs/
