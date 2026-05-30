@@ -78,6 +78,21 @@ autoresearch run \
   --out gt_repo
 ```
 
+Run live retrieval on Modal for faster source fan-out:
+
+```bash
+pip install -e ".[dev,modal]"
+modal setup
+export OPENAI_API_KEY="..."
+autoresearch demo --modal --out demo_gt_repo
+```
+
+For a fast retrieval-only smoke test:
+
+```bash
+modal run modal/app.py
+```
+
 ## Architecture
 
 ### High-Level Loop
@@ -285,9 +300,15 @@ The CLI, `metrics.json`, Markdown report, HTML report, and PDF report include:
 - final confidence
 - stop-condition status
 
-## Modal Hook
+## Modal Acceleration
 
-`modal/app.py` contains a lightweight Modal entrypoint sketch for parallel evidence collection. It is isolated from the local runtime so the CLI demo remains dependency-free.
+`modal/app.py` defines the remote retrieval worker used by `autoresearch demo --modal` and `autoresearch run --modal`. Each legal source URL is fetched and converted into an evidence record in a separate Modal function call, so slow network requests fan out instead of blocking the local process one by one.
+
+Modal is optional:
+
+- Default local retrieval stays dependency-free.
+- `--modal` requires `pip install -e ".[modal]"` and `modal setup`.
+- If Modal is unavailable, the CLI exits with a clear error instead of silently switching paths.
 
 ## Development
 

@@ -42,8 +42,14 @@ def retrieve_live_evidence(
     source_urls: Iterable[str] = (),
     start_index: int = 1,
     timeout_seconds: float = 8.0,
+    use_modal: bool = False,
 ) -> tuple[list[Evidence], RetrievalStats]:
     urls = list(dict.fromkeys([*DEFAULT_LEGAL_SOURCE_URLS, *source_urls]))
+    if use_modal:
+        from .modal_bridge import retrieve_live_evidence_with_modal
+
+        return retrieve_live_evidence_with_modal(urls, tasks, hypotheses, start_index, timeout_seconds)
+
     stats = RetrievalStats(attempted_urls=len(urls), retrieved_urls=[], errors={})
     evidence: list[Evidence] = []
     task_text = " ".join(task.question for task in tasks)

@@ -44,12 +44,14 @@ class ResearchRuntime:
         live_retrieval: bool = True,
         source_urls: list[str] | None = None,
         use_llm: bool = True,
+        use_modal: bool = False,
     ) -> None:
         self.out_dir = out_dir
         self.max_iterations = max_iterations
         self.live_retrieval = live_retrieval
         self.source_urls = source_urls or []
         self.use_llm = use_llm
+        self.use_modal = use_modal
 
     def run(self, goal: str, seed_texts: list[str] | None = None) -> Evaluation:
         started_at = time.perf_counter()
@@ -114,6 +116,7 @@ class ResearchRuntime:
                 self.live_retrieval,
                 self.source_urls,
                 reasoner,
+                self.use_modal,
             )
             agent_traces.append(trace)
             component_seconds["evidence_collection"] += time.perf_counter() - timer

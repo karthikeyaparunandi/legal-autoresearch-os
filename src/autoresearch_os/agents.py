@@ -93,6 +93,7 @@ def run_knowledge_agent(
     live_retrieval: bool,
     source_urls: list[str],
     reasoner: CentralReasoner,
+    use_modal: bool,
 ) -> tuple[list[Evidence], dict, AgentTrace]:
     agent = ResearchAgent(
         "knowledge_agent_pool",
@@ -107,6 +108,7 @@ def run_knowledge_agent(
         seed_texts,
         live_retrieval=live_retrieval,
         source_urls=source_urls,
+        use_modal=use_modal,
     )
     agent.reason_json(
         "Review retrieved evidence quality. Return {\"notes\":[\"...\"]}.",

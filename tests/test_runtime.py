@@ -4,6 +4,7 @@ import json
 
 from autoresearch_os.cli import main, _format_metrics, _terminal_link
 from autoresearch_os.llm import CentralReasoner, LLMConfigurationError
+from autoresearch_os.modal_bridge import ModalIntegrationError
 from autoresearch_os.retrieval import fetch_url_text
 from autoresearch_os.runtime import ResearchRuntime
 
@@ -103,6 +104,19 @@ def test_cli_no_llm_uses_deterministic_fallback(tmp_path, monkeypatch):
     assert metrics["llm_reasoning_enabled"] is False
 
 
+def test_cli_modal_error_is_clear(tmp_path, monkeypatch):
+    import autoresearch_os.knowledge as knowledge
+
+    def fail_modal(*args, **kwargs):
+        raise ModalIntegrationError("Modal is unavailable")
+
+    monkeypatch.setattr(knowledge, "retrieve_live_evidence", fail_modal)
+
+    exit_code = main(["demo", "--no-llm", "--modal", "--out", str(tmp_path / "gt_repo")])
+
+    assert exit_code == 3
+
+
 def test_cli_metrics_formatter_shows_full_summary():
     output = _format_metrics(
         {
@@ -136,6 +150,7 @@ def test_cli_metrics_formatter_shows_full_summary():
             ],
             "retrieval_metrics": {
                 "enabled": True,
+                "modal_enabled": True,
                 "attempted_urls": 3,
                 "successful_urls": 2,
                 "failed_urls": 1,

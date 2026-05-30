@@ -62,6 +62,7 @@ def collect_evidence(
     seed_texts: Iterable[str] = (),
     live_retrieval: bool = True,
     source_urls: Iterable[str] = (),
+    use_modal: bool = False,
 ) -> tuple[list[Evidence], dict]:
     task_text = " ".join(task.question.lower() for task in tasks)
     evidence: list[Evidence] = []
@@ -76,9 +77,12 @@ def collect_evidence(
     }
 
     if live_retrieval:
-        live_evidence, stats = retrieve_live_evidence(tasks, hypotheses, source_urls=source_urls)
+        live_evidence, stats = retrieve_live_evidence(tasks, hypotheses, source_urls=source_urls, use_modal=use_modal)
         evidence.extend(live_evidence)
         retrieval_stats.update(stats.as_dict())
+        retrieval_stats["modal_enabled"] = use_modal
+    else:
+        retrieval_stats["modal_enabled"] = False
 
     is_ai_copyright_research = "ai-generated code" in task_text or ("authorship" in task_text and "ai" in task_text)
     if is_ai_copyright_research:
