@@ -8,14 +8,30 @@ import os
 
 
 DEFAULT_REASONING_MODEL = "gpt-5-mini"
+API_KEY_ENV_VARS = ("OPENAI_API_KEY", "OPEN_API_KEY")
+
+
+class LLMConfigurationError(RuntimeError):
+    pass
+
+
+class LLMReasoningError(RuntimeError):
+    pass
 
 
 class CentralReasoner:
     """Optional central LLM used by all research agents for reasoning."""
 
-    def __init__(self, model: str | None = None, api_key: str | None = None, workspace: Path | None = None) -> None:
+    def __init__(
+        self,
+        model: str | None = None,
+        api_key: str | None = None,
+        workspace: Path | None = None,
+        required: bool = False,
+    ) -> None:
         self.model = model or os.environ.get("AUTORESEARCH_MODEL", DEFAULT_REASONING_MODEL)
         self.api_key = api_key or _load_api_key(workspace)
+        self.required = required
 
     @property
     def enabled(self) -> bool:
@@ -23,6 +39,8 @@ class CentralReasoner:
 
     def reason_json(self, agent_name: str, instruction: str, payload: dict, timeout_seconds: float = 30.0) -> dict | None:
         if not self.api_key:
+            if self.required:
+                raise LLMConfigurationError("Set OPENAI_API_KEY or OPEN_API_KEY, or run with --no-llm.")
             return None
         prompt = (
             "Return only valid JSON. Do not include markdown.\n\n"
@@ -57,19 +75,29 @@ class CentralReasoner:
         try:
             with urlopen(request, timeout=timeout_seconds) as response:
                 raw = response.read().decode("utf-8", errors="replace")
-        except (HTTPError, URLError, TimeoutError, OSError):
+        except HTTPError as exc:
+            if self.required:
+                message = exc.read().decode("utf-8", errors="replace")[:500]
+                raise LLMReasoningError(f"OpenAI reasoning call failed with HTTP {exc.code}: {message}") from exc
+            return None
+        except (URLError, TimeoutError, OSError) as exc:
+            if self.required:
+                raise LLMReasoningError(f"OpenAI reasoning call failed: {exc}") from exc
             return None
         try:
             data = json.loads(raw)
             text = _extract_response_text(data)
             return json.loads(text) if text else None
-        except (json.JSONDecodeError, TypeError, KeyError):
+        except (json.JSONDecodeError, TypeError, KeyError) as exc:
+            if self.required:
+                raise LLMReasoningError("OpenAI reasoning response was not valid JSON.") from exc
             return None
 
 
 def _load_api_key(workspace: Path | None = None) -> str | None:
-    if os.environ.get("OPENAI_API_KEY"):
-        return os.environ["OPENAI_API_KEY"]
+    for name in API_KEY_ENV_VARS:
+        if os.environ.get(name):
+            return os.environ[name]
     candidates = []
     if workspace:
         candidates.extend([workspace / ".env.local", workspace / ".env"])
@@ -78,7 +106,7 @@ def _load_api_key(workspace: Path | None = None) -> str | None:
         if not path.exists():
             continue
         for line in path.read_text(encoding="utf-8").splitlines():
-            if not line.startswith("OPENAI_API_KEY="):
+            if not any(line.startswith(f"{name}=") for name in API_KEY_ENV_VARS):
                 continue
             value = line.split("=", 1)[1].strip().strip('"').strip("'")
             return value or None

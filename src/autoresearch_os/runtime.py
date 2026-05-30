@@ -71,7 +71,7 @@ class ResearchRuntime:
         (self.out_dir / "evals").mkdir(exist_ok=True)
 
         tuning_params = load_tuning_params(self.out_dir)
-        reasoner = CentralReasoner(workspace=self.out_dir.parent) if self.use_llm else CentralReasoner(api_key="")
+        reasoner = CentralReasoner(workspace=self.out_dir.parent, required=True) if self.use_llm else CentralReasoner(api_key="")
         agent_traces: list[AgentTrace] = []
         timer = time.perf_counter()
         program = generate_program(goal)

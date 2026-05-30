@@ -4,6 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
+from .llm import LLMConfigurationError, LLMReasoningError
 from .runtime import ResearchRuntime
 
 
@@ -19,6 +20,7 @@ DIM = "\033[2m"
 GREEN = "\033[32m"
 CYAN = "\033[36m"
 YELLOW = "\033[33m"
+RED = "\033[31m"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -57,7 +59,12 @@ def main(argv: list[str] | None = None) -> int:
         source_urls=args.source_url,
         use_llm=not args.no_llm,
     )
-    evaluation = runtime.run(goal, seed_texts=seed_texts)
+    try:
+        evaluation = runtime.run(goal, seed_texts=seed_texts)
+    except (LLMConfigurationError, LLMReasoningError) as exc:
+        print(f"{BOLD}{RED}LLM reasoning failed{RESET}: {exc}")
+        print(f"{DIM}Set OPENAI_API_KEY or OPEN_API_KEY, or pass --no-llm for deterministic fallback.{RESET}")
+        return 2
     metrics_path = args.out / "metrics.json"
     html_path = (args.out / "final_report.html").resolve()
     pdf_path = (args.out / "final_report.pdf").resolve()
