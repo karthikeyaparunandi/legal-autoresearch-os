@@ -13,6 +13,14 @@ DEMO_GOAL = (
 )
 
 
+RESET = "\033[0m"
+BOLD = "\033[1m"
+DIM = "\033[2m"
+GREEN = "\033[32m"
+CYAN = "\033[36m"
+YELLOW = "\033[33m"
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="autoresearch", description="Run the AutoResearch OS control loop.")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -38,12 +46,15 @@ def main(argv: list[str] | None = None) -> int:
 
     runtime = ResearchRuntime(args.out, max_iterations=args.max_iterations)
     evaluation = runtime.run(goal, seed_texts=seed_texts)
-    print(f"Research complete: overall_confidence={evaluation.overall_confidence:.0%}")
-    print(f"Truth-maintenance repo: {args.out.resolve()}")
-    print(f"Final report: {(args.out / 'final_report.md').resolve()}")
-    print(f"HTML report: {(args.out / 'final_report.html').resolve()}")
-    print(f"PDF report: {(args.out / 'final_report.pdf').resolve()}")
     metrics_path = args.out / "metrics.json"
+    html_path = (args.out / "final_report.html").resolve()
+    pdf_path = (args.out / "final_report.pdf").resolve()
+    md_path = (args.out / "final_report.md").resolve()
+    print(f"{BOLD}{GREEN}Research complete{RESET} {DIM}overall_confidence={evaluation.overall_confidence:.0%}{RESET}")
+    print(f"{CYAN}HTML report:{RESET} {_terminal_link(html_path, str(html_path))}")
+    print(f"{DIM}Markdown:{RESET} {md_path}")
+    print(f"{DIM}PDF:{RESET} {pdf_path}")
+    print(f"{DIM}Truth-maintenance repo:{RESET} {args.out.resolve()}")
     if metrics_path.exists():
         metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
         print(_format_metrics(metrics))
@@ -51,31 +62,56 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _format_metrics(metrics: dict) -> str:
-    lines = [
-        "",
-        "Final Metrics",
-        "-------------",
-        f"Generated at: {metrics['generated_at']}",
-        f"Runtime: {metrics['total_runtime_seconds']:.3f}s",
-        f"Iterations completed: {metrics['iterations_completed']}",
-        f"Agents spun off: {metrics['agents_spun_off']}",
-        f"Tasks generated: {metrics['tasks_count']}",
-        f"Hypotheses generated: {metrics['hypotheses_count']}",
-        f"Evidence records collected: {metrics['evidence_count']}",
-        f"Source categories: {metrics['source_type_count']}",
-        f"Claims evaluated: {metrics['claims_count']}",
-        f"Supported claims: {metrics['supported_claims_count']}",
-        f"Contradictions detected: {metrics['contradictions_count']}",
-        f"Contradictions resolved: {metrics['resolved_contradictions_count']}",
-        f"Open questions remaining: {metrics['open_questions_count']}",
-        f"Final confidence: {metrics['final_confidence']:.0%}",
-        f"Stop conditions met: {metrics['stop_conditions_met']}",
-        "",
-        "Agent Breakdown",
-        "---------------",
+    summary_rows = [
+        ("Generated at", metrics["generated_at"]),
+        ("Runtime", f"{metrics['total_runtime_seconds']:.3f}s"),
+        ("Iterations", metrics["iterations_completed"]),
+        ("Agents spun off", metrics["agents_spun_off"]),
+        ("Hypotheses", metrics["hypotheses_count"]),
+        ("Tasks", metrics["tasks_count"]),
+        ("Evidence records", metrics["evidence_count"]),
+        ("Source categories", metrics["source_type_count"]),
+        ("Claims", f"{metrics['supported_claims_count']} supported / {metrics['claims_count']} total"),
+        (
+            "Contradictions",
+            f"{metrics['resolved_contradictions_count']} resolved / {metrics['contradictions_count']} detected",
+        ),
+        ("Open questions", metrics["open_questions_count"]),
+        ("Final confidence", f"{metrics['final_confidence']:.0%}"),
+        ("Stop conditions met", metrics["stop_conditions_met"]),
     ]
-    lines.extend([f"{name}: {count}" for name, count in metrics["agent_breakdown"].items()])
+    agent_rows = [(name, count) for name, count in metrics["agent_breakdown"].items()]
+    return "\n".join(
+        [
+            "",
+            f"{BOLD}{CYAN}Final Metrics{RESET}",
+            _table(("Metric", "Value"), summary_rows),
+            "",
+            f"{BOLD}{YELLOW}Agent Breakdown{RESET}",
+            _table(("Agent", "Count"), agent_rows),
+        ]
+    )
+
+
+def _table(headers: tuple[str, str], rows: list[tuple[str, object]]) -> str:
+    text_rows = [(str(left), str(right)) for left, right in rows]
+    left_width = max(len(headers[0]), *(len(row[0]) for row in text_rows))
+    right_width = max(len(headers[1]), *(len(row[1]) for row in text_rows))
+    rule = f"+-{'-' * left_width}-+-{'-' * right_width}-+"
+    lines = [
+        rule,
+        f"| {BOLD}{headers[0].ljust(left_width)}{RESET} | {BOLD}{headers[1].ljust(right_width)}{RESET} |",
+        rule,
+    ]
+    for left, right in text_rows:
+        lines.append(f"| {left.ljust(left_width)} | {right.rjust(right_width)} |")
+    lines.append(rule)
     return "\n".join(lines)
+
+
+def _terminal_link(path: Path, label: str) -> str:
+    uri = path.as_uri()
+    return f"\033]8;;{uri}\033\\{BOLD}{label}{RESET}\033]8;;\033\\"
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from autoresearch_os.cli import _format_metrics
+from autoresearch_os.cli import _format_metrics, _terminal_link
 from autoresearch_os.runtime import ResearchRuntime
 
 
@@ -65,7 +65,17 @@ def test_cli_metrics_formatter_shows_full_summary():
     )
 
     assert "Final Metrics" in output
-    assert "Agents spun off: 24" in output
-    assert "Hypotheses generated: 4" in output
-    assert "Runtime: 1.230s" in output
-    assert "legal_agent: 2" in output
+    assert "Agent Breakdown" in output
+    assert "Agents spun off" in output
+    assert "24" in output
+    assert "Hypotheses" in output
+    assert "1.230s" in output
+    assert "legal_agent" in output
+
+
+def test_terminal_link_points_to_file(tmp_path):
+    path = tmp_path / "final_report.html"
+    link = _terminal_link(path, str(path))
+
+    assert path.as_uri() in link
+    assert "final_report.html" in link
