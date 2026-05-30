@@ -304,11 +304,15 @@ The CLI, `metrics.json`, Markdown report, HTML report, and PDF report include:
 
 `modal/app.py` defines the remote retrieval worker used by `autoresearch demo --modal` and `autoresearch run --modal`. Each legal source URL is fetched and converted into an evidence record in a separate Modal function call, so slow network requests fan out instead of blocking the local process one by one.
 
+The design follows the same control-plane/data-plane split as [`modal-labs/openai-agents-python-example`](https://github.com/modal-labs/openai-agents-python-example): keep an orchestrator in charge of state, then fan out bounded worker jobs on Modal. In this repo, `ResearchRuntime` is the orchestrator, `knowledge_agent_pool` is the retrieval pool, and `modal/app.py` is the remote worker layer.
+
 Modal is optional:
 
 - Default local retrieval stays dependency-free.
 - `--modal` requires `pip install -e ".[modal]"` and `modal setup`.
 - If Modal is unavailable, the CLI exits with a clear error instead of silently switching paths.
+
+See [docs/modal_agents_reference.md](docs/modal_agents_reference.md) for the mapping between the reference project and this legal research runtime.
 
 ## Development
 
