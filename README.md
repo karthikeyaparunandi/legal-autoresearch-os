@@ -271,7 +271,7 @@ This gives the runtime a contract to satisfy. The planner converts that contract
 
 ### Innovation In Agent Control
 
-The runtime separates role reasoning from orchestration. `ResearchRuntime` owns the state machine, while role agents execute bounded steps:
+The runtime separates role reasoning from orchestration. `ResearchRuntime` owns the state machine, while role agents execute bounded steps with explicit goals, tools, learned skills, traces, and OpenAI Agents SDK reasoning calls:
 
 - `hypothesis_agent` proposes legal theories and expected evidence.
 - `critic_agent` attacks claims and surfaces contradictions.
@@ -281,6 +281,8 @@ The runtime separates role reasoning from orchestration. `ResearchRuntime` owns 
 - `auto_tuner` changes thresholds and retrieval requirements over time.
 
 Control is measurable. The system records iteration status, confidence deltas, evidence counts, contradiction counts, open questions, blocked sources, and component runtimes. It stops only when convergence criteria are met or a plateau is detected.
+
+The novelty is that "agent" does not mean "thread." A programming thread only runs code concurrently. A Legal AutoResearch OS agent has a role contract, a tool set, learned skills, bounded LLM reasoning, structured inputs/outputs, and a trace. The orchestrator can compare their outputs, route failures into new tasks, tune thresholds, and decide whether the whole research state has converged.
 
 ### Innovation In Memory
 
@@ -341,6 +343,14 @@ The current runtime exposes these agent roles:
 - `report_generator`: produces Markdown, HTML, and PDF reports.
 
 Each role agent has deterministic tools plus an OpenAI Agents SDK reasoning call. The local runtime owns orchestration and state, while SDK `Agent` instances perform the compact JSON reasoning steps for hypothesis refinement, evidence review, and criticism. Agent traces are written into `metrics.json` and shown in the CLI and HTML report, including tools used, loop steps, output counts, and whether LLM reasoning was used.
+
+Agent behavior is stateful across runs through learned skills. At run start, the runtime loads `agent_skills.json` from the parent output directory, merges it with default skills, and passes the relevant skill list into the agent's OpenAI Agents SDK prompt as `learned_skills`. At run end, the skill memory is updated from the evaluator result, blocked retrievals, weak citation grounding, unresolved contradictions, and open questions.
+
+In practical terms:
+
+- With LLM reasoning enabled, skills are active instructions that affect hypothesis refinement, evidence review, critique, and Modal hypothesis-agent behavior.
+- With `--no-llm`, skills are still loaded, snapshotted, and updated, but deterministic fallback tools only use a smaller fixed behavior set. Offline mode is therefore reproducible, while full agent skill adaptation happens through the OpenAI Agents SDK layer.
+- Every run writes its active skill snapshot into the truth-maintenance repo so judges can inspect what each agent knew during that run.
 
 ## Truth-Maintenance Repo
 
@@ -457,13 +467,25 @@ The CLI, `metrics.json`, Markdown report, HTML report, and PDF report include:
 
 Agents improve across queries through a persistent `agent_skills.json` file written beside your run directories. Each run snapshots the active skills into its truth-maintenance repo as `agent_skills.json`, then updates the shared skill memory from convergence results, blocked retrievals, citation grounding, contradictions, and open questions.
 
-Those learned skills are fed into future OpenAI Agents SDK prompts for:
+Those learned skills are active when LLM reasoning is enabled. They are fed into future OpenAI Agents SDK prompts as `learned_skills` for:
 
 - `hypothesis_agent`
 - `knowledge_agent_pool`
 - `critic_agent`
 - `hypothesis_refinement_agent`
 - `modal_hypothesis_agent`
+
+Examples of learned skills include:
+
+- replace blocked or low-signal retrieval with accessible primary authority
+- avoid treating blocked pages as evidence
+- require primary authority before marking a claim citation-grounded
+- map unresolved open questions back to the exact claim or hypothesis they can repair
+- resolve contradictions by separating legal categories, factual assumptions, and source authority
+
+This is intentionally implemented as prompt-level skill memory rather than hidden mutation of deterministic tools. That makes the behavior explainable during a demo: the report and truth repo can show both the learned skills and the agent traces that used them.
+
+In offline `--no-llm` mode, the same skills are still loaded, snapshotted, and updated, but they have limited effect because deterministic fallback tools do not run the OpenAI Agents SDK reasoning layer.
 
 The shared `agent_skills.json` is intentionally ignored by git because it is local run memory. Delete it to reset learned behavior.
 
