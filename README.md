@@ -1,32 +1,37 @@
 # Legal AutoResearch OS
 
-Legal AutoResearch OS is a legal research control system for the Modal Autoresearch Systems Hackathon. It turns a legal question into an executable research program, runs specialized agents through hypothesis/evidence/critic loops, maintains a persistent truth repository, evaluates convergence, and emits a grounded legal memo with citations, metrics, and a reasoning trace.
+Legal AutoResearch OS is an autonomous legal research control system built for the Modal Autoresearch Systems Hackathon. It turns a legal question into an executable `program.md`, runs tool-using agents through hypothesis/evidence/critic feedback loops, maintains a persistent truth-maintenance repo, evaluates convergence, and emits a grounded legal memo with linked citations, metrics, and a reasoning trace.
 
-The prototype is intentionally narrowed to legal research. Each run records legal metadata such as jurisdiction, practice area, authority hierarchy, required source types, citation policy, risk posture, and uncertainty policy.
+The project is intentionally narrowed to legal research because legal work rewards the exact properties autoresearch systems need: explicit objectives, authority hierarchy, source grounding, contradiction handling, uncertainty, and auditability. Each run records legal metadata such as jurisdiction, practice area, controlling authority, required source types, citation policy, risk posture, and uncertainty policy.
 
-## The Idea
+## Hackathon Pitch
 
-Legal AutoResearch OS is not just an agent with memory. It is a research control system that keeps improving a structured legal research state until measurable objectives are satisfied.
+Most research agents produce an answer. Legal AutoResearch OS produces a research state that can explain why the answer is trusted, what evidence supports it, what contradictions remain, and why the system stopped.
+
+The core innovation is the control loop:
 
 ```text
-Research
--> Truth Maintenance
--> Self Evaluation
--> Knowledge Gap Detection
--> New Research Tasks
--> Research Again
+Legal Question
+  -> Research Program
+  -> Hypothesis / Knowledge / Critic Agent Loop
+  -> Truth Maintenance Repo
+  -> Self Evaluation
+  -> Knowledge Gap Detection
+  -> New Tasks
+  -> Research Again Until Converged
+  -> Grounded Legal Memo
 ```
 
-The final output is not only an answer. It is a report backed by claims, evidence, contradictions, confidence scores, source links, agent traces, and stop-condition metrics.
+This is not just "an agent with memory." It is a research operating system where planning, control, memory, retrieval, evaluation, and reporting are first-class components.
 
-## What Makes It Different
+## What Judges Should Notice
 
-- A central OpenAI Agents SDK reasoning layer coordinates the legal research process by default.
-- Role agents are explicit tool-using workers, not anonymous programming threads.
-- A truth-maintenance repo stores claims, evidence, contradictions, confidence, open questions, and tuning parameters.
-- The evaluator scores objective completion, citation grounding, evidence coverage, contradiction resolution, source diversity, and open questions.
-- A knowledge-gap detector converts weak research states into new tasks.
-- Tuning parameters adapt over time when the evaluator finds weak evidence, unresolved contradictions, or insufficient primary authority.
+- Planning innovation: legal questions are compiled into `program.md` with objectives, scope, jurisdiction, authority hierarchy, required source types, and stop conditions.
+- Control innovation: the runtime has both an inner hypothesis/knowledge/critic feedback loop and an outer evaluation/gap-detection loop.
+- Memory innovation: the truth-maintenance repo persists claims, evidence, contradictions, confidence, open questions, tuning parameters, and learned agent skills.
+- Agentic architecture: agents are explicit role workers with tools, traces, LLM reasoning calls, and measurable outputs, not anonymous threads.
+- End-to-end autoresearch: the system plans, retrieves, reasons, criticizes, scores, detects gaps, tunes itself, and generates a cited report without manual stitching.
+- Systems integration: OpenAI Agents SDK provides role reasoning, Modal accelerates distributed retrieval/agent work, and Raindrop traces the research loop for auditability.
 
 ## Quickstart
 
@@ -111,25 +116,32 @@ modal run modal/app.py
 
 ## Architecture
 
-### High-Level Loop
-
-```mermaid
-flowchart LR
-    goal["User Goal"] --> program["Research Program<br/>(program.md)"]
-    program --> runtime["Research Runtime<br/>Hypothesize · Critique · Retrieve"]
-    runtime --> truth["Truth Maintenance Repo<br/>Claims · Evidence · Contradictions"]
-    truth --> eval["Self Evaluation<br/>Objectives · Citations · Contradictions"]
-    eval --> gaps["Knowledge Gap Detector"]
-    gaps --> converged{"Research State<br/>Converged?"}
-    converged -- "No: new tasks" --> runtime
-    converged -- "Yes" --> report["Grounded Legal Memo<br/>HTML · PDF · Markdown"]
-```
-
-### Runtime Detail
+### System-Level Autoresearch Loop
 
 ```mermaid
 flowchart TD
-    goal["User Goal"] --> generator["Program Generator Agent"]
+    goal["Legal Question"] --> program["Research Program<br/>program.md"]
+    program --> planner["Planner / Orchestrator<br/>task DAG + legal constraints"]
+    planner --> runtime["Agentic Research Runtime"]
+    runtime --> truth["Truth-Maintenance Repo<br/>claims · evidence · contradictions · confidence"]
+    truth --> evaluator["Self Evaluation<br/>objective completion · grounding · coverage · risk"]
+    evaluator --> gaps["Knowledge Gap Detector<br/>missing authority · weak claims · open questions"]
+    gaps --> decision{"Research State<br/>Converged?"}
+    decision -- "No: create follow-up tasks" --> planner
+    decision -- "Yes: stop condition met" --> report["Grounded Legal Memo<br/>HTML · PDF · Markdown"]
+    evaluator --> tuner["Auto-Tuner<br/>thresholds · source targets · penalties"]
+    tuner --> planner
+    tuner --> runtime
+    report --> audit["Audit Trail<br/>metrics.json · agent traces · Raindrop spans"]
+```
+
+The outer loop makes the system autonomous: it does not stop because an LLM produced prose. It stops when objective completion, citation grounding, evidence coverage, contradiction resolution, source diversity, confidence stability, and open questions satisfy measurable convergence gates.
+
+### Agentic Runtime And Feedback Loops
+
+```mermaid
+flowchart TD
+    goal["Legal Question"] --> generator["Program Generator Agent"]
     generator --> program["Research Program<br/>program.md"]
     generator --> legalMeta["Legal Metadata<br/>jurisdiction · authority hierarchy · risk posture"]
 
@@ -141,11 +153,14 @@ flowchart TD
         hypotheses["Hypothesis Agent<br/>candidate legal theories"]
         critic["Critic Agent<br/>weaknesses · alternatives · contradictions"]
         knowledge["Knowledge Agent Pool<br/>legal · web · academic · company · social"]
+        modalWorkers["Modal Worker Pool<br/>parallel URL / hypothesis evaluation"]
         extraction["Extraction Agent<br/>facts · citations · source metadata"]
-        hypotheses --> critic
-        critic --> knowledge
-        knowledge --> extraction
-        extraction -- "evidence updates" --> hypotheses
+        hypotheses -- "candidate theories" --> critic
+        critic -- "questions + attack plan" --> knowledge
+        knowledge -- "URLs / tasks" --> modalWorkers
+        modalWorkers -- "retrieved evidence" --> extraction
+        knowledge -- "local evidence" --> extraction
+        extraction -- "support / refute / update" --> hypotheses
         critic -- "revise / split / discard" --> hypotheses
     end
 
@@ -202,7 +217,112 @@ flowchart TD
     converged -- "Yes" --> report["Grounded Legal Report<br/>linked citations · reasoning diagram · metrics"]
 ```
 
-The hypothesis, critic, and knowledge agents form an inner feedback loop. Hypotheses are challenged by the critic, tested by knowledge agents, updated from extracted evidence, and revised before the truth repo is evaluated. `--feedback-rounds` is reserved for contradiction-driven refinement; ordinary open questions become follow-up tasks in the outer loop so the runtime does not repeat expensive retrieval work unnecessarily.
+The hypothesis, critic, and knowledge agents form an inner feedback loop. Hypotheses are challenged by the critic, tested by knowledge agents, updated from extracted evidence, and revised before the truth repo is evaluated. `--feedback-rounds` controls additional contradiction-driven refinement inside this inner loop; ordinary open questions become follow-up tasks in the outer loop so the runtime does not repeat expensive retrieval work unnecessarily.
+
+### Control Plane, Data Plane, And Observability
+
+```mermaid
+flowchart LR
+    subgraph control["Control Plane"]
+        orchestrator["ResearchRuntime<br/>state machine + stop conditions"]
+        sdk["OpenAI Agents SDK<br/>central reasoning layer"]
+        evaluator["Evaluator<br/>deterministic score + LLM audit"]
+    end
+
+    subgraph data["Data Plane"]
+        retrieval["Retrieval Tools<br/>web search + source scoring"]
+        modal["Modal<br/>parallel fetch / extract / hypothesis workers"]
+        truth["Truth Repo<br/>persistent memory"]
+    end
+
+    subgraph observe["Observability"]
+        cli["CLI Tables<br/>metrics + links"]
+        html["HTML Report<br/>citations + diagrams"]
+        raindrop["Raindrop Workshop<br/>tool spans + feedback"]
+    end
+
+    orchestrator --> sdk
+    orchestrator --> retrieval
+    retrieval --> modal
+    retrieval --> truth
+    sdk --> truth
+    truth --> evaluator
+    evaluator --> orchestrator
+    orchestrator --> cli
+    orchestrator --> html
+    orchestrator --> raindrop
+```
+
+This split is deliberate. The local orchestrator owns legal state, stop conditions, and reproducibility. Modal is used for bounded parallel work. OpenAI Agents SDK is used for role reasoning. Raindrop is used to make the whole process inspectable during demos.
+
+## Judging Criteria Mapping
+
+### Innovation In Planning
+
+Legal AutoResearch OS compiles a natural-language legal question into an executable research program instead of sending the question directly to a chat agent. The generated `program.md` captures:
+
+- legal objective and sub-questions
+- jurisdiction, practice area, and governing authority hierarchy
+- source requirements such as statutes, agency guidance, cases, policy documents, and secondary sources
+- risk posture and uncertainty policy
+- evaluator thresholds and stop conditions
+
+This gives the runtime a contract to satisfy. The planner converts that contract into a task DAG, then the knowledge-gap detector adds new tasks when evaluation finds missing authority, thin evidence, unresolved contradictions, or weak citation grounding.
+
+### Innovation In Agent Control
+
+The runtime separates role reasoning from orchestration. `ResearchRuntime` owns the state machine, while role agents execute bounded steps:
+
+- `hypothesis_agent` proposes legal theories and expected evidence.
+- `critic_agent` attacks claims and surfaces contradictions.
+- `knowledge_agent_pool` retrieves and scores evidence.
+- `hypothesis_refinement_agent` revises theories from critic output and new evidence.
+- `evaluator_agent` audits whether the research state satisfies the program.
+- `auto_tuner` changes thresholds and retrieval requirements over time.
+
+Control is measurable. The system records iteration status, confidence deltas, evidence counts, contradiction counts, open questions, blocked sources, and component runtimes. It stops only when convergence criteria are met or a plateau is detected.
+
+### Innovation In Memory
+
+Memory is not a chat transcript. Each run creates a truth-maintenance repo that acts like a structured research database:
+
+- `claims.json` stores claim text, confidence, and supporting evidence ids.
+- `evidence/*.json` stores source metadata, excerpts, reliability, relevance, and citation anchors.
+- `contradictions.json` stores conflicts and resolution status.
+- `open_questions.json` stores unresolved gaps for future planning.
+- `confidence_scores.json` stores convergence history.
+- `tuning_params.json` stores adaptive constants.
+- `agent_skills.json` stores learned retrieval, critique, and refinement behaviors for future queries.
+
+This makes research auditable and resumable. A teammate can inspect why a claim was supported, which source was used, which contradiction was unresolved, and which gate prevented convergence.
+
+### End-To-End Autoresearch Innovation
+
+The system performs the full research lifecycle:
+
+```text
+Question
+  -> legal program generation
+  -> task planning
+  -> hypothesis generation
+  -> live retrieval / Modal fan-out
+  -> evidence extraction and source scoring
+  -> claim synthesis
+  -> critique and contradiction detection
+  -> hypothesis refinement
+  -> convergence evaluation with LLM audit
+  -> knowledge-gap planning
+  -> auto-tuning
+  -> cited HTML / PDF / Markdown report
+```
+
+The generated report is part of the research system, not a cosmetic export. It includes the user query, short answer with linked citations, source table, reasoning/rationale diagram, component metrics, convergence progress, agent tool loops, contradictions, open questions, and Raindrop feedback when tracing is enabled.
+
+### Integration Story
+
+- OpenAI Agents SDK: provides the central role-reasoning layer. Each role receives structured state and returns bounded JSON reasoning, keeping LLM output inspectable instead of free-form.
+- Modal: accelerates the data plane with parallel URL fetch/extract work and hypothesis-agent workers while the local orchestrator keeps control of truth state and convergence.
+- Raindrop: provides demo-time observability. Each major phase is traced as a span so judges can inspect what happened, where time was spent, and why the evaluator trusted or rejected the result.
 
 ## Agents
 
