@@ -28,8 +28,8 @@ if modal:
     app = modal.App("autoresearch-os")
     image = (
         modal.Image.debian_slim(python_version="3.11")
-        .add_local_dir("src/autoresearch_os", "/root/autoresearch_os")
         .env({"PYTHONPATH": "/root"})
+        .add_local_dir("src/autoresearch_os", "/root/autoresearch_os")
     )
 
     @app.function(image=image, timeout=45)
