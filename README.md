@@ -60,6 +60,16 @@ Run deterministic fallback mode for offline tests or no-key demos:
 PYTHONPATH=src python -m autoresearch_os.cli demo --offline --no-llm --out demo_gt_repo
 ```
 
+Trace a local run in Raindrop Workshop:
+
+```bash
+pip install -e ".[dev,raindrop]"
+raindrop workshop setup
+PYTHONPATH=src python -m autoresearch_os.cli demo --offline --no-llm --raindrop --out demo_gt_repo
+```
+
+Workshop shows the research loop as tool spans: program generation, planning, hypothesis generation, retrieval, claim synthesis, criticism, evaluation, tuning, and report generation. This is the easiest way to inspect why confidence changed or why a source was blocked.
+
 Control the inner hypothesis/knowledge/critic feedback loop:
 
 ```bash
@@ -310,6 +320,7 @@ The CLI, `metrics.json`, Markdown report, HTML report, and PDF report include:
 - component runtimes
 - retrieval metrics
 - agent tool-loop traces
+- Raindrop tracing status
 - final confidence
 - stop-condition status
 
@@ -326,6 +337,24 @@ Those learned skills are fed into future OpenAI Agents SDK prompts for:
 - `modal_hypothesis_agent`
 
 The shared `agent_skills.json` is intentionally ignored by git because it is local run memory. Delete it to reset learned behavior.
+
+## Raindrop Workshop Tracing
+
+Raindrop Workshop is optional, but it is the best debugging surface for the whole control loop. When `--raindrop` is enabled, AutoResearch OS records each major research phase as a Raindrop tool span. Useful spans include:
+
+- `program_generator`
+- `planner_orchestrator`
+- `hypothesis_agent`
+- `knowledge_agent_pool`
+- `claim_synthesis`
+- `critic_agent`
+- `knowledge_gap_detector`
+- `hypothesis_refinement_agent`
+- `evaluator_agent`
+- `auto_tuner`
+- `report_generator`
+
+For example, the `knowledge_agent_pool` span records URL attempts, retrieved URLs, blocked/CAPTCHA sources, and fallback usage. The `evaluator_agent` span records confidence, citation grounding, primary-authority coverage, blocked-source penalty, and confidence cap. This makes Raindrop useful for explaining why the system trusted or distrusted a research result.
 
 ## Modal Acceleration
 

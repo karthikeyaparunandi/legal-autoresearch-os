@@ -333,6 +333,19 @@ def test_cli_modal_error_is_clear(tmp_path, monkeypatch):
     assert exit_code == 3
 
 
+def test_cli_raindrop_error_is_clear(tmp_path, monkeypatch):
+    import autoresearch_os.raindrop_tracing as tracing
+
+    def fail_raindrop(self):
+        raise tracing.RaindropConfigurationError("Raindrop is unavailable")
+
+    monkeypatch.setattr(tracing.RaindropTracer, "_init_sdk", fail_raindrop)
+
+    exit_code = main(["demo", "--offline", "--no-llm", "--raindrop", "--out", str(tmp_path / "gt_repo")])
+
+    assert exit_code == 4
+
+
 def test_cli_metrics_formatter_shows_full_summary():
     output = _format_metrics(
         {
@@ -353,6 +366,8 @@ def test_cli_metrics_formatter_shows_full_summary():
             "stop_conditions_met": True,
             "llm_reasoning_enabled": False,
             "llm_model": None,
+            "raindrop_tracing_enabled": False,
+            "raindrop_target": None,
             "agent_traces": [
                 {
                     "name": "hypothesis_agent",
@@ -401,6 +416,7 @@ def test_cli_metrics_formatter_shows_full_summary():
     assert "Agent Tool Loops" in output
     assert "Convergence Progress" in output
     assert "Live Retrieval" in output
+    assert "Raindrop tracing" in output
     assert "Agents spun off" in output
     assert "24" in output
     assert "Hypotheses" in output

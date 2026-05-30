@@ -146,6 +146,8 @@ class RunMetrics:
     agent_traces: list[dict[str, Any]]
     llm_reasoning_enabled: bool
     llm_model: str | None
+    raindrop_tracing_enabled: bool
+    raindrop_target: str | None
     iterations_completed: int
     agents_spun_off: int
     agent_breakdown: dict[str, int]

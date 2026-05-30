@@ -14,6 +14,7 @@ from .models import Evaluation, RunMetrics, write_json
 from .pdf import write_pdf
 from .planner import plan_tasks
 from .program import generate_program, program_to_markdown
+from .raindrop_tracing import RaindropTracer
 from .report import build_report
 from .skills import load_agent_skills, skills_path_for, update_agent_skills
 from .tuning import load_tuning_params, tune_params
@@ -48,6 +49,7 @@ class ResearchRuntime:
         use_llm: bool = True,
         use_modal: bool = False,
         feedback_rounds: int = 2,
+        use_raindrop: bool = False,
     ) -> None:
         self.out_dir = out_dir
         self.max_iterations = max_iterations
@@ -56,6 +58,7 @@ class ResearchRuntime:
         self.use_llm = use_llm
         self.use_modal = use_modal
         self.feedback_rounds = max(1, feedback_rounds)
+        self.use_raindrop = use_raindrop
 
     def run(self, goal: str, seed_texts: list[str] | None = None) -> Evaluation:
         started_at = time.perf_counter()
@@ -75,6 +78,17 @@ class ResearchRuntime:
         self.out_dir.mkdir(parents=True, exist_ok=True)
         (self.out_dir / "evidence").mkdir(exist_ok=True)
         (self.out_dir / "evals").mkdir(exist_ok=True)
+        tracer = RaindropTracer(enabled=self.use_raindrop, workspace=self.out_dir.parent)
+        tracer.begin_run(
+            goal,
+            {
+                "max_iterations": self.max_iterations,
+                "live_retrieval": self.live_retrieval,
+                "modal": self.use_modal,
+                "llm": self.use_llm,
+                "feedback_rounds": self.feedback_rounds,
+            },
+        )
 
         tuning_params = load_tuning_params(self.out_dir)
         skills_path = skills_path_for(self.out_dir)
@@ -82,13 +96,19 @@ class ResearchRuntime:
         reasoner = CentralReasoner(workspace=self.out_dir.parent, required=True) if self.use_llm else CentralReasoner(api_key="")
         agent_traces: list[AgentTrace] = []
         timer = time.perf_counter()
-        program = generate_program(goal)
+        with tracer.span("program_generator", {"goal": goal}) as span:
+            program = generate_program(goal)
+            span.record_output({"subquestions": len(program.subquestions), "domain": program.legal_metadata.domain})
         component_seconds["program_generation"] += time.perf_counter() - timer
         timer = time.perf_counter()
-        tasks = plan_tasks(program)
+        with tracer.span("planner_orchestrator", {"subquestions": program.subquestions}) as span:
+            tasks = plan_tasks(program)
+            span.record_output({"tasks": len(tasks)})
         component_seconds["planning"] += time.perf_counter() - timer
         timer = time.perf_counter()
-        hypotheses, trace = run_hypothesis_agent(program, reasoner, agent_skills)
+        with tracer.span("hypothesis_agent", {"objective": program.objective}) as span:
+            hypotheses, trace = run_hypothesis_agent(program, reasoner, agent_skills)
+            span.record_output({"hypotheses": len(hypotheses), "used_llm": trace.used_llm})
         agent_traces.append(trace)
         component_seconds["hypothesis_generation"] += time.perf_counter() - timer
         evidence = []
@@ -119,60 +139,98 @@ class ResearchRuntime:
             iterations_completed = iteration
             for feedback_round in range(1, self.feedback_rounds + 1):
                 timer = time.perf_counter()
-                evidence, retrieval_metrics, trace = run_knowledge_agent(
-                    tasks,
-                    hypotheses,
-                    seed_texts,
-                    self.live_retrieval,
-                    self.source_urls,
-                    reasoner,
-                    self.use_modal,
-                    agent_skills,
-                )
+                with tracer.span(
+                    "knowledge_agent_pool",
+                    {
+                        "iteration": iteration,
+                        "feedback_round": feedback_round,
+                        "task_count": len(tasks),
+                        "hypotheses": len(hypotheses),
+                    },
+                ) as span:
+                    evidence, retrieval_metrics, trace = run_knowledge_agent(
+                        tasks,
+                        hypotheses,
+                        seed_texts,
+                        self.live_retrieval,
+                        self.source_urls,
+                        reasoner,
+                        self.use_modal,
+                        agent_skills,
+                    )
+                    span.record_output(
+                        {
+                            "evidence": len(evidence),
+                            "urls_attempted": retrieval_metrics.get("attempted_urls", 0),
+                            "urls_retrieved": retrieval_metrics.get("successful_urls", 0),
+                            "blocked_sources": retrieval_metrics.get("blocked_sources", 0),
+                            "fallback_used": retrieval_metrics.get("fallback_used", False),
+                        }
+                    )
                 agent_traces.append(trace)
                 component_seconds["evidence_collection"] += time.perf_counter() - timer
                 timer = time.perf_counter()
-                claims = claims_from_hypotheses(hypotheses, evidence, tuning_params)
+                with tracer.span("claim_synthesis", {"hypotheses": len(hypotheses), "evidence": len(evidence)}) as span:
+                    claims = claims_from_hypotheses(hypotheses, evidence, tuning_params)
+                    span.record_output({"claims": len(claims), "supported": sum(1 for claim in claims if claim.status == "supported")})
                 component_seconds["claim_synthesis"] += time.perf_counter() - timer
                 timer = time.perf_counter()
-                contradictions, criticisms, trace = run_critic_agent(claims, reasoner, agent_skills)
+                with tracer.span("critic_agent", {"claims": len(claims)}) as span:
+                    contradictions, criticisms, trace = run_critic_agent(claims, reasoner, agent_skills)
+                    span.record_output({"contradictions": len(contradictions), "criticisms": len(criticisms), "used_llm": trace.used_llm})
                 agent_traces.append(trace)
                 component_seconds["critique"] += time.perf_counter() - timer
                 timer = time.perf_counter()
-                open_questions = detect_gaps(program, claims, contradictions, criticisms, tuning_params)
+                with tracer.span("knowledge_gap_detector", {"claims": len(claims), "contradictions": len(contradictions)}) as span:
+                    open_questions = detect_gaps(program, claims, contradictions, criticisms, tuning_params)
+                    span.record_output({"open_questions": len(open_questions)})
                 component_seconds["gap_detection"] += time.perf_counter() - timer
                 if feedback_round >= self.feedback_rounds or not contradictions:
                     break
                 timer = time.perf_counter()
-                hypotheses, trace = run_hypothesis_refinement_agent(
-                    program,
-                    hypotheses,
-                    claims,
-                    contradictions,
-                    criticisms,
-                    open_questions,
-                    reasoner,
-                    agent_skills,
-                )
+                with tracer.span("hypothesis_refinement_agent", {"open_questions": len(open_questions), "contradictions": len(contradictions)}) as span:
+                    hypotheses, trace = run_hypothesis_refinement_agent(
+                        program,
+                        hypotheses,
+                        claims,
+                        contradictions,
+                        criticisms,
+                        open_questions,
+                        reasoner,
+                        agent_skills,
+                    )
+                    span.record_output({"hypotheses": len(hypotheses), "used_llm": trace.used_llm})
                 agent_traces.append(trace)
                 component_seconds["hypothesis_generation"] += time.perf_counter() - timer
             timer = time.perf_counter()
-            evaluation = evaluate(
-                iteration,
-                program,
-                claims,
-                evidence,
-                contradictions,
-                open_questions,
-                tuning_params,
-                previous_evaluation,
-                retrieval_metrics,
-            )
+            with tracer.span("evaluator_agent", {"iteration": iteration, "claims": len(claims), "evidence": len(evidence)}) as span:
+                evaluation = evaluate(
+                    iteration,
+                    program,
+                    claims,
+                    evidence,
+                    contradictions,
+                    open_questions,
+                    tuning_params,
+                    previous_evaluation,
+                    retrieval_metrics,
+                )
+                span.record_output(
+                    {
+                        "overall_confidence": evaluation.overall_confidence,
+                        "citation_grounding": evaluation.citation_grounding,
+                        "primary_authority_coverage": evaluation.primary_authority_coverage,
+                        "blocked_source_penalty": evaluation.blocked_source_penalty,
+                        "confidence_cap": evaluation.confidence_cap,
+                    }
+                )
             component_seconds["evaluation"] += time.perf_counter() - timer
             timer = time.perf_counter()
-            did_stop = stop_conditions_met(program, evaluation)
+            with tracer.span("auto_tuner", {"overall_confidence": evaluation.overall_confidence}) as span:
+                did_stop = stop_conditions_met(program, evaluation)
+                next_tuning_params = tuning_params if did_stop else tune_params(tuning_params, evaluation)
+                span.record_output({"stop_conditions_met": did_stop, "gap_task_limit": next_tuning_params.gap_task_limit})
             iteration_history.append(_iteration_snapshot(iteration, evaluation, evidence, contradictions, open_questions, did_stop))
-            next_tuning_params = tuning_params if did_stop else tune_params(tuning_params, evaluation)
             component_seconds["auto_tuning"] += time.perf_counter() - timer
 
             self._write_iteration_state(
@@ -240,9 +298,13 @@ class ResearchRuntime:
             agent_traces,
             reasoner.enabled,
             reasoner.model,
+            tracer.enabled,
+            tracer.model_name if tracer.enabled else None,
         )
         timer = time.perf_counter()
-        self._write_final_outputs(program, claims, evidence, contradictions, open_questions, evaluation, metrics)
+        with tracer.span("report_generator", {"artifacts": final_artifacts}) as span:
+            self._write_final_outputs(program, claims, evidence, contradictions, open_questions, evaluation, metrics)
+            span.record_output({"markdown": "final_report.md", "html": "final_report.html", "pdf": "final_report.pdf"})
         component_seconds["report_generation"] += time.perf_counter() - timer
 
         elapsed = time.perf_counter() - started_at
@@ -264,9 +326,20 @@ class ResearchRuntime:
             agent_traces,
             reasoner.enabled,
             reasoner.model,
+            tracer.enabled,
+            tracer.model_name if tracer.enabled else None,
         )
         write_json(self.out_dir / "metrics.json", metrics)
         self._write_final_outputs(program, claims, evidence, contradictions, open_questions, evaluation, metrics)
+        tracer.finish_run(
+            f"Research complete with {evaluation.overall_confidence:.0%} confidence.",
+            {
+                "overall_confidence": evaluation.overall_confidence,
+                "iterations_completed": iterations_completed,
+                "stop_conditions_met": stop_conditions_met(program, evaluation),
+                "blocked_sources": retrieval_metrics.get("blocked_sources", 0),
+            },
+        )
         return evaluation
 
     def _write_final_outputs(self, program, claims, evidence, contradictions, open_questions, evaluation, metrics) -> None:
@@ -333,6 +406,8 @@ class ResearchRuntime:
         agent_traces,
         llm_enabled,
         llm_model,
+        raindrop_enabled,
+        raindrop_target,
     ) -> RunMetrics:
         one_shot_agents = {"program_generator", "planner_orchestrator", "hypothesis_agent", "report_generator"}
         agent_breakdown = {
@@ -382,6 +457,8 @@ class ResearchRuntime:
             agent_traces=[trace.__dict__ for trace in agent_traces],
             llm_reasoning_enabled=llm_enabled,
             llm_model=llm_model if llm_enabled else None,
+            raindrop_tracing_enabled=raindrop_enabled,
+            raindrop_target=raindrop_target,
             iterations_completed=iterations_completed,
             agents_spun_off=sum(agent_breakdown.values()),
             agent_breakdown=agent_breakdown,

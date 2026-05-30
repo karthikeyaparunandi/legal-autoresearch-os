@@ -142,6 +142,7 @@ def write_research_html(
     {_metric_card("Iterations", str(metrics.iterations_completed))}
     {_metric_card("Agents", str(metrics.agents_spun_off))}
     {_metric_card("Sources", str(metrics.evidence_count))}
+    {_metric_card("Raindrop", "enabled" if metrics.raindrop_tracing_enabled else "disabled")}
     {_metric_card("Contradictions", f"{metrics.resolved_contradictions_count}/{metrics.contradictions_count} resolved")}
   </section>
 

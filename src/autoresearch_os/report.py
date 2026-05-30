@@ -102,6 +102,7 @@ def build_report(
                 f"- Contradictions resolved: {metrics.resolved_contradictions_count}",
                 f"- Open questions remaining: {metrics.open_questions_count}",
                 f"- Stop conditions met: {metrics.stop_conditions_met}",
+                f"- Raindrop tracing: {'enabled' if metrics.raindrop_tracing_enabled else 'disabled'}",
                 "",
                 "### Agent Breakdown",
             ]

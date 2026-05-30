@@ -15,6 +15,7 @@ dependencies = ["openai-agents>=0.3.0"]
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
 modal = ["modal>=1.0"]
+raindrop = ["raindrop-ai"]
 
 [project.scripts]
 autoresearch = "autoresearch_os.cli:main"

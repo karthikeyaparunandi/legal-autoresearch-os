@@ -6,6 +6,7 @@ from pathlib import Path
 
 from .llm import LLMConfigurationError, LLMReasoningError
 from .modal_bridge import ModalIntegrationError
+from .raindrop_tracing import RaindropConfigurationError
 from .runtime import ResearchRuntime
 
 
@@ -38,6 +39,7 @@ def main(argv: list[str] | None = None) -> int:
     run_parser.add_argument("--no-llm", action="store_true", help="Disable central LLM reasoning and use deterministic fallback.")
     run_parser.add_argument("--modal", action="store_true", help="Use Modal to fan out live source retrieval.")
     run_parser.add_argument("--feedback-rounds", default=2, type=int, help="Inner hypothesis/knowledge/critic feedback rounds per iteration.")
+    run_parser.add_argument("--raindrop", action="store_true", help="Trace the research loop to Raindrop Workshop.")
 
     demo_parser = subparsers.add_parser("demo", help="Run the built-in legal research demo.")
     demo_parser.add_argument("--out", default="demo_gt_repo", type=Path)
@@ -47,6 +49,7 @@ def main(argv: list[str] | None = None) -> int:
     demo_parser.add_argument("--no-llm", action="store_true", help="Disable central LLM reasoning and use deterministic fallback.")
     demo_parser.add_argument("--modal", action="store_true", help="Use Modal to fan out live source retrieval.")
     demo_parser.add_argument("--feedback-rounds", default=2, type=int, help="Inner hypothesis/knowledge/critic feedback rounds per iteration.")
+    demo_parser.add_argument("--raindrop", action="store_true", help="Trace the research loop to Raindrop Workshop.")
 
     args = parser.parse_args(argv)
 
@@ -65,6 +68,7 @@ def main(argv: list[str] | None = None) -> int:
         use_llm=not args.no_llm,
         use_modal=args.modal,
         feedback_rounds=args.feedback_rounds,
+        use_raindrop=args.raindrop,
     )
     try:
         evaluation = runtime.run(goal, seed_texts=seed_texts)
@@ -76,6 +80,10 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{BOLD}{RED}Modal retrieval failed{RESET}: {exc}")
         print(f"{DIM}Install Modal, authenticate with `modal setup`, or omit --modal for local retrieval.{RESET}")
         return 3
+    except RaindropConfigurationError as exc:
+        print(f"{BOLD}{RED}Raindrop tracing failed{RESET}: {exc}")
+        print(f"{DIM}Run `raindrop workshop setup`, install `.[raindrop]`, or omit --raindrop.{RESET}")
+        return 4
     metrics_path = args.out / "metrics.json"
     html_path = (args.out / "final_report.html").resolve()
     pdf_path = (args.out / "final_report.pdf").resolve()
@@ -111,6 +119,8 @@ def _format_metrics(metrics: dict) -> str:
         ("Stop conditions met", metrics["stop_conditions_met"]),
         ("LLM reasoning", "enabled" if metrics.get("llm_reasoning_enabled") else "fallback"),
         ("LLM model", metrics.get("llm_model") or "none"),
+        ("Raindrop tracing", "enabled" if metrics.get("raindrop_tracing_enabled") else "disabled"),
+        ("Raindrop target", metrics.get("raindrop_target") or "none"),
     ]
     retrieval = metrics.get("retrieval_metrics", {})
     retrieval_rows = [
