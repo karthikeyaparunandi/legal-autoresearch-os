@@ -45,13 +45,36 @@ def main(argv: list[str] | None = None) -> int:
     metrics_path = args.out / "metrics.json"
     if metrics_path.exists():
         metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
-        print(
-            "Metrics: "
-            f"agents={metrics['agents_spun_off']}, "
-            f"hypotheses={metrics['hypotheses_count']}, "
-            f"runtime={metrics['total_runtime_seconds']:.3f}s"
-        )
+        print(_format_metrics(metrics))
     return 0
+
+
+def _format_metrics(metrics: dict) -> str:
+    lines = [
+        "",
+        "Final Metrics",
+        "-------------",
+        f"Generated at: {metrics['generated_at']}",
+        f"Runtime: {metrics['total_runtime_seconds']:.3f}s",
+        f"Iterations completed: {metrics['iterations_completed']}",
+        f"Agents spun off: {metrics['agents_spun_off']}",
+        f"Tasks generated: {metrics['tasks_count']}",
+        f"Hypotheses generated: {metrics['hypotheses_count']}",
+        f"Evidence records collected: {metrics['evidence_count']}",
+        f"Source categories: {metrics['source_type_count']}",
+        f"Claims evaluated: {metrics['claims_count']}",
+        f"Supported claims: {metrics['supported_claims_count']}",
+        f"Contradictions detected: {metrics['contradictions_count']}",
+        f"Contradictions resolved: {metrics['resolved_contradictions_count']}",
+        f"Open questions remaining: {metrics['open_questions_count']}",
+        f"Final confidence: {metrics['final_confidence']:.0%}",
+        f"Stop conditions met: {metrics['stop_conditions_met']}",
+        "",
+        "Agent Breakdown",
+        "---------------",
+    ]
+    lines.extend([f"{name}: {count}" for name, count in metrics["agent_breakdown"].items()])
+    return "\n".join(lines)
 
 
 if __name__ == "__main__":
