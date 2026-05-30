@@ -32,12 +32,14 @@ def main(argv: list[str] | None = None) -> int:
     run_parser.add_argument("--seed-text", action="append", default=[])
     run_parser.add_argument("--source-url", action="append", default=[], help="Additional live source URL to retrieve.")
     run_parser.add_argument("--offline", action="store_true", help="Disable live retrieval and use local fallback evidence.")
+    run_parser.add_argument("--no-llm", action="store_true", help="Disable central LLM reasoning and use deterministic fallback.")
 
     demo_parser = subparsers.add_parser("demo", help="Run the built-in legal research demo.")
     demo_parser.add_argument("--out", default="demo_gt_repo", type=Path)
     demo_parser.add_argument("--max-iterations", default=4, type=int)
     demo_parser.add_argument("--source-url", action="append", default=[], help="Additional live source URL to retrieve.")
     demo_parser.add_argument("--offline", action="store_true", help="Disable live retrieval and use local fallback evidence.")
+    demo_parser.add_argument("--no-llm", action="store_true", help="Disable central LLM reasoning and use deterministic fallback.")
 
     args = parser.parse_args(argv)
 
@@ -48,7 +50,13 @@ def main(argv: list[str] | None = None) -> int:
         goal = args.goal
         seed_texts = args.seed_text
 
-    runtime = ResearchRuntime(args.out, max_iterations=args.max_iterations, live_retrieval=not args.offline, source_urls=args.source_url)
+    runtime = ResearchRuntime(
+        args.out,
+        max_iterations=args.max_iterations,
+        live_retrieval=not args.offline,
+        source_urls=args.source_url,
+        use_llm=not args.no_llm,
+    )
     evaluation = runtime.run(goal, seed_texts=seed_texts)
     metrics_path = args.out / "metrics.json"
     html_path = (args.out / "final_report.html").resolve()
@@ -83,6 +91,8 @@ def _format_metrics(metrics: dict) -> str:
         ("Open questions", metrics["open_questions_count"]),
         ("Final confidence", f"{metrics['final_confidence']:.0%}"),
         ("Stop conditions met", metrics["stop_conditions_met"]),
+        ("LLM reasoning", "enabled" if metrics.get("llm_reasoning_enabled") else "fallback"),
+        ("LLM model", metrics.get("llm_model") or "none"),
     ]
     retrieval = metrics.get("retrieval_metrics", {})
     retrieval_rows = [
@@ -92,6 +102,15 @@ def _format_metrics(metrics: dict) -> str:
         ("Fallback used", retrieval.get("fallback_used", False)),
     ]
     agent_rows = [(name, count) for name, count in metrics["agent_breakdown"].items()]
+    trace_rows = [
+        (
+            trace["name"],
+            ", ".join(trace["tools"]),
+            len(trace["steps"]),
+            "yes" if trace["used_llm"] else "no",
+        )
+        for trace in metrics.get("agent_traces", [])
+    ]
     history_rows = [
         (
             item["iteration"],
@@ -117,6 +136,9 @@ def _format_metrics(metrics: dict) -> str:
             "",
             f"{BOLD}{YELLOW}Agent Breakdown{RESET}",
             _table(("Agent", "Count"), agent_rows),
+            "",
+            f"{BOLD}{YELLOW}Agent Tool Loops{RESET}",
+            _wide_table(("Agent", "Tools", "Steps", "LLM"), trace_rows),
         ]
     )
 

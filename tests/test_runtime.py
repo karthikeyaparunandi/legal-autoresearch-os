@@ -8,7 +8,7 @@ from autoresearch_os.runtime import ResearchRuntime
 
 
 def test_runtime_writes_truth_maintenance_repo(tmp_path):
-    runtime = ResearchRuntime(tmp_path / "gt_repo", max_iterations=2, live_retrieval=False)
+    runtime = ResearchRuntime(tmp_path / "gt_repo", max_iterations=2, live_retrieval=False, use_llm=False)
 
     evaluation = runtime.run("Can AI-generated code be copyrighted in the United States?")
 
@@ -26,6 +26,9 @@ def test_runtime_writes_truth_maintenance_repo(tmp_path):
     assert metrics["iteration_history"]
     assert metrics["iteration_history"][-1]["status"] in {"Continue", "Converged"}
     assert metrics["retrieval_metrics"]["enabled"] is False
+    assert metrics["llm_reasoning_enabled"] is False
+    assert metrics["agent_traces"]
+    assert metrics["agent_traces"][0]["tools"]
     assert (tmp_path / "gt_repo" / "claims.json").exists()
     assert (tmp_path / "gt_repo" / "evidence" / "iteration_001.json").exists()
     report = (tmp_path / "gt_repo" / "final_report.md").read_text(encoding="utf-8")
@@ -36,6 +39,7 @@ def test_runtime_writes_truth_maintenance_repo(tmp_path):
     assert "Reasoning and rationale path" in html
     assert "<h2>Convergence Progress</h2>" in html
     assert "<h2>Component Metrics</h2>" in html
+    assert "<h2>Agent Tool Loops</h2>" in html
     assert "<h2>Live Retrieval</h2>" in html
     assert 'href="#source_001"' in html
     assert 'id="source_001"' in html
@@ -43,7 +47,7 @@ def test_runtime_writes_truth_maintenance_repo(tmp_path):
 
 
 def test_runtime_auto_tunes_params_for_weak_research_state(tmp_path):
-    runtime = ResearchRuntime(tmp_path / "gt_repo", max_iterations=1, live_retrieval=False)
+    runtime = ResearchRuntime(tmp_path / "gt_repo", max_iterations=1, live_retrieval=False, use_llm=False)
 
     runtime.run("Assess a novel unresolved legal question with no provided sources")
 
@@ -70,6 +74,19 @@ def test_cli_metrics_formatter_shows_full_summary():
             "open_questions_count": 0,
             "final_confidence": 0.87,
             "stop_conditions_met": True,
+            "llm_reasoning_enabled": False,
+            "llm_model": None,
+            "agent_traces": [
+                {
+                    "name": "hypothesis_agent",
+                    "goal": "Generate hypotheses",
+                    "tools": ["generate_baseline_hypotheses"],
+                    "steps": ["tool:generate_baseline_hypotheses", "deterministic_fallback"],
+                    "used_llm": False,
+                    "llm_model": None,
+                    "output_count": 4,
+                }
+            ],
             "retrieval_metrics": {
                 "enabled": True,
                 "attempted_urls": 3,
@@ -103,6 +120,7 @@ def test_cli_metrics_formatter_shows_full_summary():
 
     assert "Final Metrics" in output
     assert "Agent Breakdown" in output
+    assert "Agent Tool Loops" in output
     assert "Convergence Progress" in output
     assert "Live Retrieval" in output
     assert "Agents spun off" in output

@@ -133,6 +133,9 @@ class RunMetrics:
     component_metrics: dict[str, dict[str, float | int]]
     iteration_history: list[dict[str, float | int | str | bool]]
     retrieval_metrics: dict[str, int | bool | list[str] | dict[str, str]]
+    agent_traces: list[dict[str, Any]]
+    llm_reasoning_enabled: bool
+    llm_model: str | None
     iterations_completed: int
     agents_spun_off: int
     agent_breakdown: dict[str, int]

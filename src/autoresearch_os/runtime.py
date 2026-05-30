@@ -4,12 +4,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 import time
 
-from .critic import critique_claims
+from .agents import AgentTrace, run_critic_agent, run_hypothesis_agent, run_knowledge_agent
 from .evaluator import evaluate, stop_conditions_met
 from .gaps import detect_gaps
-from .hypotheses import generate_hypotheses
 from .html import write_research_html
-from .knowledge import claims_from_hypotheses, collect_evidence
+from .knowledge import claims_from_hypotheses
+from .llm import CentralReasoner
 from .models import Evaluation, RunMetrics, write_json
 from .pdf import write_pdf
 from .planner import plan_tasks
@@ -37,11 +37,19 @@ BASE_AGENT_BREAKDOWN = {
 
 
 class ResearchRuntime:
-    def __init__(self, out_dir: Path, max_iterations: int = 4, live_retrieval: bool = True, source_urls: list[str] | None = None) -> None:
+    def __init__(
+        self,
+        out_dir: Path,
+        max_iterations: int = 4,
+        live_retrieval: bool = True,
+        source_urls: list[str] | None = None,
+        use_llm: bool = True,
+    ) -> None:
         self.out_dir = out_dir
         self.max_iterations = max_iterations
         self.live_retrieval = live_retrieval
         self.source_urls = source_urls or []
+        self.use_llm = use_llm
 
     def run(self, goal: str, seed_texts: list[str] | None = None) -> Evaluation:
         started_at = time.perf_counter()
@@ -63,6 +71,8 @@ class ResearchRuntime:
         (self.out_dir / "evals").mkdir(exist_ok=True)
 
         tuning_params = load_tuning_params(self.out_dir)
+        reasoner = CentralReasoner(workspace=self.out_dir.parent) if self.use_llm else CentralReasoner(api_key="")
+        agent_traces: list[AgentTrace] = []
         timer = time.perf_counter()
         program = generate_program(goal)
         component_seconds["program_generation"] += time.perf_counter() - timer
@@ -70,7 +80,8 @@ class ResearchRuntime:
         tasks = plan_tasks(program)
         component_seconds["planning"] += time.perf_counter() - timer
         timer = time.perf_counter()
-        hypotheses = generate_hypotheses(program)
+        hypotheses, trace = run_hypothesis_agent(program, reasoner)
+        agent_traces.append(trace)
         component_seconds["hypothesis_generation"] += time.perf_counter() - timer
         evidence = []
         claims = []
@@ -95,19 +106,22 @@ class ResearchRuntime:
         for iteration in range(1, self.max_iterations + 1):
             iterations_completed = iteration
             timer = time.perf_counter()
-            evidence, retrieval_metrics = collect_evidence(
+            evidence, retrieval_metrics, trace = run_knowledge_agent(
                 tasks,
                 hypotheses,
                 seed_texts,
-                live_retrieval=self.live_retrieval,
-                source_urls=self.source_urls,
+                self.live_retrieval,
+                self.source_urls,
+                reasoner,
             )
+            agent_traces.append(trace)
             component_seconds["evidence_collection"] += time.perf_counter() - timer
             timer = time.perf_counter()
             claims = claims_from_hypotheses(hypotheses, evidence, tuning_params)
             component_seconds["claim_synthesis"] += time.perf_counter() - timer
             timer = time.perf_counter()
-            contradictions, criticisms = critique_claims(claims)
+            contradictions, criticisms, trace = run_critic_agent(claims, reasoner)
+            agent_traces.append(trace)
             component_seconds["critique"] += time.perf_counter() - timer
             timer = time.perf_counter()
             open_questions = detect_gaps(program, claims, contradictions, criticisms, tuning_params)
@@ -175,6 +189,9 @@ class ResearchRuntime:
             component_seconds,
             iteration_history,
             retrieval_metrics,
+            agent_traces,
+            reasoner.enabled,
+            reasoner.model,
         )
         timer = time.perf_counter()
         self._write_final_outputs(program, claims, evidence, contradictions, open_questions, evaluation, metrics)
@@ -196,6 +213,9 @@ class ResearchRuntime:
             component_seconds,
             iteration_history,
             retrieval_metrics,
+            agent_traces,
+            reasoner.enabled,
+            reasoner.model,
         )
         write_json(self.out_dir / "metrics.json", metrics)
         self._write_final_outputs(program, claims, evidence, contradictions, open_questions, evaluation, metrics)
@@ -262,6 +282,9 @@ class ResearchRuntime:
         component_seconds,
         iteration_history,
         retrieval_metrics,
+        agent_traces,
+        llm_enabled,
+        llm_model,
     ) -> RunMetrics:
         one_shot_agents = {"program_generator", "planner_orchestrator", "hypothesis_agent", "report_generator"}
         agent_breakdown = {
@@ -300,6 +323,9 @@ class ResearchRuntime:
             component_metrics=component_metrics,
             iteration_history=iteration_history,
             retrieval_metrics=retrieval_metrics,
+            agent_traces=[trace.__dict__ for trace in agent_traces],
+            llm_reasoning_enabled=llm_enabled,
+            llm_model=llm_model if llm_enabled else None,
             iterations_completed=iterations_completed,
             agents_spun_off=sum(agent_breakdown.values()),
             agent_breakdown=agent_breakdown,

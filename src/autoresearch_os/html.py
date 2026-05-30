@@ -161,6 +161,11 @@ def write_research_html(
   </section>
 
   <section>
+    <h2>Agent Tool Loops</h2>
+    {_agent_trace_table(metrics)}
+  </section>
+
+  <section>
     <h2>Live Retrieval</h2>
     {_retrieval_table(metrics)}
   </section>
@@ -311,6 +316,21 @@ def _component_table(metrics: RunMetrics) -> str:
             "</tr>"
         )
     return "<table><thead><tr><th>Component</th><th>Agents</th><th>Time</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _agent_trace_table(metrics: RunMetrics) -> str:
+    rows = []
+    for trace in metrics.agent_traces:
+        rows.append(
+            "<tr>"
+            f"<td>{escape(str(trace.get('name', 'agent')))}</td>"
+            f"<td>{escape(', '.join(trace.get('tools', [])))}</td>"
+            f"<td>{escape(' -> '.join(trace.get('steps', [])))}</td>"
+            f"<td>{'yes' if trace.get('used_llm') else 'no'}</td>"
+            f"<td>{escape(str(trace.get('output_count', 0)))}</td>"
+            "</tr>"
+        )
+    return "<table><thead><tr><th>Agent</th><th>Tools</th><th>Loop Steps</th><th>LLM</th><th>Outputs</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
 
 
 def _retrieval_table(metrics: RunMetrics) -> str:

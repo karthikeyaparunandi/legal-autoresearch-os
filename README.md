@@ -23,6 +23,8 @@ Research
 
 The final output is not just an answer. It is a grounded report backed by traceable claims, evidence, contradictions, confidence scores, and an explanation of why the system stopped researching.
 
+The system uses a central reasoning LLM when `OPENAI_API_KEY` is available. The role agents are tool-using workers coordinated by the runtime: each agent has a goal, tool set, step loop, optional LLM reasoning call, and structured output artifact. Without an API key, the same loop runs with deterministic fallback reasoning.
+
 ## Why This Fits The Hackathon
 
 The Autoresearch Systems Hackathon asks for systems that help agents iteratively plan, search, and synthesize information over extended horizons. This repo focuses on:
@@ -165,6 +167,12 @@ Or without installing:
 PYTHONPATH=src python -m autoresearch_os.cli run \
   "Can AI-generated code be copyrighted in the United States?" \
   --out gt_repo
+```
+
+Disable central LLM reasoning for deterministic fallback runs:
+
+```bash
+autoresearch demo --no-llm --offline --out demo_gt_repo
 ```
 
 ## Outputs
