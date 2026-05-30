@@ -203,6 +203,7 @@ The current runtime exposes these agent roles:
 - `hypothesis_agent`: generates and refines candidate legal theories.
 - `hypothesis_refinement_agent`: revises hypotheses from critic findings, contradictions, and knowledge gaps.
 - `knowledge_agent_pool`: retrieves and structures evidence from live or fallback sources.
+- `modal_hypothesis_agent_pool`: when `--modal` is enabled, runs one remote research worker per hypothesis.
 - `critic_agent`: attacks claims, finds contradictions, and raises weaknesses.
 - `evaluator_agent`: scores the research state against convergence criteria.
 - `knowledge_gap_detector`: creates follow-up tasks from weak or missing knowledge.
@@ -309,9 +310,9 @@ The CLI, `metrics.json`, Markdown report, HTML report, and PDF report include:
 
 ## Modal Acceleration
 
-`modal/app.py` defines the remote retrieval worker used by `autoresearch demo --modal` and `autoresearch run --modal`. Each legal source URL is fetched and converted into an evidence record in a separate Modal function call, so slow network requests fan out instead of blocking the local process one by one.
+`modal/app.py` defines the remote workers used by `autoresearch demo --modal` and `autoresearch run --modal`. The stronger path is the `modal_hypothesis_agent_pool`: each hypothesis is sent to a separate Modal worker that retrieves evidence, synthesizes a claim, critiques that claim, and returns a scored research bundle to the local orchestrator. URL-level retrieval fan-out is still available as a lower-level tool.
 
-The design follows the same control-plane/data-plane split as [`modal-labs/openai-agents-python-example`](https://github.com/modal-labs/openai-agents-python-example): keep an orchestrator in charge of state, then fan out bounded worker jobs on Modal. In this repo, `ResearchRuntime` is the orchestrator, `knowledge_agent_pool` is the retrieval pool, and `modal/app.py` is the remote worker layer.
+The design follows the same control-plane/data-plane split as [`modal-labs/openai-agents-python-example`](https://github.com/modal-labs/openai-agents-python-example): keep an orchestrator in charge of state, then fan out bounded worker jobs on Modal. In this repo, `ResearchRuntime` is the orchestrator, `modal_hypothesis_agent_pool` is the distributed agent pool, and `modal/app.py` is the remote worker layer.
 
 Modal is optional:
 

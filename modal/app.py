@@ -16,6 +16,7 @@ Or smoke-test the remote retrieval function directly:
 
 from __future__ import annotations
 
+from dataclasses import asdict
 import json
 
 try:
@@ -71,6 +72,42 @@ if modal:
             }
         except (HTTPError, URLError, TimeoutError, OSError, ValueError) as exc:
             return {"status": "error", "url": url, "error": exc.__class__.__name__}
+
+    @app.function(image=image, timeout=90)
+    def evaluate_hypothesis_agent(payload: dict) -> dict:
+        from autoresearch_os.critic import critique_claims
+        from autoresearch_os.knowledge import claims_from_hypotheses, collect_evidence
+        from autoresearch_os.models import Hypothesis, Task, TuningParams
+
+        hypothesis = Hypothesis(**payload["hypothesis"])
+        tasks = [Task(**task) for task in payload["tasks"]]
+        params = TuningParams(**payload.get("tuning_params", {}))
+        try:
+            evidence, retrieval_metrics = collect_evidence(
+                tasks,
+                [hypothesis],
+                seed_texts=payload.get("seed_texts", []),
+                live_retrieval=payload.get("live_retrieval", True),
+                source_urls=payload.get("source_urls", []),
+                use_modal=False,
+            )
+            claims = claims_from_hypotheses([hypothesis], evidence, params)
+            contradictions, criticisms = critique_claims(claims)
+            return {
+                "status": "ok",
+                "hypothesis_id": hypothesis.hypothesis_id,
+                "evidence": [asdict(item) for item in evidence],
+                "claims": [asdict(item) for item in claims],
+                "contradictions": [asdict(item) for item in contradictions],
+                "criticisms": criticisms,
+                "retrieval_metrics": retrieval_metrics,
+            }
+        except Exception as exc:
+            return {
+                "status": "error",
+                "hypothesis_id": hypothesis.hypothesis_id,
+                "error": exc.__class__.__name__,
+            }
 
     @app.local_entrypoint()
     def main(url: str = "https://www.law.cornell.edu/uscode/text/17/102"):

@@ -178,6 +178,66 @@ def test_inner_feedback_loop_refines_hypotheses(tmp_path, monkeypatch):
     assert calls == {"knowledge": 2, "refine": 1}
 
 
+def test_modal_hypothesis_agent_pool_is_used_inside_runtime(tmp_path, monkeypatch):
+    import autoresearch_os.runtime as runtime_module
+
+    calls = {"modal_pool": 0}
+
+    def fake_modal_pool(tasks, hypotheses, seed_texts, live_retrieval, source_urls, tuning_params):
+        calls["modal_pool"] += 1
+        from autoresearch_os.models import Claim, Evidence
+
+        evidence = [
+            Evidence(
+                source_id=f"source_{index:03d}",
+                title=f"Evidence {index}",
+                url=f"https://example.test/{index}",
+                source_type="agency_guidance",
+                excerpt="Human authorship is required.",
+                supports=[hypothesis.hypothesis_id],
+                reliability=0.95,
+            )
+            for index, hypothesis in enumerate(hypotheses, start=1)
+        ]
+        claims = [
+            Claim(
+                claim_id=f"c{index:03d}",
+                claim=hypothesis.statement,
+                supporting_sources=[f"source_{index:03d}"],
+                confidence=0.95,
+                status="supported",
+            )
+            for index, hypothesis in enumerate(hypotheses, start=1)
+        ]
+        return (
+            evidence,
+            claims,
+            [],
+            [],
+            {
+                "enabled": True,
+                "modal_enabled": True,
+                "modal_hypothesis_agents": True,
+                "attempted_urls": len(hypotheses),
+                "successful_urls": len(hypotheses),
+                "failed_urls": 0,
+                "retrieved_urls": [],
+                "errors": {},
+                "fallback_used": False,
+            },
+        )
+
+    monkeypatch.setattr(runtime_module, "evaluate_hypotheses_with_modal", fake_modal_pool)
+    runtime = ResearchRuntime(tmp_path / "gt_repo", max_iterations=1, live_retrieval=True, use_llm=False, use_modal=True)
+    runtime.run("Can AI-generated code be copyrighted in the United States?")
+
+    metrics = json.loads((tmp_path / "gt_repo" / "metrics.json").read_text(encoding="utf-8"))
+    assert calls["modal_pool"] == 1
+    assert metrics["retrieval_metrics"]["modal_hypothesis_agents"] is True
+    assert metrics["agent_breakdown"]["modal_hypothesis_agent"] == 4
+    assert any(trace["name"] == "modal_hypothesis_agent_pool" for trace in metrics["agent_traces"])
+
+
 def test_runtime_requires_llm_key_when_llm_enabled(tmp_path, monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("OPEN_API_KEY", raising=False)
@@ -248,12 +308,12 @@ def test_cli_no_llm_uses_deterministic_fallback(tmp_path, monkeypatch):
 
 
 def test_cli_modal_error_is_clear(tmp_path, monkeypatch):
-    import autoresearch_os.knowledge as knowledge
+    import autoresearch_os.runtime as runtime_module
 
     def fail_modal(*args, **kwargs):
         raise ModalIntegrationError("Modal is unavailable")
 
-    monkeypatch.setattr(knowledge, "retrieve_live_evidence", fail_modal)
+    monkeypatch.setattr(runtime_module, "evaluate_hypotheses_with_modal", fail_modal)
 
     exit_code = main(["demo", "--no-llm", "--modal", "--out", str(tmp_path / "gt_repo")])
 
