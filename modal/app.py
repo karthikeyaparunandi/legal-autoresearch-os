@@ -27,7 +27,7 @@ except ImportError:  # Keeps the local repo dependency-free.
 if modal:
     app = modal.App("autoresearch-os")
     image = (
-        modal.Image.debian_slim(python_version="3.11")
+        modal.Image.debian_slim(python_version="3.12")
         .env({"PYTHONPATH": "/root"})
         .add_local_dir("src/autoresearch_os", "/root/autoresearch_os")
     )
