@@ -40,7 +40,7 @@ class CentralReasoner:
     def reason_json(self, agent_name: str, instruction: str, payload: dict, timeout_seconds: float = 30.0) -> dict | None:
         if not self.api_key:
             if self.required:
-                raise LLMConfigurationError("Set OPENAI_API_KEY or OPEN_API_KEY, or omit --with-llm.")
+                raise LLMConfigurationError("Set OPENAI_API_KEY or OPEN_API_KEY, or run with --no-llm.")
             return None
         prompt = (
             "Return only valid JSON. Do not include markdown.\n\n"

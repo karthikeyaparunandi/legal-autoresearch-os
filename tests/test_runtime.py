@@ -82,11 +82,21 @@ def test_reasoner_accepts_open_api_key_alias(monkeypatch):
     assert reasoner.enabled is True
 
 
-def test_cli_defaults_to_deterministic_fallback(tmp_path, monkeypatch):
+def test_cli_defaults_to_llm_and_requires_key(tmp_path, monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("OPEN_API_KEY", raising=False)
 
     exit_code = main(["demo", "--offline", "--out", str(tmp_path / "gt_repo")])
+
+    assert exit_code == 2
+    assert not (tmp_path / "gt_repo" / "metrics.json").exists()
+
+
+def test_cli_no_llm_uses_deterministic_fallback(tmp_path, monkeypatch):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("OPEN_API_KEY", raising=False)
+
+    exit_code = main(["demo", "--offline", "--no-llm", "--out", str(tmp_path / "gt_repo")])
 
     assert exit_code == 0
     metrics = json.loads((tmp_path / "gt_repo" / "metrics.json").read_text(encoding="utf-8"))

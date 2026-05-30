@@ -23,7 +23,7 @@ Research
 
 The final output is not just an answer. It is a grounded report backed by traceable claims, evidence, contradictions, confidence scores, and an explanation of why the system stopped researching.
 
-The system can use a central reasoning LLM when explicitly enabled with `--with-llm`. The role agents are tool-using workers coordinated by the runtime: each agent has a goal, tool set, step loop, optional LLM reasoning call, and structured output artifact. By default, the same loop runs with deterministic fallback reasoning so other users can try the project without an API key.
+The system uses a central reasoning LLM by default. The role agents are tool-using workers coordinated by the runtime: each agent has a goal, tool set, step loop, LLM reasoning call, and structured output artifact. Pass `--no-llm` only when you explicitly want the deterministic fallback path for offline demos or tests.
 
 ## Why This Fits The Hackathon
 
@@ -155,10 +155,10 @@ autoresearch run \
   --out gt_repo
 ```
 
-For fully offline demos or tests:
+For fully offline demos or tests, explicitly disable LLM reasoning:
 
 ```bash
-autoresearch demo --offline --out demo_gt_repo
+autoresearch demo --offline --no-llm --out demo_gt_repo
 ```
 
 Or without installing:
@@ -169,19 +169,19 @@ PYTHONPATH=src python -m autoresearch_os.cli run \
   --out gt_repo
 ```
 
-Enable central LLM reasoning explicitly:
+By default, central LLM reasoning is enabled and requires a key:
 
 ```bash
 export OPENAI_API_KEY="..."
-autoresearch demo --with-llm --out demo_gt_repo
+autoresearch demo --out demo_gt_repo
 ```
 
-The `OPEN_API_KEY` spelling is also accepted for local experiments. When `--with-llm` is passed, the runtime requires a key and fails loudly if the central LLM cannot be used.
+The `OPEN_API_KEY` spelling is also accepted for local experiments. The runtime fails loudly if the central LLM cannot be used.
 
 Run the deterministic fallback without a key:
 
 ```bash
-autoresearch demo --offline --out demo_gt_repo
+autoresearch demo --offline --no-llm --out demo_gt_repo
 ```
 
 ## Outputs

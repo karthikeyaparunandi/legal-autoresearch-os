@@ -43,7 +43,7 @@ class ResearchRuntime:
         max_iterations: int = 4,
         live_retrieval: bool = True,
         source_urls: list[str] | None = None,
-        use_llm: bool = False,
+        use_llm: bool = True,
     ) -> None:
         self.out_dir = out_dir
         self.max_iterations = max_iterations
