@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .models import Claim, Contradiction, Evaluation, Evidence, ResearchProgram
+from .models import Claim, Contradiction, Evaluation, Evidence, ResearchProgram, RunMetrics
 
 
 def build_report(
@@ -10,6 +10,7 @@ def build_report(
     contradictions: list[Contradiction],
     open_questions: list[str],
     evaluation: Evaluation,
+    metrics: RunMetrics | None = None,
 ) -> str:
     evidence_by_id = {item.source_id: item for item in evidence}
     lines = [
@@ -57,6 +58,36 @@ def build_report(
             f"- Contradiction resolution: {evaluation.contradiction_resolution:.0%}",
             f"- Citation grounding: {evaluation.citation_grounding:.0%}",
             f"- Overall confidence: {evaluation.overall_confidence:.0%}",
+            "",
+            "## Run Metrics",
+        ]
+    )
+    if metrics:
+        lines.extend(
+            [
+                f"- Total runtime: {metrics.total_runtime_seconds:.3f} seconds",
+                f"- Iterations completed: {metrics.iterations_completed}",
+                f"- Agents spun off: {metrics.agents_spun_off}",
+                f"- Tasks generated: {metrics.tasks_count}",
+                f"- Hypotheses generated: {metrics.hypotheses_count}",
+                f"- Evidence records collected: {metrics.evidence_count}",
+                f"- Source categories: {metrics.source_type_count}",
+                f"- Claims evaluated: {metrics.claims_count}",
+                f"- Supported claims: {metrics.supported_claims_count}",
+                f"- Contradictions detected: {metrics.contradictions_count}",
+                f"- Contradictions resolved: {metrics.resolved_contradictions_count}",
+                f"- Open questions remaining: {metrics.open_questions_count}",
+                f"- Stop conditions met: {metrics.stop_conditions_met}",
+                "",
+                "### Agent Breakdown",
+            ]
+        )
+        lines.extend([f"- {name}: {count}" for name, count in metrics.agent_breakdown.items()])
+    else:
+        lines.append("- Metrics unavailable.")
+
+    lines.extend(
+        [
             "",
             "## Limitations",
             "- This prototype uses deterministic baseline agents and a small built-in evidence fixture for the demo domain.",

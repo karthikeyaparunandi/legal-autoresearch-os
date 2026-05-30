@@ -1,17 +1,38 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from pathlib import Path
+import time
 
 from .critic import critique_claims
 from .evaluator import evaluate, stop_conditions_met
 from .gaps import detect_gaps
 from .hypotheses import generate_hypotheses
 from .knowledge import claims_from_hypotheses, collect_evidence
-from .models import Evaluation, write_json
+from .models import Evaluation, RunMetrics, write_json
+from .pdf import write_pdf
 from .planner import plan_tasks
 from .program import generate_program, program_to_markdown
 from .report import build_report
 from .tuning import load_tuning_params, tune_params
+
+
+BASE_AGENT_BREAKDOWN = {
+    "program_generator": 1,
+    "planner_orchestrator": 1,
+    "hypothesis_agent": 1,
+    "web_search_agent": 1,
+    "academic_agent": 1,
+    "legal_agent": 1,
+    "company_intelligence_agent": 1,
+    "social_signal_agent": 1,
+    "extraction_agent": 1,
+    "critic_agent": 1,
+    "evaluator_agent": 1,
+    "knowledge_gap_detector": 1,
+    "auto_tuner": 1,
+    "report_generator": 1,
+}
 
 
 class ResearchRuntime:
@@ -20,6 +41,7 @@ class ResearchRuntime:
         self.max_iterations = max_iterations
 
     def run(self, goal: str, seed_texts: list[str] | None = None) -> Evaluation:
+        started_at = time.perf_counter()
         seed_texts = seed_texts or []
         self.out_dir.mkdir(parents=True, exist_ok=True)
         (self.out_dir / "evidence").mkdir(exist_ok=True)
@@ -35,10 +57,12 @@ class ResearchRuntime:
         open_questions = ["Initial research state has not been evaluated."]
         criticisms = []
         evaluation: Evaluation | None = None
+        iterations_completed = 0
 
         self._write_program_state(program, tasks, hypotheses)
 
         for iteration in range(1, self.max_iterations + 1):
+            iterations_completed = iteration
             evidence = collect_evidence(tasks, hypotheses, seed_texts)
             claims = claims_from_hypotheses(hypotheses, evidence, tuning_params)
             contradictions, criticisms = critique_claims(claims)
@@ -66,8 +90,40 @@ class ResearchRuntime:
         if evaluation is None:
             raise RuntimeError("Research loop did not produce an evaluation.")
 
-        report = build_report(program, claims, evidence, contradictions, open_questions, evaluation)
+        elapsed = time.perf_counter() - started_at
+        final_artifacts = [
+            "program.md",
+            "legal_metadata.json",
+            "tuning_params.json",
+            "tasks.json",
+            "hypotheses.json",
+            "claims.json",
+            "evidence/",
+            "contradictions.json",
+            "confidence_scores.json",
+            "open_questions.json",
+            "metrics.json",
+            "final_report.md",
+            "final_report.pdf",
+        ]
+        metrics = self._build_metrics(
+            elapsed,
+            iterations_completed,
+            tasks,
+            hypotheses,
+            evidence,
+            claims,
+            contradictions,
+            open_questions,
+            evaluation,
+            stop_conditions_met(program, evaluation),
+            final_artifacts,
+        )
+        write_json(self.out_dir / "metrics.json", metrics)
+
+        report = build_report(program, claims, evidence, contradictions, open_questions, evaluation, metrics)
         (self.out_dir / "final_report.md").write_text(report, encoding="utf-8")
+        write_pdf(self.out_dir / "final_report.pdf", "AutoResearch OS Grounded Legal Research Report", report)
         return evaluation
 
     def _write_program_state(self, program, tasks, hypotheses) -> None:
@@ -99,6 +155,45 @@ class ResearchRuntime:
         write_json(self.out_dir / "evals" / f"iteration_{iteration:03d}.json", evaluation)
         write_json(self.out_dir / "evals" / f"tuning_params_{iteration:03d}.json", tuning_params)
         write_json(self.out_dir / "evals" / f"next_tuning_params_{iteration:03d}.json", next_tuning_params)
+
+    def _build_metrics(
+        self,
+        elapsed: float,
+        iterations_completed,
+        tasks,
+        hypotheses,
+        evidence,
+        claims,
+        contradictions,
+        open_questions,
+        evaluation,
+        did_stop,
+        final_artifacts,
+    ) -> RunMetrics:
+        one_shot_agents = {"program_generator", "planner_orchestrator", "hypothesis_agent", "report_generator"}
+        agent_breakdown = {
+            name: count if name in one_shot_agents else count * iterations_completed
+            for name, count in BASE_AGENT_BREAKDOWN.items()
+        }
+        return RunMetrics(
+            generated_at=datetime.now(UTC).isoformat(),
+            total_runtime_seconds=round(elapsed, 3),
+            iterations_completed=iterations_completed,
+            agents_spun_off=sum(agent_breakdown.values()),
+            agent_breakdown=agent_breakdown,
+            tasks_count=len(tasks),
+            hypotheses_count=len(hypotheses),
+            evidence_count=len(evidence),
+            source_type_count=len({item.source_type for item in evidence}),
+            claims_count=len(claims),
+            supported_claims_count=sum(1 for claim in claims if claim.status == "supported"),
+            contradictions_count=len(contradictions),
+            resolved_contradictions_count=sum(1 for contradiction in contradictions if contradiction.resolution_status == "resolved"),
+            open_questions_count=len(open_questions),
+            final_confidence=evaluation.overall_confidence,
+            stop_conditions_met=did_stop,
+            generated_artifacts=final_artifacts,
+        )
 
     def _append_gap_tasks(self, tasks, open_questions):
         existing = {task.question for task in tasks}

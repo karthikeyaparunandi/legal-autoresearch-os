@@ -124,9 +124,11 @@ gt_repo/
   evidence/
   contradictions.json
   confidence_scores.json
+  metrics.json
   open_questions.json
   evals/
   final_report.md
+  final_report.pdf
 ```
 
 ## Legal Metadata And Tuning
@@ -149,6 +151,18 @@ Several runtime constants are tunable and persist in `tuning_params.json`:
 - `evaluator_weights`
 
 After each evaluation, the tuner nudges these values when the research state is weak. For example, low citation grounding raises the claim-support threshold and primary-source requirement; low contradiction resolution increases the contradiction penalty; too many open questions expands gap-task generation.
+
+## Final Metrics And PDF Report
+
+Every completed run emits `metrics.json`, adds a run metrics section to `final_report.md`, and generates `final_report.pdf`. The metrics include:
+
+- Number of agents spun off
+- Agent-by-agent invocation breakdown
+- Number of hypotheses generated
+- Number of tasks, claims, evidence records, source categories, contradictions, and open questions
+- Iterations completed
+- Runtime in seconds
+- Final confidence and stop-condition status
 
 ## Demo
 

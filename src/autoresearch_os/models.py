@@ -126,6 +126,27 @@ class Evaluation:
     overall_confidence: float
 
 
+@dataclass
+class RunMetrics:
+    generated_at: str
+    total_runtime_seconds: float
+    iterations_completed: int
+    agents_spun_off: int
+    agent_breakdown: dict[str, int]
+    tasks_count: int
+    hypotheses_count: int
+    evidence_count: int
+    source_type_count: int
+    claims_count: int
+    supported_claims_count: int
+    contradictions_count: int
+    resolved_contradictions_count: int
+    open_questions_count: int
+    final_confidence: float
+    stop_conditions_met: bool
+    generated_artifacts: list[str]
+
+
 def to_jsonable(value: Any) -> Any:
     if hasattr(value, "__dataclass_fields__"):
         return asdict(value)
