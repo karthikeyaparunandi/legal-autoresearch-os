@@ -153,9 +153,9 @@ Several runtime constants are tunable and persist in `tuning_params.json`:
 
 After each evaluation, the tuner nudges these values when the research state is weak. For example, low citation grounding raises the claim-support threshold and primary-source requirement; low contradiction resolution increases the contradiction penalty; too many open questions expands gap-task generation.
 
-## Final Metrics And PDF Report
+## Final Metrics And Reports
 
-Every completed run emits `metrics.json`, adds a run metrics section to `final_report.md`, and generates both `final_report.html` and `final_report.pdf`. The metrics include:
+Every completed run emits `metrics.json`, adds a run metrics section to `final_report.md`, and generates both `final_report.html` and `final_report.pdf`. The HTML report is the clean demo artifact: it includes linked paper-style citations, a reasoning/rationale diagram, component-level metrics, hypothesis confidence, contradiction analysis, and source anchors. The metrics include:
 
 - Number of agents spun off
 - Agent-by-agent invocation breakdown

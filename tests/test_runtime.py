@@ -21,6 +21,7 @@ def test_runtime_writes_truth_maintenance_repo(tmp_path):
     assert metrics["agents_spun_off"] >= 14
     assert metrics["hypotheses_count"] == 4
     assert metrics["total_runtime_seconds"] >= 0
+    assert metrics["component_metrics"]["evidence_collection"]["agents"] > 0
     assert (tmp_path / "gt_repo" / "claims.json").exists()
     assert (tmp_path / "gt_repo" / "evidence" / "iteration_001.json").exists()
     report = (tmp_path / "gt_repo" / "final_report.md").read_text(encoding="utf-8")
@@ -28,7 +29,10 @@ def test_runtime_writes_truth_maintenance_repo(tmp_path):
     assert "## Run Metrics" in report
     html = (tmp_path / "gt_repo" / "final_report.html").read_text(encoding="utf-8")
     assert "<title>AutoResearch OS Grounded Legal Research Report</title>" in html
-    assert "<h2>Run Metrics</h2>" in html
+    assert "Reasoning and rationale path" in html
+    assert "<h2>Component Metrics</h2>" in html
+    assert 'href="#source_001"' in html
+    assert 'id="source_001"' in html
     assert (tmp_path / "gt_repo" / "final_report.pdf").read_bytes().startswith(b"%PDF")
 
 

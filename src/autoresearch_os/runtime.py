@@ -8,7 +8,7 @@ from .critic import critique_claims
 from .evaluator import evaluate, stop_conditions_met
 from .gaps import detect_gaps
 from .hypotheses import generate_hypotheses
-from .html import write_html
+from .html import write_research_html
 from .knowledge import claims_from_hypotheses, collect_evidence
 from .models import Evaluation, RunMetrics, write_json
 from .pdf import write_pdf
@@ -43,15 +43,33 @@ class ResearchRuntime:
 
     def run(self, goal: str, seed_texts: list[str] | None = None) -> Evaluation:
         started_at = time.perf_counter()
+        component_seconds: dict[str, float] = {
+            "program_generation": 0.0,
+            "planning": 0.0,
+            "hypothesis_generation": 0.0,
+            "evidence_collection": 0.0,
+            "claim_synthesis": 0.0,
+            "critique": 0.0,
+            "gap_detection": 0.0,
+            "evaluation": 0.0,
+            "auto_tuning": 0.0,
+            "report_generation": 0.0,
+        }
         seed_texts = seed_texts or []
         self.out_dir.mkdir(parents=True, exist_ok=True)
         (self.out_dir / "evidence").mkdir(exist_ok=True)
         (self.out_dir / "evals").mkdir(exist_ok=True)
 
         tuning_params = load_tuning_params(self.out_dir)
+        timer = time.perf_counter()
         program = generate_program(goal)
+        component_seconds["program_generation"] += time.perf_counter() - timer
+        timer = time.perf_counter()
         tasks = plan_tasks(program)
+        component_seconds["planning"] += time.perf_counter() - timer
+        timer = time.perf_counter()
         hypotheses = generate_hypotheses(program)
+        component_seconds["hypothesis_generation"] += time.perf_counter() - timer
         evidence = []
         claims = []
         contradictions = []
@@ -64,12 +82,24 @@ class ResearchRuntime:
 
         for iteration in range(1, self.max_iterations + 1):
             iterations_completed = iteration
+            timer = time.perf_counter()
             evidence = collect_evidence(tasks, hypotheses, seed_texts)
+            component_seconds["evidence_collection"] += time.perf_counter() - timer
+            timer = time.perf_counter()
             claims = claims_from_hypotheses(hypotheses, evidence, tuning_params)
+            component_seconds["claim_synthesis"] += time.perf_counter() - timer
+            timer = time.perf_counter()
             contradictions, criticisms = critique_claims(claims)
+            component_seconds["critique"] += time.perf_counter() - timer
+            timer = time.perf_counter()
             open_questions = detect_gaps(program, claims, contradictions, criticisms, tuning_params)
+            component_seconds["gap_detection"] += time.perf_counter() - timer
+            timer = time.perf_counter()
             evaluation = evaluate(iteration, program, claims, evidence, contradictions, open_questions, tuning_params)
+            component_seconds["evaluation"] += time.perf_counter() - timer
+            timer = time.perf_counter()
             next_tuning_params = tuning_params if stop_conditions_met(program, evaluation) else tune_params(tuning_params, evaluation)
+            component_seconds["auto_tuning"] += time.perf_counter() - timer
 
             self._write_iteration_state(
                 iteration,
@@ -86,7 +116,9 @@ class ResearchRuntime:
                 break
 
             tuning_params = next_tuning_params
+            timer = time.perf_counter()
             tasks = self._append_gap_tasks(tasks, open_questions)
+            component_seconds["planning"] += time.perf_counter() - timer
 
         if evaluation is None:
             raise RuntimeError("Research loop did not produce an evaluation.")
@@ -120,14 +152,45 @@ class ResearchRuntime:
             evaluation,
             stop_conditions_met(program, evaluation),
             final_artifacts,
+            component_seconds,
+        )
+        timer = time.perf_counter()
+        self._write_final_outputs(program, claims, evidence, contradictions, open_questions, evaluation, metrics)
+        component_seconds["report_generation"] += time.perf_counter() - timer
+
+        elapsed = time.perf_counter() - started_at
+        metrics = self._build_metrics(
+            elapsed,
+            iterations_completed,
+            tasks,
+            hypotheses,
+            evidence,
+            claims,
+            contradictions,
+            open_questions,
+            evaluation,
+            stop_conditions_met(program, evaluation),
+            final_artifacts,
+            component_seconds,
         )
         write_json(self.out_dir / "metrics.json", metrics)
+        self._write_final_outputs(program, claims, evidence, contradictions, open_questions, evaluation, metrics)
+        return evaluation
 
+    def _write_final_outputs(self, program, claims, evidence, contradictions, open_questions, evaluation, metrics) -> None:
         report = build_report(program, claims, evidence, contradictions, open_questions, evaluation, metrics)
         (self.out_dir / "final_report.md").write_text(report, encoding="utf-8")
-        write_html(self.out_dir / "final_report.html", "AutoResearch OS Grounded Legal Research Report", report)
+        write_research_html(
+            self.out_dir / "final_report.html",
+            program,
+            claims,
+            evidence,
+            contradictions,
+            open_questions,
+            evaluation,
+            metrics,
+        )
         write_pdf(self.out_dir / "final_report.pdf", "AutoResearch OS Grounded Legal Research Report", report)
-        return evaluation
 
     def _write_program_state(self, program, tasks, hypotheses) -> None:
         (self.out_dir / "program.md").write_text(program_to_markdown(program), encoding="utf-8")
@@ -172,15 +235,43 @@ class ResearchRuntime:
         evaluation,
         did_stop,
         final_artifacts,
+        component_seconds,
     ) -> RunMetrics:
         one_shot_agents = {"program_generator", "planner_orchestrator", "hypothesis_agent", "report_generator"}
         agent_breakdown = {
             name: count if name in one_shot_agents else count * iterations_completed
             for name, count in BASE_AGENT_BREAKDOWN.items()
         }
+        component_agents = {
+            "program_generation": agent_breakdown["program_generator"],
+            "planning": agent_breakdown["planner_orchestrator"] + agent_breakdown["knowledge_gap_detector"],
+            "hypothesis_generation": agent_breakdown["hypothesis_agent"],
+            "evidence_collection": (
+                agent_breakdown["web_search_agent"]
+                + agent_breakdown["academic_agent"]
+                + agent_breakdown["legal_agent"]
+                + agent_breakdown["company_intelligence_agent"]
+                + agent_breakdown["social_signal_agent"]
+                + agent_breakdown["extraction_agent"]
+            ),
+            "claim_synthesis": agent_breakdown["extraction_agent"],
+            "critique": agent_breakdown["critic_agent"],
+            "gap_detection": agent_breakdown["knowledge_gap_detector"],
+            "evaluation": agent_breakdown["evaluator_agent"],
+            "auto_tuning": agent_breakdown["auto_tuner"],
+            "report_generation": agent_breakdown["report_generator"],
+        }
+        component_metrics = {
+            name: {
+                "seconds": round(component_seconds.get(name, 0.0), 4),
+                "agents": component_agents.get(name, 0),
+            }
+            for name in component_seconds
+        }
         return RunMetrics(
             generated_at=datetime.now(UTC).isoformat(),
             total_runtime_seconds=round(elapsed, 3),
+            component_metrics=component_metrics,
             iterations_completed=iterations_completed,
             agents_spun_off=sum(agent_breakdown.values()),
             agent_breakdown=agent_breakdown,

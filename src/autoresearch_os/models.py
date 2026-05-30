@@ -130,6 +130,7 @@ class Evaluation:
 class RunMetrics:
     generated_at: str
     total_runtime_seconds: float
+    component_metrics: dict[str, dict[str, float | int]]
     iterations_completed: int
     agents_spun_off: int
     agent_breakdown: dict[str, int]
