@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "autoresearch-os"
+version = "0.1.0"
+description = "A self-evaluating autonomous research runtime with a truth-maintenance repo."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "AutoResearch OS Hackathon Team" }]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+autoresearch = "autoresearch_os.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/autoresearch_os"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
