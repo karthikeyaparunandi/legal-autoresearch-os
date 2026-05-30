@@ -116,108 +116,106 @@ modal run modal/app.py
 
 ## Architecture
 
-### System-Level Autoresearch Loop
+### High-Level Architecture
 
 ```mermaid
 flowchart TD
-    goal["Legal Question"] --> program["Research Program<br/>program.md"]
-    program --> planner["Planner / Orchestrator<br/>task DAG + legal constraints"]
-    planner --> runtime["Agentic Research Runtime"]
-    runtime --> truth["Truth-Maintenance Repo<br/>claims · evidence · contradictions · confidence"]
-    truth --> evaluator["Self Evaluation<br/>objective completion · grounding · coverage · risk"]
-    evaluator --> gaps["Knowledge Gap Detector<br/>missing authority · weak claims · open questions"]
-    gaps --> decision{"Research State<br/>Converged?"}
-    decision -- "No: create follow-up tasks" --> planner
-    decision -- "Yes: stop condition met" --> report["Grounded Legal Memo<br/>HTML · PDF · Markdown"]
-    evaluator --> tuner["Auto-Tuner<br/>thresholds · source targets · penalties"]
-    tuner --> planner
-    tuner --> runtime
-    report --> audit["Audit Trail<br/>metrics.json · agent traces · Raindrop spans"]
-```
+    user["Legal Question"] --> program["Research Program<br/>program.md"]
+    program --> planner["Planner / Orchestrator<br/>task DAG · legal constraints · stop conditions"]
 
-The outer loop makes the system autonomous: it does not stop because an LLM produced prose. It stops when objective completion, citation grounding, evidence coverage, contradiction resolution, source diversity, confidence stability, and open questions satisfy measurable convergence gates.
+    subgraph agents["Agentic Research Runtime"]
+        direction LR
+        hypothesis["Hypothesis Agent<br/>legal theories"]
+        critic["Critic Agent<br/>attacks · contradictions"]
+        knowledge["Knowledge Agents<br/>legal · web · academic · company"]
+        extraction["Extraction Agent<br/>facts · citations · metadata"]
 
-### Agentic Runtime And Feedback Loops
-
-```mermaid
-flowchart TD
-    goal["Legal Question"] --> generator["Program Generator Agent"]
-    generator --> program["Research Program<br/>program.md"]
-    generator --> legalMeta["Legal Metadata<br/>jurisdiction · authority hierarchy · risk posture"]
-
-    program --> planner["Planner / Orchestrator"]
-    planner --> tasks["Task DAG"]
-
-    subgraph runtime["Research Runtime"]
-        direction TB
-        hypotheses["Hypothesis Agent<br/>candidate legal theories"]
-        critic["Critic Agent<br/>weaknesses · alternatives · contradictions"]
-        knowledge["Knowledge Agent Pool<br/>legal · web · academic · company · social"]
-        modalWorkers["Modal Worker Pool<br/>parallel URL / hypothesis evaluation"]
-        extraction["Extraction Agent<br/>facts · citations · source metadata"]
-        hypotheses -- "candidate theories" --> critic
-        critic -- "questions + attack plan" --> knowledge
-        knowledge -- "URLs / tasks" --> modalWorkers
-        modalWorkers -- "retrieved evidence" --> extraction
-        knowledge -- "local evidence" --> extraction
-        extraction -- "support / refute / update" --> hypotheses
-        critic -- "revise / split / discard" --> hypotheses
+        hypothesis -- "candidate theories" --> critic
+        critic -- "attack plan + questions" --> knowledge
+        knowledge -- "retrieved sources" --> extraction
+        extraction -- "support / refute / revise" --> hypothesis
+        critic -- "split / narrow / discard" --> hypothesis
     end
 
-    tasks --> hypotheses
-    legalMeta --> knowledge
+    planner --> hypothesis
+    planner --> knowledge
 
-    subgraph truth["Truth Maintenance Repo"]
+    sdk["OpenAI Agents SDK<br/>role reasoning + learned skills"] --> hypothesis
+    sdk --> critic
+    sdk --> knowledge
+    sdk --> evaluator["Evaluator Agent<br/>deterministic score + LLM audit"]
+
+    modal["Modal<br/>parallel URL + hypothesis workers"] <--> knowledge
+
+    subgraph truth["Truth-Maintenance Repo<br/>the system memory"]
         direction TB
-        repoClaims["claims.json"]
-        repoEvidence["evidence/*.json"]
-        repoContradictions["contradictions.json"]
-        repoConfidence["confidence_scores.json"]
-        repoQuestions["open_questions.json"]
-        repoTuning["tuning_params.json"]
+        claims["Claims"]
+        evidence["Evidence + Sources"]
+        contradictions["Contradictions"]
+        confidence["Confidence History"]
+        questions["Open Questions"]
+        tuning["Tuning Params"]
+        skills["Agent Skills"]
     end
 
-    hypotheses --> repoClaims
-    critic --> repoContradictions
-    extraction --> repoEvidence
-    repoEvidence --> repoClaims
-    repoClaims --> critic
-    repoContradictions --> critic
-    repoQuestions --> planner
-    repoTuning --> planner
-    repoTuning --> critic
-
-    subgraph evaluator["Self Evaluation"]
-        direction TB
-        objective["Objective Completion"]
-        coverage["Evidence Coverage"]
-        grounding["Citation Grounding"]
-        contradictionScore["Contradiction Resolution"]
-        diversity["Source Diversity"]
-        openQ["Open Questions"]
-        confidence["Research Confidence Score"]
-        objective --> confidence
-        coverage --> confidence
-        grounding --> confidence
-        contradictionScore --> confidence
-        diversity --> confidence
-        openQ --> confidence
-    end
+    hypothesis <--> truth
+    critic <--> truth
+    knowledge <--> truth
+    extraction --> truth
 
     truth --> evaluator
-    confidence --> repoConfidence
-    evaluator --> gaps["Knowledge Gap Detector<br/>missing authority · weak claims · unresolved contradictions"]
-    gaps --> repoQuestions
-    gaps --> newTasks["New Research Tasks"]
-    newTasks --> planner
-    evaluator --> tuner["Auto-Tuner<br/>thresholds · source targets · penalty weights"]
-    tuner --> repoTuning
-    confidence --> converged{"Objectives Satisfied<br/>and Research State Converged?"}
-    converged -- "No" --> newTasks
-    converged -- "Yes" --> report["Grounded Legal Report<br/>linked citations · reasoning diagram · metrics"]
+    evaluator --> confidence
+    evaluator --> gaps["Knowledge Gap Detector<br/>missing authority · weak claims · unresolved issues"]
+    gaps --> questions
+    questions -- "new tasks" --> planner
+
+    evaluator --> tuner["Auto-Tuner<br/>thresholds · source targets · penalties"]
+    tuner --> tuning
+    tuning --> planner
+    skills --> sdk
+
+    evaluator --> decision{"Research State<br/>Converged?"}
+    decision -- "No: plan another pass" --> planner
+    decision -- "Yes: generate artifact" --> report["Grounded Legal Report<br/>HTML · PDF · Markdown"]
+    truth --> report
+    report --> observability["Audit Trail<br/>metrics.json · agent traces · Raindrop spans"]
+    raindrop["Raindrop Workshop<br/>trace + feedback"] <-- "spans" --> observability
 ```
 
-The hypothesis, critic, and knowledge agents form an inner feedback loop. Hypotheses are challenged by the critic, tested by knowledge agents, updated from extracted evidence, and revised before the truth repo is evaluated. `--feedback-rounds` controls additional contradiction-driven refinement inside this inner loop; ordinary open questions become follow-up tasks in the outer loop so the runtime does not repeat expensive retrieval work unnecessarily.
+Read this diagram from the center out. The truth-maintenance repo is the system memory. Agents read from it, write to it, and are evaluated against it. The system does not stop because an LLM produced prose; it stops only when the evaluator says the research state satisfies objective completion, citation grounding, evidence coverage, contradiction resolution, source diversity, confidence stability, and open-question gates.
+
+### The Two Feedback Loops
+
+```mermaid
+flowchart TD
+    subgraph inner["Inner Agent Loop: refine the research theory"]
+        direction LR
+        h["Hypothesis Agent"] --> c["Critic Agent"]
+        c --> k["Knowledge Agents"]
+        k --> x["Extraction / Claim Synthesis"]
+        x --> h
+        c --> h
+    end
+
+    inner --> repo["Truth-Maintenance Repo<br/>claims · evidence · contradictions · open questions"]
+    repo --> eval["Self Evaluation<br/>objective · grounding · coverage · confidence"]
+    eval --> gap["Knowledge Gap Detector"]
+    gap --> plan["Planner / Orchestrator"]
+    plan --> inner
+    eval --> tune["Auto-Tuner"]
+    tune --> plan
+    tune --> inner
+    eval --> stop{"Converged?"}
+    stop -- "No" --> gap
+    stop -- "Yes" --> final["Grounded Legal Report"]
+```
+
+There are two loops:
+
+- Inner agent loop: hypothesis, critic, knowledge, and extraction agents refine the current legal theory before evaluation.
+- Outer control loop: evaluation, knowledge-gap detection, planning, and auto-tuning decide whether to run another research pass.
+
+`--feedback-rounds` controls additional contradiction-driven refinement inside the inner loop. Ordinary open questions become follow-up tasks in the outer loop so the runtime does not repeat expensive retrieval work unnecessarily.
 
 ### Control Plane, Data Plane, And Observability
 
