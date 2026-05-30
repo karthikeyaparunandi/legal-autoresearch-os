@@ -22,13 +22,14 @@ The Autoresearch Systems Hackathon asks for systems that help agents iteratively
 
 ```mermaid
 flowchart LR
-    user["User Goal"] --> program["Research Program"]
-    program --> runtime["Research Runtime"]
-    runtime --> repo["Truth Maintenance Repo"]
-    repo --> eval["Self-Evaluation"]
-    eval --> decision{"Enough confidence?"}
-    decision -- "No" --> runtime
-    decision -- "Yes" --> report["Grounded Report"]
+    goal["User Goal"] --> program["Research Program<br/>(program.md)"]
+    program --> runtime["Research Runtime<br/>Hypothesize · Critique · Retrieve"]
+    runtime --> truth["Truth Maintenance Repo<br/>Claims · Evidence · Contradictions"]
+    truth --> eval["Self-Evaluation<br/>Objective · Evidence · Citations"]
+    eval --> gaps["Knowledge Gap Detector"]
+    gaps --> converged{"Research State<br/>Converged?"}
+    converged -- "No: new tasks" --> runtime
+    converged -- "Yes" --> report["Grounded Report<br/>HTML · PDF · Markdown"]
 ```
 
 ### Detailed Runtime
@@ -36,55 +37,77 @@ flowchart LR
 ```mermaid
 flowchart TD
     goal["User Goal"] --> generator["Program Generator Agent"]
-    generator --> program["program.md"]
-    generator --> legalMeta["legal_metadata.json"]
+    generator --> program["Research Program<br/>program.md"]
+    generator --> legalMeta["Legal Metadata<br/>jurisdiction · authority hierarchy · risk posture"]
+
     program --> planner["Planner / Orchestrator"]
     planner --> tasks["Task DAG"]
 
-    tasks --> hypotheses["Hypothesis Agent"]
-    hypotheses --> hypothesisFile["hypotheses.json"]
+    subgraph runtime["Research Runtime"]
+        direction TB
+        hypotheses["Hypothesis Agent<br/>candidate legal theories"]
+        critic["Critic Agent<br/>weaknesses · alternatives · contradictions"]
+        knowledge["Knowledge Agent Pool<br/>legal · web · academic · company · social"]
+        extraction["Extraction Agent<br/>facts · citations · source metadata"]
+        hypotheses --> critic
+        critic --> knowledge
+        knowledge --> extraction
+    end
 
-    tasks --> knowledge["Knowledge Agent Pool"]
-    knowledge --> web["Web Search Agent"]
-    knowledge --> academic["Academic Agent"]
-    knowledge --> legal["Legal Agent"]
-    knowledge --> company["Company Intelligence Agent"]
-    knowledge --> social["Social Signal Agent"]
-    web --> extraction["Extraction Agent"]
-    academic --> extraction
-    legal --> extraction
-    company --> extraction
-    social --> extraction
-    extraction --> evidence["evidence/*.json"]
+    tasks --> hypotheses
+    legalMeta --> knowledge
 
-    hypothesisFile --> critic["Critic Agent"]
-    evidence --> critic
-    critic --> contradictions["contradictions.json"]
-    critic --> claims["claims.json"]
+    subgraph truth["Truth Maintenance Repo"]
+        direction TB
+        repoClaims["claims.json"]
+        repoEvidence["evidence/*.json"]
+        repoContradictions["contradictions.json"]
+        repoConfidence["confidence_scores.json"]
+        repoQuestions["open_questions.json"]
+        repoTuning["tuning_params.json"]
+    end
 
-    program --> gt["Truth Maintenance Repo"]
-    legalMeta --> gt
-    tasks --> gt
-    hypothesisFile --> gt
-    evidence --> gt
-    claims --> gt
-    contradictions --> gt
+    hypotheses --> repoClaims
+    critic --> repoContradictions
+    extraction --> repoEvidence
+    repoEvidence --> repoClaims
+    repoClaims --> critic
+    repoContradictions --> critic
+    repoQuestions --> planner
+    repoTuning --> planner
+    repoTuning --> critic
 
-    gt --> evaluator["Evaluator Agent"]
-    evaluator --> scores["confidence_scores.json"]
-    evaluator --> tuner["Auto-Tuner"]
-    tuner --> tuning["tuning_params.json"]
-    tuning --> planner
-    tuning --> critic
-    tuning --> evaluator
-    scores --> stop{"Stop conditions met?"}
+    subgraph evaluator["Self Evaluation"]
+        direction TB
+        objective["Objective Completion"]
+        coverage["Evidence Coverage"]
+        grounding["Citation Grounding"]
+        contradictionScore["Contradiction Resolution"]
+        diversity["Source Diversity"]
+        openQ["Open Questions"]
+        confidence["Research Confidence Score"]
+        objective --> confidence
+        coverage --> confidence
+        grounding --> confidence
+        contradictionScore --> confidence
+        diversity --> confidence
+        openQ --> confidence
+    end
 
-    stop -- "No" --> gaps["Knowledge Gap Detector"]
-    gaps --> openQuestions["open_questions.json"]
-    openQuestions --> planner
+    truth --> evaluator
+    confidence --> repoConfidence
 
-    stop -- "Yes" --> report["Grounded Research Report"]
-    report --> finalReport["final_report.md"]
+    evaluator --> gaps["Knowledge Gap Detector<br/>missing authority · weak claims · unresolved contradictions"]
+    gaps --> repoQuestions
+    gaps --> newTasks["New Research Tasks"]
+    newTasks --> planner
+
+    evaluator --> tuner["Auto-Tuner<br/>thresholds · source targets · penalty weights"]
+    tuner --> repoTuning
+
+    confidence --> converged{"Objectives Satisfied<br/>and Research State Converged?"}
+    converged -- "No" --> newTasks
+    converged -- "Yes" --> report["Grounded Legal Report<br/>linked citations · reasoning diagram · metrics"]
 ```
 
 ## Quickstart
