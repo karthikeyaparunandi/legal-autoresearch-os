@@ -17,16 +17,37 @@ Or smoke-test the remote retrieval function directly:
 from __future__ import annotations
 
 from dataclasses import asdict
+import importlib
 import json
+from pathlib import Path
+import sys
 
 try:
-    import modal
+    modal = importlib.import_module("modal")
+    if not hasattr(modal, "Image"):
+        raise ImportError("local modal namespace shadowed Modal SDK")
 except ImportError:  # Keeps the local repo dependency-free.
-    modal = None
+    repo_root = Path(__file__).resolve().parents[1]
+    removed_paths = []
+    for entry in list(sys.path):
+        if entry in {"", str(repo_root)}:
+            sys.path.remove(entry)
+            removed_paths.append(entry)
+    shadow = sys.modules.get("modal")
+    if shadow is not None and not hasattr(shadow, "Image"):
+        del sys.modules["modal"]
+    try:
+        modal = importlib.import_module("modal")
+    except ImportError:
+        modal = None
+    finally:
+        for entry in reversed(removed_paths):
+            sys.path.insert(0, entry)
 
 
 if modal:
-    app = modal.App("autoresearch-os")
+    app_factory = getattr(modal, "App", None) or getattr(modal, "Stub", None)
+    app = app_factory("autoresearch-os")
     image = (
         modal.Image.debian_slim(python_version="3.12")
         .pip_install("openai-agents>=0.3.0")
@@ -45,6 +66,9 @@ if modal:
             detect_blocked_source,
             _infer_contradictions,
             _infer_supports,
+            _is_low_signal_retrieval,
+            _relative_source_score,
+            _relevance_score,
             _source_reliability,
             fetch_url_text,
         )
@@ -60,6 +84,10 @@ if modal:
             block_reason = detect_blocked_source(text)
             if block_reason:
                 return {"status": "blocked", "url": url, "error": block_reason}
+            if _is_low_signal_retrieval(text):
+                return {"status": "error", "url": url, "error": "low_signal_response"}
+            reliability = _source_reliability(url)
+            relevance = _relevance_score(text, task_text, hypotheses)
             return {
                 "status": "ok",
                 "source_id": payload["source_id"],
@@ -69,7 +97,8 @@ if modal:
                 "excerpt": _best_excerpt(text, task_text),
                 "supports": _infer_supports(url, text, hypotheses),
                 "contradicts": _infer_contradictions(url, text, hypotheses),
-                "reliability": _source_reliability(url),
+                "reliability": round(min(0.99, reliability * 0.62 + relevance * 0.38), 2),
+                "source_score": _relative_source_score(url, text, task_text, hypotheses),
             }
         except (HTTPError, URLError, TimeoutError, OSError, ValueError) as exc:
             return {"status": "error", "url": url, "error": exc.__class__.__name__}

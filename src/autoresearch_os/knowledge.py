@@ -84,6 +84,10 @@ def collect_evidence(
         "block_reasons": {},
         "retrieved_urls": [],
         "errors": {},
+        "search_enabled": False,
+        "search_queries": [],
+        "discovered_urls": [],
+        "source_scores": {},
         "fallback_used": False,
     }
 
@@ -92,8 +96,10 @@ def collect_evidence(
         evidence.extend(live_evidence)
         retrieval_stats.update(stats.as_dict())
         retrieval_stats["modal_enabled"] = use_modal
+        retrieval_stats["modal_url_fetch_agents"] = retrieval_stats["attempted_urls"] if use_modal else 0
     else:
         retrieval_stats["modal_enabled"] = False
+        retrieval_stats["modal_url_fetch_agents"] = 0
 
     is_ai_copyright_research = "ai-generated code" in task_text or ("authorship" in task_text and "ai" in task_text)
     if is_ai_copyright_research:

@@ -10,7 +10,6 @@ from .gaps import detect_gaps
 from .html import write_research_html
 from .knowledge import claims_from_hypotheses
 from .llm import CentralReasoner
-from .modal_bridge import evaluate_hypotheses_with_modal
 from .models import Evaluation, RunMetrics, write_json
 from .pdf import write_pdf
 from .planner import plan_tasks
@@ -119,60 +118,30 @@ class ResearchRuntime:
         for iteration in range(1, self.max_iterations + 1):
             iterations_completed = iteration
             for feedback_round in range(1, self.feedback_rounds + 1):
-                if self.use_modal and self.live_retrieval:
-                    timer = time.perf_counter()
-                    evidence, claims, contradictions, criticisms, retrieval_metrics = evaluate_hypotheses_with_modal(
-                        tasks,
-                        hypotheses,
-                        seed_texts,
-                        self.live_retrieval,
-                        self.source_urls,
-                        tuning_params,
-                        reasoner.api_key if reasoner.enabled else None,
-                        reasoner.model if reasoner.enabled else None,
-                        agent_skills,
-                    )
-                    modal_llm_calls = int(retrieval_metrics.get("modal_agent_llm_calls", 0))
-                    agent_traces.append(
-                        AgentTrace(
-                            "modal_hypothesis_agent_pool",
-                            "Run one remote research worker per hypothesis.",
-                            ["collect_evidence", "claims_from_hypotheses", "critique_claims", "openai_agents_sdk"],
-                            ["modal_map:evaluate_hypothesis_agent", "remote_agent_reasoning"],
-                            used_llm=modal_llm_calls > 0,
-                            llm_model=str(retrieval_metrics.get("modal_agent_llm_model") or reasoner.model) if modal_llm_calls > 0 else None,
-                            output_count=len(hypotheses),
-                        )
-                    )
-                    elapsed_modal = time.perf_counter() - timer
-                    component_seconds["evidence_collection"] += elapsed_modal
-                    component_seconds["claim_synthesis"] += 0.0
-                    component_seconds["critique"] += 0.0
-                else:
-                    timer = time.perf_counter()
-                    evidence, retrieval_metrics, trace = run_knowledge_agent(
-                        tasks,
-                        hypotheses,
-                        seed_texts,
-                        self.live_retrieval,
-                        self.source_urls,
-                        reasoner,
-                        self.use_modal,
-                        agent_skills,
-                    )
-                    agent_traces.append(trace)
-                    component_seconds["evidence_collection"] += time.perf_counter() - timer
-                    timer = time.perf_counter()
-                    claims = claims_from_hypotheses(hypotheses, evidence, tuning_params)
-                    component_seconds["claim_synthesis"] += time.perf_counter() - timer
-                    timer = time.perf_counter()
-                    contradictions, criticisms, trace = run_critic_agent(claims, reasoner, agent_skills)
-                    agent_traces.append(trace)
-                    component_seconds["critique"] += time.perf_counter() - timer
+                timer = time.perf_counter()
+                evidence, retrieval_metrics, trace = run_knowledge_agent(
+                    tasks,
+                    hypotheses,
+                    seed_texts,
+                    self.live_retrieval,
+                    self.source_urls,
+                    reasoner,
+                    self.use_modal,
+                    agent_skills,
+                )
+                agent_traces.append(trace)
+                component_seconds["evidence_collection"] += time.perf_counter() - timer
+                timer = time.perf_counter()
+                claims = claims_from_hypotheses(hypotheses, evidence, tuning_params)
+                component_seconds["claim_synthesis"] += time.perf_counter() - timer
+                timer = time.perf_counter()
+                contradictions, criticisms, trace = run_critic_agent(claims, reasoner, agent_skills)
+                agent_traces.append(trace)
+                component_seconds["critique"] += time.perf_counter() - timer
                 timer = time.perf_counter()
                 open_questions = detect_gaps(program, claims, contradictions, criticisms, tuning_params)
                 component_seconds["gap_detection"] += time.perf_counter() - timer
-                if feedback_round >= self.feedback_rounds or not (contradictions or open_questions):
+                if feedback_round >= self.feedback_rounds or not contradictions:
                     break
                 timer = time.perf_counter()
                 hypotheses, trace = run_hypothesis_refinement_agent(
@@ -218,6 +187,9 @@ class ResearchRuntime:
                 next_tuning_params,
             )
             if did_stop:
+                break
+            if _research_plateaued(iteration_history):
+                iteration_history[-1]["status"] = "Plateau"
                 break
 
             previous_evaluation = evaluation
@@ -372,6 +344,8 @@ class ResearchRuntime:
                 agent_breakdown["modal_hypothesis_agent"] = agent_breakdown.get("modal_hypothesis_agent", 0) + trace.output_count
             elif trace.name == "hypothesis_refinement_agent":
                 agent_breakdown["hypothesis_refinement_agent"] = agent_breakdown.get("hypothesis_refinement_agent", 0) + 1
+        if retrieval_metrics.get("modal_enabled"):
+            agent_breakdown["modal_url_fetch_agent"] = int(retrieval_metrics.get("modal_url_fetch_agents", 0))
         component_agents = {
             "program_generation": agent_breakdown["program_generator"],
             "planning": agent_breakdown["planner_orchestrator"] + agent_breakdown["knowledge_gap_detector"],
@@ -383,6 +357,7 @@ class ResearchRuntime:
                 + agent_breakdown["company_intelligence_agent"]
                 + agent_breakdown["social_signal_agent"]
                 + agent_breakdown["extraction_agent"]
+                + agent_breakdown.get("modal_url_fetch_agent", 0)
             ),
             "claim_synthesis": agent_breakdown["extraction_agent"],
             "critique": agent_breakdown["critic_agent"],
@@ -468,3 +443,13 @@ def _iteration_snapshot(iteration: int, evaluation: Evaluation, evidence, contra
         "status": "Converged" if did_stop else "Continue",
         "stop_conditions_met": did_stop,
     }
+
+
+def _research_plateaued(history: list[dict[str, float | int | str | bool]]) -> bool:
+    if len(history) < 2:
+        return False
+    recent = history[-2:]
+    confidence_delta = max(float(item["overall_confidence"]) for item in recent) - min(float(item["overall_confidence"]) for item in recent)
+    evidence_delta = int(recent[-1]["evidence_count"]) - int(recent[0]["evidence_count"])
+    open_questions_delta = int(recent[0]["open_questions"]) - int(recent[-1]["open_questions"])
+    return confidence_delta < 0.01 and evidence_delta <= 0 and open_questions_delta <= 0

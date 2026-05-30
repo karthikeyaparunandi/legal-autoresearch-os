@@ -192,7 +192,7 @@ flowchart TD
     converged -- "Yes" --> report["Grounded Legal Report<br/>linked citations · reasoning diagram · metrics"]
 ```
 
-The hypothesis, critic, and knowledge agents form an inner feedback loop. Hypotheses are challenged by the critic, tested by knowledge agents, updated from extracted evidence, and revised before the truth repo is evaluated. `--feedback-rounds` controls how many times that inner loop may run inside a single outer research iteration.
+The hypothesis, critic, and knowledge agents form an inner feedback loop. Hypotheses are challenged by the critic, tested by knowledge agents, updated from extracted evidence, and revised before the truth repo is evaluated. `--feedback-rounds` is reserved for contradiction-driven refinement; ordinary open questions become follow-up tasks in the outer loop so the runtime does not repeat expensive retrieval work unnecessarily.
 
 ## Agents
 
@@ -203,7 +203,7 @@ The current runtime exposes these agent roles:
 - `hypothesis_agent`: generates and refines candidate legal theories.
 - `hypothesis_refinement_agent`: revises hypotheses from critic findings, contradictions, and knowledge gaps.
 - `knowledge_agent_pool`: retrieves and structures evidence from live or fallback sources.
-- `modal_hypothesis_agent_pool`: when `--modal` is enabled, runs one remote research worker per hypothesis.
+- `modal_url_fetch_agent`: when `--modal` is enabled, fans out URL fetch/extract jobs on Modal.
 - `critic_agent`: attacks claims, finds contradictions, and raises weaknesses.
 - `evaluator_agent`: scores the research state against convergence criteria.
 - `knowledge_gap_detector`: creates follow-up tasks from weak or missing knowledge.
@@ -240,13 +240,16 @@ The HTML report is the primary demo artifact. It includes paper-style linked cit
 
 ## Retrieval
 
-Knowledge agents can fetch real external sources using dependency-free HTTP retrieval. The built-in legal source set includes public authorities such as Federal Register copyright guidance, the U.S. Copyright Office AI page, and 17 U.S.C. Section 102 via Cornell LII.
+Knowledge agents can fetch real external sources using dependency-free HTTP retrieval. For live runs, the retrieval planner builds legal web-search queries from the objective and hypotheses, expands blocked search results with curated legal-source fallbacks, deduplicates candidate URLs, fetches sources, and assigns relative reliability/relevance scores. Copyright-specific built-ins are used only for copyright/authorship questions.
 
 Every run records retrieval metrics:
 
 - live retrieval enabled or disabled
+- web search enabled, search queries, and discovered URLs
 - URLs attempted and retrieved
+- relative source scores
 - failed URLs and error classes
+- Modal URL fetch-agent count when `--modal` is enabled
 - fallback evidence usage
 - retrieved source URLs
 
@@ -273,6 +276,8 @@ Contradiction Resolution >= 80%
 ```
 
 If the state has not converged, the knowledge-gap detector creates follow-up tasks and the runtime loops again.
+
+The runtime also stops early when the research state plateaus: if confidence, evidence count, and open-question count stop improving, the iteration status becomes `Plateau` and the report is generated instead of spending more time on repeated retrieval.
 
 ## Legal Metadata And Tuning
 
@@ -324,9 +329,9 @@ The shared `agent_skills.json` is intentionally ignored by git because it is loc
 
 ## Modal Acceleration
 
-`modal/app.py` defines the remote workers used by `autoresearch demo --modal` and `autoresearch run --modal`. The stronger path is the `modal_hypothesis_agent_pool`: each hypothesis is sent to a separate Modal worker that retrieves evidence, synthesizes a claim, critiques that claim, runs an OpenAI Agents SDK reasoning pass, and returns a scored research bundle to the local orchestrator. URL-level retrieval fan-out is still available as a lower-level tool.
+`modal/app.py` defines the remote workers used by `autoresearch demo --modal` and `autoresearch run --modal`. The default accelerated path is URL-level retrieval fan-out: the local orchestrator plans queries and candidate URLs, Modal workers fetch/extract those URLs in parallel, and the local runtime deduplicates evidence before claim synthesis, critique, evaluation, and reporting. This uses Modal for the network-bound part of the system without paying remote orchestration overhead for every hypothesis on every feedback round.
 
-The design follows the same control-plane/data-plane split as [`modal-labs/openai-agents-python-example`](https://github.com/modal-labs/openai-agents-python-example): keep an orchestrator in charge of state, then fan out bounded worker jobs on Modal. In this repo, `ResearchRuntime` is the orchestrator, `modal_hypothesis_agent_pool` is the distributed agent pool, and `modal/app.py` is the remote worker layer.
+The design follows the same control-plane/data-plane split as [`modal-labs/openai-agents-python-example`](https://github.com/modal-labs/openai-agents-python-example): keep an orchestrator in charge of state, then fan out bounded worker jobs on Modal. In this repo, `ResearchRuntime` is the orchestrator, `modal_url_fetch_agent` is the distributed retrieval worker pool, and `modal/app.py` is the remote worker layer.
 
 Modal is optional:
 

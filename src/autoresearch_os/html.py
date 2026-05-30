@@ -411,6 +411,10 @@ def _retrieval_table(metrics: RunMetrics) -> str:
     retrieval = metrics.retrieval_metrics
     rows = [
         ("Live retrieval", "enabled" if retrieval.get("enabled") else "disabled"),
+        ("Modal URL agents", retrieval.get("modal_url_fetch_agents", 0)),
+        ("Web search", "enabled" if retrieval.get("search_enabled") else "disabled"),
+        ("Search queries", len(retrieval.get("search_queries", []))),
+        ("URLs discovered", len(retrieval.get("discovered_urls", []))),
         ("URLs attempted", retrieval.get("attempted_urls", 0)),
         ("URLs retrieved", retrieval.get("successful_urls", 0)),
         ("URLs failed", retrieval.get("failed_urls", 0)),
@@ -425,6 +429,9 @@ def _retrieval_table(metrics: RunMetrics) -> str:
     table = "<table><tbody>" + "".join(f"<tr><th>{escape(str(left))}</th><td>{escape(str(right))}</td></tr>" for left, right in rows) + "</tbody></table>"
     if url_rows:
         table += f"<h3>Retrieved Sources</h3><ul>{url_rows}</ul>"
+    query_rows = "".join(f"<li>{escape(query)}</li>" for query in retrieval.get("search_queries", []))
+    if query_rows:
+        table += f"<h3>Search Queries</h3><ul>{query_rows}</ul>"
     if blocked_rows:
         table += f"<h3>Blocked Sources</h3><ul>{blocked_rows}</ul>"
     return table

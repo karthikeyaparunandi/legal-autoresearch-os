@@ -9,7 +9,7 @@ from autoresearch_os.knowledge import collect_evidence
 from autoresearch_os.llm import CentralReasoner, LLMConfigurationError, LLMReasoningError
 from autoresearch_os.models import Claim, Evidence, Hypothesis, ResearchProgram, Task
 from autoresearch_os.modal_bridge import ModalIntegrationError
-from autoresearch_os.retrieval import _infer_contradictions, detect_blocked_source, fetch_url_text, retrieve_live_evidence
+from autoresearch_os.retrieval import _extract_search_result_urls, _infer_contradictions, detect_blocked_source, fetch_url_text, retrieve_live_evidence
 from autoresearch_os.runtime import ResearchRuntime
 
 
@@ -200,14 +200,15 @@ def test_inner_feedback_loop_refines_hypotheses(tmp_path, monkeypatch):
     assert calls == {"knowledge": 2, "refine": 1}
 
 
-def test_modal_hypothesis_agent_pool_is_used_inside_runtime(tmp_path, monkeypatch):
+def test_modal_fans_out_url_retrieval_inside_runtime(tmp_path, monkeypatch):
     import autoresearch_os.runtime as runtime_module
 
-    calls = {"modal_pool": 0}
+    calls = {"knowledge": 0, "use_modal": None}
 
-    def fake_modal_pool(tasks, hypotheses, seed_texts, live_retrieval, source_urls, tuning_params, api_key=None, llm_model=None, agent_skills=None):
-        calls["modal_pool"] += 1
-        from autoresearch_os.models import Claim, Evidence
+    def fake_knowledge(tasks, hypotheses, seed_texts, live_retrieval, source_urls, reasoner, use_modal, agent_skills=None):
+        calls["knowledge"] += 1
+        calls["use_modal"] = use_modal
+        from autoresearch_os.models import Evidence
 
         evidence = [
             Evidence(
@@ -221,49 +222,33 @@ def test_modal_hypothesis_agent_pool_is_used_inside_runtime(tmp_path, monkeypatc
             )
             for index, hypothesis in enumerate(hypotheses, start=1)
         ]
-        claims = [
-            Claim(
-                claim_id=f"c{index:03d}",
-                claim=hypothesis.statement,
-                supporting_sources=[f"source_{index:03d}"],
-                confidence=0.95,
-                status="supported",
-            )
-            for index, hypothesis in enumerate(hypotheses, start=1)
-        ]
         return (
             evidence,
-            claims,
-            [],
-            [],
             {
                 "enabled": True,
                 "modal_enabled": True,
-                "modal_hypothesis_agents": True,
+                "modal_url_fetch_agents": len(hypotheses),
                 "attempted_urls": len(hypotheses),
                 "successful_urls": len(hypotheses),
                 "failed_urls": 0,
                 "retrieved_urls": [],
                 "errors": {},
                 "fallback_used": False,
-                "modal_agent_llm_calls": len(hypotheses) if api_key else 0,
-                "modal_agent_llm_model": llm_model if api_key else None,
             },
+            runtime_module.AgentTrace("knowledge_agent_pool", "fake", ["collect_evidence"]),
         )
 
-    monkeypatch.setattr(runtime_module, "evaluate_hypotheses_with_modal", fake_modal_pool)
-    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
-    monkeypatch.setattr(CentralReasoner, "reason_json", lambda self, agent_name, instruction, payload: None)
-    runtime = ResearchRuntime(tmp_path / "gt_repo", max_iterations=1, live_retrieval=True, use_llm=True, use_modal=True)
+    monkeypatch.setattr(runtime_module, "run_knowledge_agent", fake_knowledge)
+    runtime = ResearchRuntime(tmp_path / "gt_repo", max_iterations=1, live_retrieval=True, use_llm=False, use_modal=True)
     runtime.run("Can AI-generated code be copyrighted in the United States?")
 
     metrics = json.loads((tmp_path / "gt_repo" / "metrics.json").read_text(encoding="utf-8"))
-    assert calls["modal_pool"] == 1
-    assert metrics["retrieval_metrics"]["modal_hypothesis_agents"] is True
-    assert metrics["retrieval_metrics"]["modal_agent_llm_calls"] == 4
-    assert metrics["agent_breakdown"]["modal_hypothesis_agent"] == 4
-    trace = next(trace for trace in metrics["agent_traces"] if trace["name"] == "modal_hypothesis_agent_pool")
-    assert trace["used_llm"] is True
+    assert calls == {"knowledge": 1, "use_modal": True}
+    assert metrics["retrieval_metrics"]["modal_enabled"] is True
+    assert metrics["retrieval_metrics"]["modal_url_fetch_agents"] == 4
+    assert metrics["agent_breakdown"]["modal_url_fetch_agent"] == 4
+    trace = next(trace for trace in metrics["agent_traces"] if trace["name"] == "knowledge_agent_pool")
+    assert trace["tools"] == ["collect_evidence"]
 
 
 def test_runtime_requires_llm_key_when_llm_enabled(tmp_path, monkeypatch):
@@ -341,7 +326,7 @@ def test_cli_modal_error_is_clear(tmp_path, monkeypatch):
     def fail_modal(*args, **kwargs):
         raise ModalIntegrationError("Modal is unavailable")
 
-    monkeypatch.setattr(runtime_module, "evaluate_hypotheses_with_modal", fail_modal)
+    monkeypatch.setattr(runtime_module, "run_knowledge_agent", fail_modal)
 
     exit_code = main(["demo", "--no-llm", "--modal", "--out", str(tmp_path / "gt_repo")])
 
@@ -444,6 +429,73 @@ def test_fetch_url_text_extracts_local_html(tmp_path):
     assert title == "Legal Source"
     assert "Human authorship matters." in text
     assert "bad" not in text
+
+
+def test_search_result_urls_extract_duckduckgo_redirects():
+    html = (
+        '<a class="result__a" href="/l/?uddg=https%3A%2F%2Fwww.americanbar.org%2Fgroups%2Fdelivery_legal_services%2F">'
+        "ABA</a>"
+        '<a href="https://duckduckgo.com/y.js">tracking</a>'
+        '<a href="https://www.law.cornell.edu/uscode/text/17/102">Cornell</a>'
+    )
+
+    urls = _extract_search_result_urls(html)
+
+    assert urls == [
+        "https://www.americanbar.org/groups/delivery_legal_services/",
+        "https://www.law.cornell.edu/uscode/text/17/102",
+    ]
+
+
+def test_retrieval_discovers_query_specific_sources(tmp_path, monkeypatch):
+    import autoresearch_os.retrieval as retrieval_module
+
+    monkeypatch.setattr(retrieval_module, "DEFAULT_LEGAL_SOURCE_URLS", [])
+    state_bar = tmp_path / "state_bar.html"
+    state_bar.write_text(
+        "<html><head><title>State Bar UPL Opinion</title></head><body>"
+        "<p>Unauthorized practice of law risk can arise when a legal document service applies contract law to a customer specific situation.</p>"
+        "<p>Disclaimers and attorney supervision may affect liability.</p>"
+        "</body></html>",
+        encoding="utf-8",
+    )
+    consumer = tmp_path / "consumer.html"
+    consumer.write_text(
+        "<html><head><title>Consumer Protection Source</title></head><body>"
+        "<p>Contract template providers can face warranty, misrepresentation, and consumer protection liability.</p>"
+        "</body></html>",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        retrieval_module,
+        "_search_web",
+        lambda query, timeout_seconds=8.0: [state_bar.as_uri(), consumer.as_uri()],
+    )
+    tasks = [
+        Task(
+            task_id="t001",
+            title="AI contract templates",
+            question="Can a startup use AI-generated contract templates for customers, and what liability risks arise under U.S. law?",
+        )
+    ]
+    hypotheses = [
+        Hypothesis(
+            hypothesis_id="h001",
+            statement="AI-generated contract templates create unauthorized practice of law and liability risks.",
+            rationale="Templates can apply law to customer facts.",
+        )
+    ]
+
+    evidence, stats = retrieve_live_evidence(tasks, hypotheses)
+
+    assert stats.search_enabled is True
+    assert stats.search_queries
+    assert stats.discovered_urls == [state_bar.as_uri(), consumer.as_uri()]
+    assert stats.successful_urls == 2
+    assert {item.url for item in evidence} == {state_bar.as_uri(), consumer.as_uri()}
+    assert all("h001" in item.supports for item in evidence)
+    assert all(item.reliability > 0.45 for item in evidence)
+    assert set(stats.source_scores or {}) == {state_bar.as_uri(), consumer.as_uri()}
 
 
 def test_retrieval_marks_captcha_pages_as_blocked(tmp_path, monkeypatch):

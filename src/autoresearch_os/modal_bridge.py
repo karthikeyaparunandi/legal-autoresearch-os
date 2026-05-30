@@ -54,6 +54,7 @@ def evaluate_hypotheses_with_modal(
     retrieval_metrics = _empty_retrieval_metrics(live_retrieval, modal_enabled=True)
 
     evidence_index = 1
+    evidence_id_by_url: dict[str, str] = {}
     for result in results:
         if isinstance(result, Exception):
             retrieval_metrics["failed_urls"] += 1
@@ -68,15 +69,20 @@ def evaluate_hypotheses_with_modal(
 
         id_map: dict[str, str] = {}
         for item in result.get("evidence", []):
+            url = item["url"]
+            if url in evidence_id_by_url:
+                id_map[item["source_id"]] = evidence_id_by_url[url]
+                continue
             old_id = item["source_id"]
             new_id = f"source_{evidence_index:03d}"
             evidence_index += 1
             id_map[old_id] = new_id
+            evidence_id_by_url[url] = new_id
             evidence.append(
                 Evidence(
                     source_id=new_id,
                     title=item["title"],
-                    url=item["url"],
+                    url=url,
                     source_type=item["source_type"],
                     excerpt=item["excerpt"],
                     supports=item.get("supports", []),
@@ -138,7 +144,7 @@ def retrieve_live_evidence_with_modal(
         }
         for index, url in enumerate(urls)
     ]
-    stats = RetrievalStats(attempted_urls=len(payloads), retrieved_urls=[], errors={})
+    stats = RetrievalStats(attempted_urls=len(payloads), blocked_urls=[], block_reasons={}, retrieved_urls=[], errors={}, source_scores={})
     evidence: list[Evidence] = []
 
     try:
@@ -175,6 +181,7 @@ def retrieve_live_evidence_with_modal(
             continue
         stats.successful_urls += 1
         stats.retrieved_urls.append(result["url"])
+        stats.source_scores[result["url"]] = result.get("source_score", result["reliability"])
         evidence.append(
             Evidence(
                 source_id=result["source_id"],
@@ -199,10 +206,18 @@ def _empty_retrieval_metrics(live_retrieval: bool, modal_enabled: bool) -> dict:
         "attempted_urls": 0,
         "successful_urls": 0,
         "failed_urls": 0,
+        "blocked_sources": 0,
+        "blocked_urls": [],
+        "block_reasons": {},
         "retrieved_urls": [],
         "errors": {},
+        "search_enabled": False,
+        "search_queries": [],
+        "discovered_urls": [],
+        "source_scores": {},
         "fallback_used": False,
         "modal_hypothesis_agents": True,
+        "modal_url_fetch_agents": 0,
         "modal_agent_llm_calls": 0,
         "modal_agent_llm_model": None,
     }
@@ -212,10 +227,23 @@ def _merge_retrieval_metrics(target: dict, source: dict) -> None:
     target["attempted_urls"] += int(source.get("attempted_urls", 0))
     target["successful_urls"] += int(source.get("successful_urls", 0))
     target["failed_urls"] += int(source.get("failed_urls", 0))
+    target["blocked_sources"] += int(source.get("blocked_sources", 0))
     target["fallback_used"] = bool(target.get("fallback_used") or source.get("fallback_used"))
+    target["search_enabled"] = bool(target.get("search_enabled") or source.get("search_enabled"))
     for url in source.get("retrieved_urls", []):
         if url not in target["retrieved_urls"]:
             target["retrieved_urls"].append(url)
+    for url in source.get("discovered_urls", []):
+        if url not in target["discovered_urls"]:
+            target["discovered_urls"].append(url)
+    for query in source.get("search_queries", []):
+        if query not in target["search_queries"]:
+            target["search_queries"].append(query)
+    for url in source.get("blocked_urls", []):
+        if url not in target["blocked_urls"]:
+            target["blocked_urls"].append(url)
+    target["block_reasons"].update(source.get("block_reasons", {}))
+    target["source_scores"].update(source.get("source_scores", {}))
     target["errors"].update(source.get("errors", {}))
 
 

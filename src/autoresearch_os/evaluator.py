@@ -3,7 +3,17 @@ from __future__ import annotations
 from .models import Claim, Contradiction, Evaluation, Evidence, ResearchProgram, TuningParams
 
 
-PRIMARY_SOURCE_TYPES = {"statute", "case_law", "binding_case_law", "agency_guidance", "regulation", "official_material"}
+PRIMARY_SOURCE_TYPES = {
+    "statute",
+    "uniform_code",
+    "case_law",
+    "binding_case_law",
+    "agency_guidance",
+    "regulation",
+    "bar_ethics",
+    "liability_authority",
+    "official_material",
+}
 
 
 def evaluate(

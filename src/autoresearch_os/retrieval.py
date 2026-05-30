@@ -4,7 +4,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from html.parser import HTMLParser
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, quote_plus, unquote, urlparse
 from urllib.request import Request, urlopen
 import re
 
@@ -17,6 +17,10 @@ DEFAULT_LEGAL_SOURCE_URLS = [
     "https://www.law.cornell.edu/uscode/text/17/102",
 ]
 
+_FETCH_CACHE: dict[str, tuple[str, str]] = {}
+_BAD_URL_CACHE: dict[str, str] = {}
+_SEARCH_CACHE: dict[str, list[str]] = {}
+
 
 @dataclass
 class RetrievalStats:
@@ -27,6 +31,10 @@ class RetrievalStats:
     block_reasons: dict[str, str] | None = None
     retrieved_urls: list[str] | None = None
     errors: dict[str, str] | None = None
+    search_enabled: bool = False
+    search_queries: list[str] | None = None
+    discovered_urls: list[str] | None = None
+    source_scores: dict[str, float] | None = None
 
     def as_dict(self) -> dict:
         return {
@@ -38,6 +46,10 @@ class RetrievalStats:
             "block_reasons": self.block_reasons or {},
             "retrieved_urls": self.retrieved_urls or [],
             "errors": self.errors or {},
+            "search_enabled": self.search_enabled,
+            "search_queries": self.search_queries or [],
+            "discovered_urls": self.discovered_urls or [],
+            "source_scores": self.source_scores or {},
         }
 
 
@@ -48,28 +60,56 @@ def retrieve_live_evidence(
     start_index: int = 1,
     timeout_seconds: float = 8.0,
     use_modal: bool = False,
+    use_web_search: bool = True,
 ) -> tuple[list[Evidence], RetrievalStats]:
-    urls = list(dict.fromkeys([*DEFAULT_LEGAL_SOURCE_URLS, *source_urls]))
+    task_text = " ".join(task.question for task in tasks)
+    explicit_urls = list(source_urls)
+    default_urls = _default_urls_for_context(task_text)
+    search_queries = _build_search_queries(tasks, hypotheses) if use_web_search and not _only_local_urls(explicit_urls) else []
+    discovered_urls, search_errors = _discover_urls(search_queries, timeout_seconds=timeout_seconds) if search_queries else ([], {})
+    urls = _rank_candidate_urls([*default_urls, *explicit_urls, *discovered_urls], task_text, hypotheses)
     if use_modal:
         from .modal_bridge import retrieve_live_evidence_with_modal
 
-        return retrieve_live_evidence_with_modal(urls, tasks, hypotheses, start_index, timeout_seconds)
+        evidence, stats = retrieve_live_evidence_with_modal(urls, tasks, hypotheses, start_index, timeout_seconds)
+        stats.search_enabled = bool(search_queries)
+        stats.search_queries = search_queries
+        stats.discovered_urls = discovered_urls
+        stats.errors = {**search_errors, **(stats.errors or {})}
+        stats.source_scores = stats.source_scores or {}
+        return evidence, stats
 
-    stats = RetrievalStats(attempted_urls=len(urls), blocked_urls=[], block_reasons={}, retrieved_urls=[], errors={})
+    stats = RetrievalStats(
+        attempted_urls=len(urls),
+        blocked_urls=[],
+        block_reasons={},
+        retrieved_urls=[],
+        errors=search_errors,
+        search_enabled=bool(search_queries),
+        search_queries=search_queries,
+        discovered_urls=discovered_urls,
+        source_scores={},
+    )
     evidence: list[Evidence] = []
-    task_text = " ".join(task.question for task in tasks)
 
     for url in urls:
+        if url in _BAD_URL_CACHE:
+            stats.failed_urls += 1
+            stats.errors[url] = _BAD_URL_CACHE[url]
+            continue
         try:
-            title, text = fetch_url_text(url, timeout_seconds=timeout_seconds)
+            title, text = fetch_url_text(url, timeout_seconds=min(timeout_seconds, 3.0))
         except (HTTPError, URLError, TimeoutError, OSError, ValueError) as exc:
             stats.failed_urls += 1
-            stats.errors[url] = exc.__class__.__name__
+            error = exc.__class__.__name__
+            stats.errors[url] = error
+            _BAD_URL_CACHE[url] = error
             continue
 
         if not text:
             stats.failed_urls += 1
             stats.errors[url] = "empty_response"
+            _BAD_URL_CACHE[url] = "empty_response"
             continue
         block_reason = detect_blocked_source(text)
         if block_reason:
@@ -77,15 +117,21 @@ def retrieve_live_evidence(
             stats.blocked_urls.append(url)
             stats.block_reasons[url] = block_reason
             stats.errors[url] = block_reason
+            _BAD_URL_CACHE[url] = block_reason
             continue
         if _is_low_signal_retrieval(text):
             stats.failed_urls += 1
             stats.errors[url] = "low_signal_response"
+            _BAD_URL_CACHE[url] = "low_signal_response"
             continue
 
         stats.successful_urls += 1
         stats.retrieved_urls.append(url)
         source_id = f"source_{start_index + len(evidence):03d}"
+        reliability = _source_reliability(url)
+        relevance = _relevance_score(text, task_text, hypotheses)
+        source_score = _relative_source_score(url, text, task_text, hypotheses)
+        stats.source_scores[url] = source_score
         evidence.append(
             Evidence(
                 source_id=source_id,
@@ -95,7 +141,7 @@ def retrieve_live_evidence(
                 excerpt=_best_excerpt(text, task_text),
                 supports=_infer_supports(url, text, hypotheses),
                 contradicts=_infer_contradictions(url, text, hypotheses),
-                reliability=_source_reliability(url),
+                reliability=round(min(0.99, reliability * 0.62 + relevance * 0.38), 2),
             )
         )
 
@@ -103,6 +149,8 @@ def retrieve_live_evidence(
 
 
 def fetch_url_text(url: str, timeout_seconds: float = 8.0) -> tuple[str, str]:
+    if url in _FETCH_CACHE:
+        return _FETCH_CACHE[url]
     request = Request(
         url,
         headers={
@@ -120,7 +168,158 @@ def fetch_url_text(url: str, timeout_seconds: float = 8.0) -> tuple[str, str]:
     parser.feed(decoded)
     text = _normalize(parser.text())
     title = _normalize(parser.title) or _fallback_title(url)
-    return title, text
+    result = (title, text)
+    _FETCH_CACHE[url] = result
+    return result
+
+
+def _default_urls_for_context(task_text: str) -> list[str]:
+    lower = task_text.lower()
+    if "copyright" in lower or "authorship" in lower or "ai-generated code" in lower:
+        return DEFAULT_LEGAL_SOURCE_URLS
+    return []
+
+
+def _only_local_urls(urls: list[str]) -> bool:
+    return bool(urls) and all(url.startswith(("file:", "local:")) for url in urls)
+
+
+def _build_search_queries(tasks: list[Task], hypotheses: list[Hypothesis], limit: int = 4) -> list[str]:
+    task_text = " ".join(task.question for task in tasks)
+    hypothesis_text = " ".join(hypothesis.statement for hypothesis in hypotheses)
+    lower = f"{task_text} {hypothesis_text}".lower()
+    queries: list[str] = []
+
+    if any(term in lower for term in ["contract template", "legal template", "legal forms", "upl", "unauthorized practice"]):
+        queries.extend(
+            [
+                "AI generated contract templates unauthorized practice of law state bar ethics",
+                "online legal forms unauthorized practice of law state bar opinion",
+                "legal document automation unauthorized practice of law liability",
+                "contract template provider warranty misrepresentation consumer protection liability",
+            ]
+        )
+    if "copyright" in lower or "authorship" in lower:
+        queries.extend(
+            [
+                "site:copyright.gov artificial intelligence copyright registration guidance human authorship",
+                "AI generated works copyright human authorship case law",
+            ]
+        )
+    if not queries:
+        cleaned = " ".join(_keywords(task_text)[:12])
+        if cleaned:
+            queries.append(f"{cleaned} statute case law agency guidance")
+            queries.append(f"{cleaned} legal liability primary authority")
+
+    deduped = list(dict.fromkeys(queries))
+    return deduped[:limit]
+
+
+def _discover_urls(search_queries: list[str], timeout_seconds: float = 8.0, per_query: int = 5) -> tuple[list[str], dict[str, str]]:
+    discovered: list[str] = []
+    errors: dict[str, str] = {}
+    for query in search_queries:
+        try:
+            result_urls = _search_web(query, timeout_seconds=min(timeout_seconds, 1.5))[:per_query]
+        except (HTTPError, URLError, TimeoutError, OSError, ValueError) as exc:
+            errors[f"search:{query}"] = exc.__class__.__name__
+            result_urls = []
+        if not result_urls:
+            result_urls = _fallback_search_urls(query)
+        for url in result_urls:
+            if url not in discovered and _is_probably_useful_url(url):
+                discovered.append(url)
+    return discovered, errors
+
+
+def _search_web(query: str, timeout_seconds: float = 8.0) -> list[str]:
+    if query in _SEARCH_CACHE:
+        return _SEARCH_CACHE[query]
+    url = f"https://duckduckgo.com/html/?q={quote_plus(query)}"
+    request = Request(
+        url,
+        headers={
+            "User-Agent": "AutoResearchOS/0.1 legal research prototype",
+            "Accept": "text/html,application/xhtml+xml,text/plain;q=0.9,*/*;q=0.5",
+        },
+    )
+    with urlopen(request, timeout=timeout_seconds) as response:
+        raw = response.read(800_000)
+    html = raw.decode("utf-8", errors="replace")
+    if detect_blocked_source(html) or "anomaly-modal" in html or "bots use duckduckgo" in html.lower():
+        _SEARCH_CACHE[query] = []
+        raise ValueError("search_challenge_detected")
+    urls = _extract_search_result_urls(html)
+    _SEARCH_CACHE[query] = urls
+    return urls
+
+
+def _fallback_search_urls(query: str) -> list[str]:
+    lower = query.lower()
+    urls: list[str] = []
+    if any(term in lower for term in ["unauthorized practice", "legal forms", "document automation", "contract template"]):
+        urls.extend(
+            [
+                "https://www.law.cornell.edu/wex/unauthorized_practice_of_law",
+                "https://www.americanbar.org/groups/professional_responsibility/publications/model_rules_of_professional_conduct/rule_5_5_unauthorized_practice_of_law_multijurisdictional_practice_of_law/",
+                "https://www.law.cornell.edu/wex/practice_of_law",
+            ]
+        )
+    if any(term in lower for term in ["warranty", "misrepresentation", "consumer protection", "liability"]):
+        urls.extend(
+            [
+                "https://www.law.cornell.edu/wex/warranty",
+                "https://www.law.cornell.edu/wex/misrepresentation",
+                "https://www.law.cornell.edu/wex/consumer_protection",
+                "https://www.law.cornell.edu/ucc/2/2-313",
+            ]
+        )
+    return list(dict.fromkeys(urls))
+
+
+def _extract_search_result_urls(html: str) -> list[str]:
+    urls: list[str] = []
+    for raw_href in re.findall(r'href=["\']([^"\']+)["\']', html):
+        href = raw_href.replace("&amp;", "&")
+        parsed = urlparse(href)
+        if parsed.path.startswith("/l/") and parsed.query:
+            target = parse_qs(parsed.query).get("uddg", [""])[0]
+            href = unquote(target)
+        if href.startswith("//"):
+            href = f"https:{href}"
+        if href.startswith("http") and "duckduckgo.com" not in urlparse(href).netloc.lower():
+            urls.append(href)
+    return list(dict.fromkeys(urls))
+
+
+def _rank_candidate_urls(urls: list[str], task_text: str, hypotheses: list[Hypothesis], limit: int = 12) -> list[str]:
+    deduped = list(dict.fromkeys(_canonicalize_url(url) for url in urls if url))
+    return sorted(deduped, key=lambda url: _url_priority(url, task_text, hypotheses), reverse=True)[:limit]
+
+
+def _canonicalize_url(url: str) -> str:
+    if url.startswith(("file:", "local:")):
+        return url
+    parsed = urlparse(url)
+    return parsed._replace(fragment="").geturl()
+
+
+def _is_probably_useful_url(url: str) -> bool:
+    if url.startswith("file:"):
+        return True
+    host = urlparse(url).netloc.lower()
+    if not host:
+        return False
+    blocked_hosts = {"facebook.com", "x.com", "twitter.com", "linkedin.com", "youtube.com", "reddit.com"}
+    return not any(host == blocked or host.endswith(f".{blocked}") for blocked in blocked_hosts)
+
+
+def _url_priority(url: str, task_text: str, hypotheses: list[Hypothesis]) -> float:
+    host_path = f"{urlparse(url).netloc} {urlparse(url).path}".lower()
+    reliability = _source_reliability(url)
+    url_relevance = _keyword_overlap(host_path, f"{task_text} {' '.join(h.statement for h in hypotheses)}")
+    return reliability + min(0.25, url_relevance * 0.04)
 
 
 def detect_blocked_source(text: str) -> str | None:
@@ -203,10 +402,20 @@ def _classify_source(url: str, text: str) -> str:
     lower = f"{url} {text[:1000]}".lower()
     if "law.cornell.edu/uscode" in lower or "/uscode/" in lower:
         return "statute"
+    if "law.cornell.edu/ucc" in lower or "/ucc/" in lower:
+        return "uniform_code"
+    if "regulation" in lower or "code of regulations" in lower or "/cfr/" in lower:
+        return "regulation"
     if "federalregister.gov" in host or "copyright.gov" in host:
         return "agency_guidance"
-    if "court" in lower or "v." in lower or "opinion" in lower:
+    if "statebar" in host or "bar.ca.gov" in host or "americanbar.org" in host or "ethics opinion" in lower:
+        return "bar_ethics"
+    if "court" in lower or "v." in lower or "opinion" in lower or "caselaw" in lower:
         return "case_law"
+    if any(term in lower for term in ["consumer protection", "unfair or deceptive", "warranty", "misrepresentation"]):
+        return "liability_authority"
+    if "law.cornell.edu/wex" in lower:
+        return "legal_reference"
     if "edu" in host:
         return "academic"
     return "web_source"
@@ -214,29 +423,122 @@ def _classify_source(url: str, text: str) -> str:
 
 def _source_reliability(url: str) -> float:
     host = urlparse(url).netloc.lower()
+    path = urlparse(url).path.lower()
     if "law.cornell.edu" in host:
         return 0.92
     if "copyright.gov" in host or "federalregister.gov" in host:
         return 0.95
+    if "supreme.justia.com" in host or "law.justia.com" in host:
+        return 0.84
+    if "courtlistener.com" in host:
+        return 0.82
+    if "americanbar.org" in host or "statebar" in host or "bar.ca.gov" in host:
+        return 0.82
+    if "uniformlaws.org" in host:
+        return 0.82
     if host.endswith(".gov"):
         return 0.9
+    if host.endswith(".us") and any(term in path for term in ["statute", "code", "law", "bar", "court"]):
+        return 0.84
     if host.endswith(".edu"):
         return 0.8
+    if any(term in host for term in ["findlaw", "nolo", "lexisnexis", "westlaw", "bloomberglaw"]):
+        return 0.72
     return 0.65
 
 
 def _best_excerpt(text: str, task_text: str) -> str:
     sentences = re.split(r"(?<=[.!?])\s+", text)
-    keywords = [word for word in re.findall(r"[a-zA-Z]{5,}", task_text.lower()) if word not in {"which", "would", "could"}]
-    for sentence in sentences:
+    keywords = _keywords(task_text)
+    ranked = sorted(sentences[:160], key=lambda sentence: _sentence_score(sentence, keywords), reverse=True)
+    for sentence in ranked:
         if _is_low_signal_sentence(sentence):
             continue
-        lower = sentence.lower()
-        if any(keyword in lower for keyword in ["authorship", "copyright", "artificial intelligence", "generated"]):
-            return sentence[:550]
-        if keywords and sum(1 for keyword in keywords if keyword in lower) >= 2:
+        if _sentence_score(sentence, keywords) > 0:
             return sentence[:550]
     return text[:550]
+
+
+def _keywords(text: str) -> list[str]:
+    stopwords = {
+        "about",
+        "after",
+        "arise",
+        "could",
+        "customer",
+        "customers",
+        "does",
+        "from",
+        "have",
+        "into",
+        "legal",
+        "likely",
+        "should",
+        "that",
+        "their",
+        "there",
+        "under",
+        "which",
+        "would",
+        "what",
+        "with",
+    }
+    words = re.findall(r"[a-zA-Z][a-zA-Z-]{3,}", text.lower())
+    return list(dict.fromkeys(word.strip("-") for word in words if word not in stopwords))
+
+
+def _sentence_score(sentence: str, keywords: list[str]) -> int:
+    lower = sentence.lower()
+    priority_terms = [
+        "unauthorized practice",
+        "state bar",
+        "ethics opinion",
+        "contract",
+        "template",
+        "warranty",
+        "misrepresentation",
+        "consumer protection",
+        "liability",
+        "statute",
+        "case law",
+        "regulation",
+        "authorship",
+        "copyright",
+    ]
+    score = sum(3 for term in priority_terms if term in lower)
+    score += sum(1 for keyword in keywords if keyword in lower)
+    return score
+
+
+def _keyword_overlap(text: str, query_text: str) -> int:
+    lower = text.lower()
+    return sum(1 for keyword in _keywords(query_text) if keyword in lower)
+
+
+def _relevance_score(text: str, task_text: str, hypotheses: list[Hypothesis]) -> float:
+    query_text = f"{task_text} {' '.join(hypothesis.statement for hypothesis in hypotheses)}"
+    keywords = _keywords(query_text)
+    if not keywords:
+        return 0.5
+    overlap = _keyword_overlap(text[:8000], query_text)
+    return min(1.0, overlap / max(4, min(14, len(keywords))))
+
+
+def _relative_source_score(url: str, text: str, task_text: str, hypotheses: list[Hypothesis]) -> float:
+    reliability = _source_reliability(url)
+    relevance = _relevance_score(text, task_text, hypotheses)
+    source_type_bonus = {
+        "statute": 0.08,
+        "uniform_code": 0.08,
+        "regulation": 0.08,
+        "agency_guidance": 0.07,
+        "case_law": 0.07,
+        "bar_ethics": 0.06,
+        "liability_authority": 0.04,
+        "legal_reference": 0.02,
+        "academic": 0.02,
+    }.get(_classify_source(url, text), 0.0)
+    return round(min(0.99, reliability * 0.65 + relevance * 0.30 + source_type_bonus), 2)
 
 
 def _infer_supports(url: str, text: str, hypotheses: list[Hypothesis]) -> list[str]:
@@ -252,8 +554,22 @@ def _infer_supports(url: str, text: str, hypotheses: list[Hypothesis]) -> list[s
             supports.add(hypothesis.hypothesis_id)
         if "startups" in statement and any(term in lower for term in ["license", "risk", "infringement", "software"]):
             supports.add(hypothesis.hypothesis_id)
+        if any(term in statement for term in ["unauthorized-practice-of-law", "unauthorized practice", "upl"]):
+            if any(term in lower for term in ["unauthorized practice of law", "practice of law", "rule 5.5", "legal advice"]):
+                supports.add(hypothesis.hypothesis_id)
+        if any(term in statement for term in ["warranty", "misrepresentation", "consumer-protection", "consumer protection", "negligence", "liability"]):
+            if any(term in lower for term in ["warranty", "misrepresentation", "consumer protection", "deceptive", "liability", "affirmation of fact"]):
+                supports.add(hypothesis.hypothesis_id)
+        if any(term in statement for term in ["jurisdiction", "state", "vary"]):
+            if any(term in lower for term in ["state", "jurisdiction", "unauthorized practice of law", "rule 5.5", "consumer protection"]):
+                supports.add(hypothesis.hypothesis_id)
+        hypothesis_keywords = _keywords(hypothesis.statement)
+        if _keyword_overlap(lower[:5000], " ".join(hypothesis_keywords)) >= max(2, min(5, len(hypothesis_keywords) // 4)):
+            supports.add(hypothesis.hypothesis_id)
     if not supports and hypotheses:
-        supports.add(hypotheses[0].hypothesis_id)
+        task_terms = ["unauthorized practice", "contract", "template", "liability", "warranty", "consumer protection", "state bar"]
+        if any(term in lower for term in task_terms):
+            supports.add(hypotheses[0].hypothesis_id)
     return sorted(supports)
 
 
