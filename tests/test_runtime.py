@@ -374,6 +374,9 @@ def test_cli_metrics_formatter_shows_full_summary():
             "stop_conditions_met": True,
             "llm_reasoning_enabled": False,
             "llm_model": None,
+            "llm_scoring_enabled": True,
+            "deterministic_confidence": 0.82,
+            "llm_score_adjustment": 0.05,
             "raindrop_tracing_enabled": False,
             "raindrop_target": None,
             "raindrop_feedback": {"verdict": "converged"},
@@ -430,6 +433,8 @@ def test_cli_metrics_formatter_shows_full_summary():
     assert "Agents spun off" in output
     assert "24" in output
     assert "Hypotheses" in output
+    assert "Deterministic conf." in output
+    assert "LLM score adj." in output
     assert "1.230s" in output
     assert "legal_agent" in output
 
