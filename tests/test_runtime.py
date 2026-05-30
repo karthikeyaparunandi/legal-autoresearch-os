@@ -4,11 +4,12 @@ import json
 
 from autoresearch_os.cli import main, _format_metrics, _terminal_link
 from autoresearch_os.critic import critique_claims
+from autoresearch_os.evaluator import evaluate
 from autoresearch_os.knowledge import collect_evidence
 from autoresearch_os.llm import CentralReasoner, LLMConfigurationError, LLMReasoningError
-from autoresearch_os.models import Claim, Hypothesis, Task
+from autoresearch_os.models import Claim, Evidence, Hypothesis, ResearchProgram, Task
 from autoresearch_os.modal_bridge import ModalIntegrationError
-from autoresearch_os.retrieval import _infer_contradictions, fetch_url_text
+from autoresearch_os.retrieval import _infer_contradictions, detect_blocked_source, fetch_url_text, retrieve_live_evidence
 from autoresearch_os.runtime import ResearchRuntime
 
 
@@ -355,3 +356,80 @@ def test_fetch_url_text_extracts_local_html(tmp_path):
     assert title == "Legal Source"
     assert "Human authorship matters." in text
     assert "bad" not in text
+
+
+def test_retrieval_marks_captcha_pages_as_blocked(tmp_path, monkeypatch):
+    import autoresearch_os.retrieval as retrieval_module
+
+    monkeypatch.setattr(retrieval_module, "DEFAULT_LEGAL_SOURCE_URLS", [])
+    blocked = tmp_path / "blocked.html"
+    blocked.write_text(
+        "<html><head><title>Blocked</title></head><body>"
+        "<h1>Security check</h1><p>Please complete the CAPTCHA to verify you are human.</p>"
+        "</body></html>",
+        encoding="utf-8",
+    )
+    tasks = [Task(task_id="t001", title="Blocked source", question="Can AI-generated code be copyrighted?")]
+    hypotheses = [Hypothesis(hypothesis_id="h001", statement="Pure AI-generated code is risky.", rationale="Authorship")]
+
+    evidence, stats = retrieve_live_evidence(tasks, hypotheses, source_urls=[blocked.as_uri()])
+
+    assert evidence == []
+    assert stats.successful_urls == 0
+    assert stats.failed_urls == 1
+    assert stats.as_dict()["blocked_sources"] == 1
+    assert stats.block_reasons == {blocked.as_uri(): "captcha_detected"}
+
+
+def test_blocked_source_metrics_lower_confidence():
+    program = ResearchProgram(
+        objective="Can AI-generated code be copyrighted?",
+        subquestions=[
+            "What legal standard controls authorship?",
+            "Which primary sources apply?",
+        ],
+        evidence_requirements=[],
+        success_metrics=[],
+    )
+    evidence = [
+        Evidence(
+            source_id="source_001",
+            title="Copyright statute",
+            url="https://www.law.cornell.edu/uscode/text/17/102",
+            source_type="statute",
+            excerpt="Original works of authorship are protected.",
+            supports=["h001"],
+            reliability=0.92,
+        ),
+        Evidence(
+            source_id="source_002",
+            title="Copyright Office guidance",
+            url="https://www.copyright.gov/ai/",
+            source_type="agency_guidance",
+            excerpt="Human authorship matters.",
+            supports=["h001"],
+            reliability=0.95,
+        ),
+    ]
+    claims = [
+        Claim(
+            claim_id="c001",
+            claim="Pure AI-generated code faces copyright authorship risk.",
+            supporting_sources=["source_001", "source_002"],
+            confidence=0.9,
+            status="supported",
+        )
+    ]
+
+    clean = evaluate(1, program, claims, evidence, [], [], retrieval_metrics={"blocked_sources": 0})
+    blocked = evaluate(1, program, claims, evidence, [], [], retrieval_metrics={"blocked_sources": 2})
+
+    assert blocked.blocked_source_penalty == 0.1
+    assert blocked.confidence_cap <= 0.8
+    assert blocked.overall_confidence < clean.overall_confidence
+
+
+def test_detect_blocked_source_variants():
+    assert detect_blocked_source("Please verify you are human before continuing.") == "captcha_detected"
+    assert detect_blocked_source("Access denied. You have been blocked.") == "access_denied"
+    assert detect_blocked_source("Sign in to continue reading this source.") == "login_required"

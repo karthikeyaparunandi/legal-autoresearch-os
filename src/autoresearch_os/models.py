@@ -130,6 +130,7 @@ class Evaluation:
     weakest_claim_confidence: float
     confidence_stability: float
     open_question_penalty: float
+    blocked_source_penalty: float
     confidence_cap: float
     open_question_count: int
     overall_confidence: float

@@ -51,6 +51,19 @@ def retrieve_live_evidence_with_modal(
             stats.failed_urls += 1
             stats.errors[f"modal_result_{stats.failed_urls}"] = "invalid_result"
             continue
+        if result.get("status") == "blocked":
+            url = str(result.get("url", "unknown_url"))
+            stats.failed_urls += 1
+            if stats.blocked_urls is None:
+                stats.blocked_urls = []
+            if stats.block_reasons is None:
+                stats.block_reasons = {}
+            if stats.errors is None:
+                stats.errors = {}
+            stats.blocked_urls.append(url)
+            stats.block_reasons[url] = str(result.get("error", "blocked_source"))
+            stats.errors[url] = str(result.get("error", "blocked_source"))
+            continue
         if result.get("status") != "ok":
             stats.failed_urls += 1
             stats.errors[str(result.get("url", "unknown_url"))] = str(result.get("error", "unknown_error"))

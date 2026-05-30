@@ -142,6 +142,7 @@ def write_research_html(
       {_metric_card("Runtime", f"{metrics.total_runtime_seconds:.3f}s")}
       {_metric_card("Contradictions", f"{metrics.resolved_contradictions_count}/{metrics.contradictions_count} resolved")}
       {_metric_card("Open questions", str(metrics.open_questions_count))}
+      {_metric_card("Blocked sources", str(metrics.retrieval_metrics.get("blocked_sources", 0)))}
     </div>
   </section>
 
@@ -342,12 +343,19 @@ def _retrieval_table(metrics: RunMetrics) -> str:
         ("URLs attempted", retrieval.get("attempted_urls", 0)),
         ("URLs retrieved", retrieval.get("successful_urls", 0)),
         ("URLs failed", retrieval.get("failed_urls", 0)),
+        ("Blocked sources", retrieval.get("blocked_sources", 0)),
         ("Fallback evidence used", retrieval.get("fallback_used", False)),
     ]
     url_rows = "".join(f"<li>{escape(url)}</li>" for url in retrieval.get("retrieved_urls", []))
+    blocked_rows = "".join(
+        f"<li>{escape(url)}: {escape(str(retrieval.get('block_reasons', {}).get(url, 'blocked_source')))}</li>"
+        for url in retrieval.get("blocked_urls", [])
+    )
     table = "<table><tbody>" + "".join(f"<tr><th>{escape(str(left))}</th><td>{escape(str(right))}</td></tr>" for left, right in rows) + "</tbody></table>"
     if url_rows:
         table += f"<h3>Retrieved Sources</h3><ul>{url_rows}</ul>"
+    if blocked_rows:
+        table += f"<h3>Blocked Sources</h3><ul>{blocked_rows}</ul>"
     return table
 
 
@@ -363,6 +371,7 @@ def _iteration_history_table(metrics: RunMetrics) -> str:
             f"<td>{item.get('primary_authority_coverage', 0):.0%}</td>"
             f"<td>{item.get('mean_claim_confidence', 0):.0%}</td>"
             f"<td>{item['contradiction_resolution']:.0%}</td>"
+            f"<td>{item.get('blocked_source_penalty', 0):.0%}</td>"
             f"<td>{item['open_questions']}</td>"
             f"<td>{escape(str(item['status']))}</td>"
             "</tr>"
@@ -370,7 +379,7 @@ def _iteration_history_table(metrics: RunMetrics) -> str:
     return (
         "<table><thead><tr><th>Iteration</th><th>Confidence</th><th>Objective</th>"
         "<th>Citations</th><th>Primary Authority</th><th>Claim Confidence</th><th>Contradictions</th>"
-        "<th>Open Questions</th><th>Status</th></tr></thead><tbody>"
+        "<th>Blocked Penalty</th><th>Open Questions</th><th>Status</th></tr></thead><tbody>"
         + "".join(rows)
         + "</tbody></table>"
     )

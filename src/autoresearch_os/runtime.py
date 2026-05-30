@@ -101,6 +101,9 @@ class ResearchRuntime:
             "attempted_urls": 0,
             "successful_urls": 0,
             "failed_urls": 0,
+            "blocked_sources": 0,
+            "blocked_urls": [],
+            "block_reasons": {},
             "retrieved_urls": [],
             "errors": {},
             "fallback_used": False,
@@ -157,6 +160,7 @@ class ResearchRuntime:
                 open_questions,
                 tuning_params,
                 previous_evaluation,
+                retrieval_metrics,
             )
             component_seconds["evaluation"] += time.perf_counter() - timer
             timer = time.perf_counter()
@@ -408,6 +412,7 @@ def _iteration_snapshot(iteration: int, evaluation: Evaluation, evidence, contra
         "weakest_claim_confidence": evaluation.weakest_claim_confidence,
         "confidence_stability": evaluation.confidence_stability,
         "open_question_penalty": evaluation.open_question_penalty,
+        "blocked_source_penalty": evaluation.blocked_source_penalty,
         "confidence_cap": evaluation.confidence_cap,
         "contradiction_resolution": evaluation.contradiction_resolution,
         "source_diversity": evaluation.source_diversity,

@@ -118,6 +118,7 @@ def _format_metrics(metrics: dict) -> str:
         ("Modal fan-out", "enabled" if retrieval.get("modal_enabled") else "disabled"),
         ("URLs attempted", retrieval.get("attempted_urls", 0)),
         ("URLs retrieved", retrieval.get("successful_urls", 0)),
+        ("Blocked sources", retrieval.get("blocked_sources", 0)),
         ("Fallback used", retrieval.get("fallback_used", False)),
     ]
     agent_rows = [(name, count) for name, count in metrics["agent_breakdown"].items()]

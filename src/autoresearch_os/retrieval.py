@@ -23,6 +23,8 @@ class RetrievalStats:
     attempted_urls: int = 0
     successful_urls: int = 0
     failed_urls: int = 0
+    blocked_urls: list[str] | None = None
+    block_reasons: dict[str, str] | None = None
     retrieved_urls: list[str] | None = None
     errors: dict[str, str] | None = None
 
@@ -31,6 +33,9 @@ class RetrievalStats:
             "attempted_urls": self.attempted_urls,
             "successful_urls": self.successful_urls,
             "failed_urls": self.failed_urls,
+            "blocked_sources": len(self.blocked_urls or []),
+            "blocked_urls": self.blocked_urls or [],
+            "block_reasons": self.block_reasons or {},
             "retrieved_urls": self.retrieved_urls or [],
             "errors": self.errors or {},
         }
@@ -50,7 +55,7 @@ def retrieve_live_evidence(
 
         return retrieve_live_evidence_with_modal(urls, tasks, hypotheses, start_index, timeout_seconds)
 
-    stats = RetrievalStats(attempted_urls=len(urls), retrieved_urls=[], errors={})
+    stats = RetrievalStats(attempted_urls=len(urls), blocked_urls=[], block_reasons={}, retrieved_urls=[], errors={})
     evidence: list[Evidence] = []
     task_text = " ".join(task.question for task in tasks)
 
@@ -62,9 +67,20 @@ def retrieve_live_evidence(
             stats.errors[url] = exc.__class__.__name__
             continue
 
-        if not text or _is_low_signal_retrieval(text):
+        if not text:
             stats.failed_urls += 1
-            stats.errors[url] = "low_signal_response" if text else "empty_response"
+            stats.errors[url] = "empty_response"
+            continue
+        block_reason = detect_blocked_source(text)
+        if block_reason:
+            stats.failed_urls += 1
+            stats.blocked_urls.append(url)
+            stats.block_reasons[url] = block_reason
+            stats.errors[url] = block_reason
+            continue
+        if _is_low_signal_retrieval(text):
+            stats.failed_urls += 1
+            stats.errors[url] = "low_signal_response"
             continue
 
         stats.successful_urls += 1
@@ -105,6 +121,39 @@ def fetch_url_text(url: str, timeout_seconds: float = 8.0) -> tuple[str, str]:
     text = _normalize(parser.text())
     title = _normalize(parser.title) or _fallback_title(url)
     return title, text
+
+
+def detect_blocked_source(text: str) -> str | None:
+    lower = _normalize(text).lower()
+    blocked_patterns = {
+        "captcha_detected": [
+            "captcha",
+            "recaptcha",
+            "hcaptcha",
+            "verify you are human",
+            "prove you are human",
+            "human verification",
+            "security check",
+        ],
+        "access_denied": [
+            "access denied",
+            "request blocked",
+            "you have been blocked",
+            "temporarily blocked",
+            "forbidden",
+            "403 forbidden",
+        ],
+        "login_required": [
+            "sign in to continue",
+            "log in to continue",
+            "login required",
+            "authentication required",
+        ],
+    }
+    for reason, patterns in blocked_patterns.items():
+        if any(pattern in lower for pattern in patterns):
+            return reason
+    return None
 
 
 class _TextExtractor(HTMLParser):

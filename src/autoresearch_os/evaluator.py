@@ -15,6 +15,7 @@ def evaluate(
     open_questions: list[str],
     params: TuningParams | None = None,
     previous_evaluation: Evaluation | None = None,
+    retrieval_metrics: dict | None = None,
 ) -> Evaluation:
     params = params or TuningParams()
     evidence_by_id = {item.source_id: item for item in evidence}
@@ -31,6 +32,7 @@ def evaluate(
     citation_grounding = _strict_citation_grounding(claims, evidence_by_id)
     confidence_stability = _confidence_stability(previous_evaluation, mean_claim_confidence)
     open_question_penalty = min(0.25, len(open_questions) * 0.05)
+    blocked_source_penalty = _blocked_source_penalty(retrieval_metrics)
 
     weights = params.evaluator_weights
     overall = (
@@ -43,8 +45,8 @@ def evaluate(
         + weights.get("primary_authority_coverage", 0.0) * primary_authority_coverage
         + weights.get("confidence_stability", 0.0) * confidence_stability
     )
-    overall = max(0.0, overall - open_question_penalty)
-    confidence_cap = _confidence_cap(claims, evidence)
+    overall = max(0.0, overall - open_question_penalty - blocked_source_penalty)
+    confidence_cap = _confidence_cap(claims, evidence, retrieval_metrics)
     overall = min(overall, confidence_cap)
     return Evaluation(
         iteration=iteration,
@@ -58,6 +60,7 @@ def evaluate(
         weakest_claim_confidence=round(weakest_claim_confidence, 2),
         confidence_stability=round(confidence_stability, 2),
         open_question_penalty=round(open_question_penalty, 2),
+        blocked_source_penalty=round(blocked_source_penalty, 2),
         confidence_cap=round(confidence_cap, 2),
         open_question_count=len(open_questions),
         overall_confidence=round(overall, 2),
@@ -108,7 +111,13 @@ def _confidence_stability(previous_evaluation: Evaluation | None, mean_claim_con
     return max(0.0, 1.0 - min(1.0, delta * 3))
 
 
-def _confidence_cap(claims: list[Claim], evidence: list[Evidence]) -> float:
+def _blocked_source_penalty(retrieval_metrics: dict | None) -> float:
+    if not retrieval_metrics:
+        return 0.0
+    return min(0.20, int(retrieval_metrics.get("blocked_sources", 0)) * 0.05)
+
+
+def _confidence_cap(claims: list[Claim], evidence: list[Evidence], retrieval_metrics: dict | None = None) -> float:
     cap = 0.98
     if len(evidence) < 8:
         cap = min(cap, 0.90)
@@ -118,6 +127,8 @@ def _confidence_cap(claims: list[Claim], evidence: list[Evidence]) -> float:
         cap = min(cap, 0.84)
     if any(claim.status != "supported" for claim in claims):
         cap = min(cap, 0.82)
+    if retrieval_metrics and int(retrieval_metrics.get("blocked_sources", 0)) > 0:
+        cap = min(cap, 0.80)
     return cap
 
 

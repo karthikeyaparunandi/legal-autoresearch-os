@@ -62,6 +62,7 @@ def build_report(
             f"- Weakest claim confidence: {evaluation.weakest_claim_confidence:.0%}",
             f"- Confidence stability: {evaluation.confidence_stability:.0%}",
             f"- Open-question penalty: -{evaluation.open_question_penalty:.0%}",
+            f"- Blocked-source penalty: -{evaluation.blocked_source_penalty:.0%}",
             f"- Confidence cap: {evaluation.confidence_cap:.0%}",
             f"- Overall confidence: {evaluation.overall_confidence:.0%}",
             "",

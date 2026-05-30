@@ -40,6 +40,7 @@ if modal:
         from autoresearch_os.retrieval import (
             _best_excerpt,
             _classify_source,
+            detect_blocked_source,
             _infer_contradictions,
             _infer_supports,
             _source_reliability,
@@ -54,6 +55,9 @@ if modal:
             title, text = fetch_url_text(url, timeout_seconds=payload.get("timeout_seconds", 8.0))
             if not text:
                 return {"status": "error", "url": url, "error": "empty_response"}
+            block_reason = detect_blocked_source(text)
+            if block_reason:
+                return {"status": "blocked", "url": url, "error": block_reason}
             return {
                 "status": "ok",
                 "source_id": payload["source_id"],
