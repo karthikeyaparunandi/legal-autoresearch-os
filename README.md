@@ -21,7 +21,7 @@ The final output is not only an answer. It is a report backed by claims, evidenc
 
 ## What Makes It Different
 
-- A central reasoning LLM coordinates the legal research process by default.
+- A central OpenAI Agents SDK reasoning layer coordinates the legal research process by default.
 - Role agents are explicit tool-using workers, not anonymous programming threads.
 - A truth-maintenance repo stores claims, evidence, contradictions, confidence, open questions, and tuning parameters.
 - The evaluator scores objective completion, citation grounding, evidence coverage, contradiction resolution, source diversity, and open questions.
@@ -38,14 +38,14 @@ source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
-Run the built-in legal demo with central LLM reasoning:
+Run the built-in legal demo with OpenAI Agents SDK reasoning:
 
 ```bash
 export OPENAI_API_KEY="..."
 autoresearch demo --out demo_gt_repo
 ```
 
-`OPEN_API_KEY` is also accepted for local experiments. LLM reasoning is the default; if no key is available, the CLI fails loudly instead of silently falling back.
+`OPEN_API_KEY` is also accepted for local experiments. OpenAI Agents SDK reasoning is the default; if no key is available, the CLI fails loudly instead of silently falling back.
 
 Run without installing:
 
@@ -202,7 +202,7 @@ The current runtime exposes these agent roles:
 - `auto_tuner`: adjusts thresholds and source requirements over time.
 - `report_generator`: produces Markdown, HTML, and PDF reports.
 
-Agent traces are written into `metrics.json` and shown in the CLI and HTML report, including tools used, loop steps, output counts, and whether LLM reasoning was used.
+Each role agent has deterministic tools plus an OpenAI Agents SDK reasoning call. The local runtime owns orchestration and state, while SDK `Agent` instances perform the compact JSON reasoning steps for hypothesis refinement, evidence review, and criticism. Agent traces are written into `metrics.json` and shown in the CLI and HTML report, including tools used, loop steps, output counts, and whether LLM reasoning was used.
 
 ## Truth-Maintenance Repo
 

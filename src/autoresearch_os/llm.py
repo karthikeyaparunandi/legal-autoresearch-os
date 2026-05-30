@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
 import json
 import os
 
@@ -42,56 +40,41 @@ class CentralReasoner:
             if self.required:
                 raise LLMConfigurationError("Set OPENAI_API_KEY or OPEN_API_KEY, or run with --no-llm.")
             return None
+        try:
+            text = self._run_agents_sdk(agent_name, instruction, payload, timeout_seconds)
+            return json.loads(text) if text else None
+        except (ImportError, RuntimeError, json.JSONDecodeError, TypeError) as exc:
+            if self.required:
+                raise LLMReasoningError(f"OpenAI Agents SDK reasoning failed: {exc}") from exc
+            return None
+
+    def _run_agents_sdk(self, agent_name: str, instruction: str, payload: dict, timeout_seconds: float) -> str:
+        try:
+            from agents import Agent, Runner
+        except ImportError as exc:
+            raise ImportError("Install the OpenAI Agents SDK with `pip install -e .` or `pip install openai-agents`.") from exc
+
+        if self.api_key:
+            os.environ["OPENAI_API_KEY"] = self.api_key
         prompt = (
             "Return only valid JSON. Do not include markdown.\n\n"
-            f"Agent: {agent_name}\n"
             f"Instruction: {instruction}\n\n"
             f"Payload:\n{json.dumps(payload, indent=2)}"
         )
-        body = {
-            "model": self.model,
-            "input": [
-                {
-                    "role": "system",
-                    "content": (
-                        "You are the central reasoning model for AutoResearch OS, a legal research "
-                        "control system. Reason carefully, prefer primary authority, identify uncertainty, "
-                        "and output compact JSON that the runtime can consume."
-                    ),
-                },
-                {"role": "user", "content": prompt},
-            ],
-            "text": {"format": {"type": "json_object"}},
-        }
-        request = Request(
-            "https://api.openai.com/v1/responses",
-            data=json.dumps(body).encode("utf-8"),
-            headers={
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json",
-            },
-            method="POST",
+        agent = Agent(
+            name=agent_name,
+            model=self.model,
+            instructions=(
+                "You are an OpenAI Agents SDK role agent inside AutoResearch OS, a legal "
+                "research control system. Reason carefully, prefer primary authority, "
+                "identify uncertainty, and output compact JSON that the runtime can consume."
+            ),
         )
-        try:
-            with urlopen(request, timeout=timeout_seconds) as response:
-                raw = response.read().decode("utf-8", errors="replace")
-        except HTTPError as exc:
-            if self.required:
-                message = exc.read().decode("utf-8", errors="replace")[:500]
-                raise LLMReasoningError(f"OpenAI reasoning call failed with HTTP {exc.code}: {message}") from exc
-            return None
-        except (URLError, TimeoutError, OSError) as exc:
-            if self.required:
-                raise LLMReasoningError(f"OpenAI reasoning call failed: {exc}") from exc
-            return None
-        try:
-            data = json.loads(raw)
-            text = _extract_response_text(data)
-            return json.loads(text) if text else None
-        except (json.JSONDecodeError, TypeError, KeyError) as exc:
-            if self.required:
-                raise LLMReasoningError("OpenAI reasoning response was not valid JSON.") from exc
-            return None
+        result = Runner.run_sync(agent, prompt, max_turns=1)
+        output = getattr(result, "final_output", result)
+        if not isinstance(output, str):
+            output = str(output)
+        return output.strip()
 
 
 def _load_api_key(workspace: Path | None = None) -> str | None:
@@ -111,14 +94,3 @@ def _load_api_key(workspace: Path | None = None) -> str | None:
             value = line.split("=", 1)[1].strip().strip('"').strip("'")
             return value or None
     return None
-
-
-def _extract_response_text(data: dict) -> str:
-    if isinstance(data.get("output_text"), str):
-        return data["output_text"]
-    parts: list[str] = []
-    for item in data.get("output", []):
-        for content in item.get("content", []):
-            if content.get("type") in {"output_text", "text"} and isinstance(content.get("text"), str):
-                parts.append(content["text"])
-    return "\n".join(parts)

@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 
 from autoresearch_os.cli import main, _format_metrics, _terminal_link
-from autoresearch_os.llm import CentralReasoner, LLMConfigurationError
+from autoresearch_os.llm import CentralReasoner, LLMConfigurationError, LLMReasoningError
 from autoresearch_os.modal_bridge import ModalIntegrationError
 from autoresearch_os.retrieval import fetch_url_text
 from autoresearch_os.runtime import ResearchRuntime
@@ -81,6 +81,32 @@ def test_reasoner_accepts_open_api_key_alias(monkeypatch):
     reasoner = CentralReasoner()
 
     assert reasoner.enabled is True
+
+
+def test_reasoner_uses_agents_sdk_path(monkeypatch):
+    monkeypatch.setattr(
+        CentralReasoner,
+        "_run_agents_sdk",
+        lambda self, agent_name, instruction, payload, timeout_seconds: '{"ok": true}',
+    )
+    reasoner = CentralReasoner(api_key="test-key", required=True)
+
+    assert reasoner.reason_json("test_agent", "Return ok.", {}) == {"ok": True}
+
+
+def test_reasoner_wraps_agents_sdk_failures(monkeypatch):
+    def fail_sdk(self, agent_name, instruction, payload, timeout_seconds):
+        raise RuntimeError("sdk unavailable")
+
+    monkeypatch.setattr(CentralReasoner, "_run_agents_sdk", fail_sdk)
+    reasoner = CentralReasoner(api_key="test-key", required=True)
+
+    try:
+        reasoner.reason_json("test_agent", "Return ok.", {})
+    except LLMReasoningError as exc:
+        assert "OpenAI Agents SDK reasoning failed" in str(exc)
+    else:
+        raise AssertionError("Expected LLMReasoningError")
 
 
 def test_cli_defaults_to_llm_and_requires_key(tmp_path, monkeypatch):
