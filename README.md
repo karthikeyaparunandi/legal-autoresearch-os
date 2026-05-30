@@ -1,57 +1,100 @@
 # AutoResearch OS
 
-AutoResearch OS is a self-evaluating autonomous research runtime with a truth-maintenance repo. This hackathon prototype turns a user goal into an executable research program, runs an iterative control loop, stores every artifact in a truth-maintenance repo, evaluates convergence, detects knowledge gaps, and emits a grounded research report.
+AutoResearch OS is a legal autoresearch runtime for the Modal Autoresearch Systems Hackathon. It turns a user goal into an executable research program, runs specialized agents through an iterative control loop, maintains a persistent truth repository, evaluates convergence, and emits a grounded report with citations, metrics, and a reasoning trace.
 
-The key idea: do not optimize for an immediate answer. Optimize for a maintained research state with evidence, contradictions, confidence scores, and explicit stop conditions.
+The prototype is intentionally narrowed to legal research. Each run records legal metadata such as jurisdiction, practice area, authority hierarchy, required source types, citation policy, risk posture, and uncertainty policy.
 
-This version is intentionally narrowed to legal research. `program.md` includes legal-domain metadata such as jurisdiction, practice area, authority hierarchy, required legal source types, risk posture, citation policy, and uncertainty policy.
+## The Idea
 
-## Core Framing
-
-AutoResearch OS is not an agent with memory. It is a research control system that drives a research state toward measurable convergence.
-
-The core loop is:
+AutoResearch OS is not just an agent with memory. It is a research control system that keeps improving a structured research state until measurable objectives are satisfied.
 
 ```text
 Research
 -> Truth Maintenance
--> Evaluation
+-> Self Evaluation
 -> Knowledge Gap Detection
 -> New Research Tasks
 -> Research Again
 ```
 
-The final output is not just an answer. It is a grounded report backed by traceable claims, evidence, contradictions, confidence scores, and an explanation of why the system stopped researching.
+The final output is not only an answer. It is a report backed by claims, evidence, contradictions, confidence scores, source links, agent traces, and stop-condition metrics.
 
-The system uses a central reasoning LLM by default. The role agents are tool-using workers coordinated by the runtime: each agent has a goal, tool set, step loop, LLM reasoning call, and structured output artifact. Pass `--no-llm` only when you explicitly want the deterministic fallback path for offline demos or tests.
+## What Makes It Different
 
-## Why This Fits The Hackathon
+- A central reasoning LLM coordinates the legal research process by default.
+- Role agents are explicit tool-using workers, not anonymous programming threads.
+- A truth-maintenance repo stores claims, evidence, contradictions, confidence, open questions, and tuning parameters.
+- The evaluator scores objective completion, citation grounding, evidence coverage, contradiction resolution, source diversity, and open questions.
+- A knowledge-gap detector converts weak research states into new tasks.
+- Tuning parameters adapt over time when the evaluator finds weak evidence, unresolved contradictions, or insufficient primary authority.
 
-The Autoresearch Systems Hackathon asks for systems that help agents iteratively plan, search, and synthesize information over extended horizons. This repo focuses on:
+## Quickstart
 
-- Agent architectures and control loops
-- Retrieval and knowledge synthesis
-- Citation-grounded reports
-- Self-evaluation and stopping criteria
-- A persistent truth-maintenance repository
+Install the project:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+```
+
+Run the built-in legal demo with central LLM reasoning:
+
+```bash
+export OPENAI_API_KEY="..."
+autoresearch demo --out demo_gt_repo
+```
+
+`OPEN_API_KEY` is also accepted for local experiments. LLM reasoning is the default; if no key is available, the CLI fails loudly instead of silently falling back.
+
+Run without installing:
+
+```bash
+export OPENAI_API_KEY="..."
+PYTHONPATH=src python -m autoresearch_os.cli demo --out demo_gt_repo
+```
+
+Run deterministic fallback mode for offline tests or no-key demos:
+
+```bash
+PYTHONPATH=src python -m autoresearch_os.cli demo --offline --no-llm --out demo_gt_repo
+```
+
+Run your own legal question:
+
+```bash
+autoresearch run \
+  "Can AI-generated code be copyrighted in the United States, and what legal risks would a startup face if it relies heavily on AI-generated software?" \
+  --out gt_repo \
+  --max-iterations 4
+```
+
+Add extra sources:
+
+```bash
+autoresearch run \
+  "Can AI-generated code be copyrighted in the United States?" \
+  --source-url https://www.example.com/legal-source \
+  --out gt_repo
+```
 
 ## Architecture
 
-### High-Level Flow
+### High-Level Loop
 
 ```mermaid
 flowchart LR
     goal["User Goal"] --> program["Research Program<br/>(program.md)"]
     program --> runtime["Research Runtime<br/>Hypothesize · Critique · Retrieve"]
     runtime --> truth["Truth Maintenance Repo<br/>Claims · Evidence · Contradictions"]
-    truth --> eval["Self-Evaluation<br/>Objective · Evidence · Citations"]
+    truth --> eval["Self Evaluation<br/>Objectives · Citations · Contradictions"]
     eval --> gaps["Knowledge Gap Detector"]
     gaps --> converged{"Research State<br/>Converged?"}
     converged -- "No: new tasks" --> runtime
     converged -- "Yes" --> report["Grounded Report<br/>HTML · PDF · Markdown"]
 ```
 
-### Detailed Runtime
+### Runtime Detail
 
 ```mermaid
 flowchart TD
@@ -117,74 +160,36 @@ flowchart TD
 
     truth --> evaluator
     confidence --> repoConfidence
-
     evaluator --> gaps["Knowledge Gap Detector<br/>missing authority · weak claims · unresolved contradictions"]
     gaps --> repoQuestions
     gaps --> newTasks["New Research Tasks"]
     newTasks --> planner
-
     evaluator --> tuner["Auto-Tuner<br/>thresholds · source targets · penalty weights"]
     tuner --> repoTuning
-
     confidence --> converged{"Objectives Satisfied<br/>and Research State Converged?"}
     converged -- "No" --> newTasks
     converged -- "Yes" --> report["Grounded Legal Report<br/>linked citations · reasoning diagram · metrics"]
 ```
 
-Inside the runtime, hypotheses are not static. The critic challenges each hypothesis, knowledge agents collect evidence, and extracted evidence feeds back into the hypothesis agent so the system can revise, split, or discard hypotheses before the truth-maintenance repo is updated.
+The hypothesis, critic, and knowledge agents form an inner feedback loop. Hypotheses are challenged by the critic, tested by knowledge agents, updated from extracted evidence, and revised before the truth repo is evaluated.
 
-## Quickstart
+## Agents
 
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -e ".[dev]"
+The current runtime exposes these agent roles:
 
-autoresearch run \
-  "Can AI-generated code be copyrighted in the United States, and what legal risks would a startup face if it relies heavily on AI-generated software?" \
-  --out gt_repo \
-  --max-iterations 4
-```
+- `program_generator`: creates the legal research program and metadata.
+- `planner_orchestrator`: turns the program into task structure.
+- `hypothesis_agent`: generates and refines candidate legal theories.
+- `knowledge_agent_pool`: retrieves and structures evidence from live or fallback sources.
+- `critic_agent`: attacks claims, finds contradictions, and raises weaknesses.
+- `evaluator_agent`: scores the research state against convergence criteria.
+- `knowledge_gap_detector`: creates follow-up tasks from weak or missing knowledge.
+- `auto_tuner`: adjusts thresholds and source requirements over time.
+- `report_generator`: produces Markdown, HTML, and PDF reports.
 
-By default the runtime performs live retrieval from public legal sources and falls back to deterministic demo evidence only when required sources cannot be fetched. Add your own sources with `--source-url`:
+Agent traces are written into `metrics.json` and shown in the CLI and HTML report, including tools used, loop steps, output counts, and whether LLM reasoning was used.
 
-```bash
-autoresearch run \
-  "Can AI-generated code be copyrighted in the United States?" \
-  --source-url https://www.example.com/legal-source \
-  --out gt_repo
-```
-
-For fully offline demos or tests, explicitly disable LLM reasoning:
-
-```bash
-autoresearch demo --offline --no-llm --out demo_gt_repo
-```
-
-Or without installing:
-
-```bash
-PYTHONPATH=src python -m autoresearch_os.cli run \
-  "Can AI-generated code be copyrighted in the United States?" \
-  --out gt_repo
-```
-
-By default, central LLM reasoning is enabled and requires a key:
-
-```bash
-export OPENAI_API_KEY="..."
-autoresearch demo --out demo_gt_repo
-```
-
-The `OPEN_API_KEY` spelling is also accepted for local experiments. The runtime fails loudly if the central LLM cannot be used.
-
-Run the deterministic fallback without a key:
-
-```bash
-autoresearch demo --offline --no-llm --out demo_gt_repo
-```
-
-## Outputs
+## Truth-Maintenance Repo
 
 Each run writes a complete research state:
 
@@ -208,41 +213,31 @@ gt_repo/
   final_report.pdf
 ```
 
-## Legal Metadata And Tuning
+The HTML report is the primary demo artifact. It includes paper-style linked citations, a reasoning/rationale diagram, component-level metrics, convergence progress, hypothesis confidence, contradiction analysis, source anchors, and agent tool loops.
 
-Legal research quality depends on different assumptions than generic web research. AutoResearch OS records those assumptions in `program.md` and `legal_metadata.json`:
+## Retrieval
 
-- Jurisdiction and practice area
-- Legal authority hierarchy
-- Required primary source types
-- Citation style
-- Risk posture and uncertainty policy
-
-Several runtime constants are tunable and persist in `tuning_params.json`:
-
-- `supported_claim_threshold`
-- `contradiction_penalty_weight`
-- `min_primary_sources`
-- `target_source_diversity`
-- `gap_task_limit`
-- `evaluator_weights`
-
-After each evaluation, the tuner nudges these values when the research state is weak. For example, low citation grounding raises the claim-support threshold and primary-source requirement; low contradiction resolution increases the contradiction penalty; too many open questions expands gap-task generation.
-
-## Live Retrieval
-
-Knowledge agents now retrieve real external sources using dependency-free HTTP fetching. The built-in legal retrieval set includes public sources such as Federal Register copyright guidance, the U.S. Copyright Office AI page, and 17 U.S.C. Section 102 via Cornell LII. Retrieved pages are converted into evidence records with source type, reliability, excerpt, citation URL, and inferred hypothesis support.
+Knowledge agents can fetch real external sources using dependency-free HTTP retrieval. The built-in legal source set includes public authorities such as Federal Register copyright guidance, the U.S. Copyright Office AI page, and 17 U.S.C. Section 102 via Cornell LII.
 
 Every run records retrieval metrics:
 
-- whether live retrieval was enabled
-- URLs attempted
-- URLs successfully retrieved
+- live retrieval enabled or disabled
+- URLs attempted and retrieved
 - failed URLs and error classes
-- whether fallback evidence was needed
+- fallback evidence usage
 - retrieved source URLs
 
-## Convergence Criteria
+## Evaluation And Convergence
+
+The evaluator tracks:
+
+- objective completion
+- evidence coverage
+- citation grounding
+- contradiction resolution
+- source diversity
+- open questions
+- final confidence
 
 The runtime stops when the research program is satisfied:
 
@@ -254,43 +249,45 @@ Critical Open Questions <= 2
 Contradiction Resolution >= 80%
 ```
 
-If these conditions are not met, the knowledge-gap detector creates new tasks and sends the system back through the research runtime.
+If the state has not converged, the knowledge-gap detector creates follow-up tasks and the runtime loops again.
 
-## Final Metrics And Reports
+## Legal Metadata And Tuning
 
-Every completed run emits `metrics.json`, adds a run metrics section to `final_report.md`, and generates both `final_report.html` and `final_report.pdf`. The HTML report is the clean demo artifact: it includes linked paper-style citations, a reasoning/rationale diagram, component-level metrics, hypothesis confidence, contradiction analysis, and source anchors. The metrics include:
+Legal quality depends on different assumptions than generic web research. AutoResearch OS records those assumptions in `program.md` and `legal_metadata.json`:
 
-- Number of agents spun off
-- Agent-by-agent invocation breakdown
-- Number of hypotheses generated
-- Number of tasks, claims, evidence records, source categories, contradictions, and open questions
-- Iterations completed
-- Runtime in seconds
-- Final confidence and stop-condition status
+- jurisdiction and practice area
+- legal authority hierarchy
+- required primary source types
+- citation style
+- risk posture and uncertainty policy
 
-The CLI and HTML report also show convergence progress over iterations, so the demo makes the research process visible:
+The runtime persists tunable constants in `tuning_params.json`, including:
 
-```text
-Iteration 1: confidence 54%, open questions 14, status Continue
-Iteration 2: confidence 76%, open questions 6, status Continue
-Iteration 3: confidence 88%, open questions 1, status Converged
-```
+- `supported_claim_threshold`
+- `contradiction_penalty_weight`
+- `min_primary_sources`
+- `target_source_diversity`
+- `gap_task_limit`
+- `evaluator_weights`
 
-## Demo
+After each evaluation, the tuner nudges these values when the research state is weak. For example, low citation grounding raises the support threshold and primary-source requirement; low contradiction resolution increases contradiction penalties; too many open questions expands gap-task generation.
 
-```bash
-PYTHONPATH=src python -m autoresearch_os.cli demo --out demo_gt_repo
-```
+## Metrics
 
-Then open `demo_gt_repo/final_report.md`.
+The CLI, `metrics.json`, Markdown report, HTML report, and PDF report include:
 
-## Current Prototype Scope
-
-This implementation ships with deterministic baseline agents so it can run live without API keys or network access. The knowledge layer includes a small legal-domain evidence fixture for the demo query and a general extraction path for local seed text. The agent interfaces are intentionally narrow, making it straightforward to swap in web search, legal search, academic search, OpenAI model calls, or Modal fan-out workers.
+- agents spun off and agent-by-agent breakdown
+- hypotheses, tasks, claims, evidence records, source categories, contradictions, and open questions
+- iterations completed
+- component runtimes
+- retrieval metrics
+- agent tool-loop traces
+- final confidence
+- stop-condition status
 
 ## Modal Hook
 
-`modal/app.py` contains a lightweight Modal entrypoint sketch for parallel evidence collection. It is intentionally isolated so the local demo remains dependency-free.
+`modal/app.py` contains a lightweight Modal entrypoint sketch for parallel evidence collection. It is isolated from the local runtime so the CLI demo remains dependency-free.
 
 ## Development
 
