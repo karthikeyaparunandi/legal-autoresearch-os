@@ -3,11 +3,12 @@ from __future__ import annotations
 import json
 
 from autoresearch_os.cli import _format_metrics, _terminal_link
+from autoresearch_os.retrieval import fetch_url_text
 from autoresearch_os.runtime import ResearchRuntime
 
 
 def test_runtime_writes_truth_maintenance_repo(tmp_path):
-    runtime = ResearchRuntime(tmp_path / "gt_repo", max_iterations=2)
+    runtime = ResearchRuntime(tmp_path / "gt_repo", max_iterations=2, live_retrieval=False)
 
     evaluation = runtime.run("Can AI-generated code be copyrighted in the United States?")
 
@@ -24,6 +25,7 @@ def test_runtime_writes_truth_maintenance_repo(tmp_path):
     assert metrics["component_metrics"]["evidence_collection"]["agents"] > 0
     assert metrics["iteration_history"]
     assert metrics["iteration_history"][-1]["status"] in {"Continue", "Converged"}
+    assert metrics["retrieval_metrics"]["enabled"] is False
     assert (tmp_path / "gt_repo" / "claims.json").exists()
     assert (tmp_path / "gt_repo" / "evidence" / "iteration_001.json").exists()
     report = (tmp_path / "gt_repo" / "final_report.md").read_text(encoding="utf-8")
@@ -34,13 +36,14 @@ def test_runtime_writes_truth_maintenance_repo(tmp_path):
     assert "Reasoning and rationale path" in html
     assert "<h2>Convergence Progress</h2>" in html
     assert "<h2>Component Metrics</h2>" in html
+    assert "<h2>Live Retrieval</h2>" in html
     assert 'href="#source_001"' in html
     assert 'id="source_001"' in html
     assert (tmp_path / "gt_repo" / "final_report.pdf").read_bytes().startswith(b"%PDF")
 
 
 def test_runtime_auto_tunes_params_for_weak_research_state(tmp_path):
-    runtime = ResearchRuntime(tmp_path / "gt_repo", max_iterations=1)
+    runtime = ResearchRuntime(tmp_path / "gt_repo", max_iterations=1, live_retrieval=False)
 
     runtime.run("Assess a novel unresolved legal question with no provided sources")
 
@@ -67,6 +70,15 @@ def test_cli_metrics_formatter_shows_full_summary():
             "open_questions_count": 0,
             "final_confidence": 0.87,
             "stop_conditions_met": True,
+            "retrieval_metrics": {
+                "enabled": True,
+                "attempted_urls": 3,
+                "successful_urls": 2,
+                "failed_urls": 1,
+                "fallback_used": False,
+                "retrieved_urls": ["https://example.test"],
+                "errors": {},
+            },
             "iteration_history": [
                 {
                     "iteration": 1,
@@ -92,6 +104,7 @@ def test_cli_metrics_formatter_shows_full_summary():
     assert "Final Metrics" in output
     assert "Agent Breakdown" in output
     assert "Convergence Progress" in output
+    assert "Live Retrieval" in output
     assert "Agents spun off" in output
     assert "24" in output
     assert "Hypotheses" in output
@@ -105,3 +118,18 @@ def test_terminal_link_points_to_file(tmp_path):
 
     assert path.as_uri() in link
     assert "final_report.html" in link
+
+
+def test_fetch_url_text_extracts_local_html(tmp_path):
+    html = tmp_path / "source.html"
+    html.write_text(
+        "<html><head><title>Legal Source</title><style>bad</style></head>"
+        "<body><h1>Copyright authorship</h1><p>Human authorship matters.</p></body></html>",
+        encoding="utf-8",
+    )
+
+    title, text = fetch_url_text(html.as_uri())
+
+    assert title == "Legal Source"
+    assert "Human authorship matters." in text
+    assert "bad" not in text

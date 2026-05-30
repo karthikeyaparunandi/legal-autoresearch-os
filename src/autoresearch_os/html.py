@@ -161,6 +161,11 @@ def write_research_html(
   </section>
 
   <section>
+    <h2>Live Retrieval</h2>
+    {_retrieval_table(metrics)}
+  </section>
+
+  <section>
     <h2>Hypotheses And Claim Rationale</h2>
     {_claims_table(claims, evidence_by_id)}
   </section>
@@ -306,6 +311,22 @@ def _component_table(metrics: RunMetrics) -> str:
             "</tr>"
         )
     return "<table><thead><tr><th>Component</th><th>Agents</th><th>Time</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _retrieval_table(metrics: RunMetrics) -> str:
+    retrieval = metrics.retrieval_metrics
+    rows = [
+        ("Live retrieval", "enabled" if retrieval.get("enabled") else "disabled"),
+        ("URLs attempted", retrieval.get("attempted_urls", 0)),
+        ("URLs retrieved", retrieval.get("successful_urls", 0)),
+        ("URLs failed", retrieval.get("failed_urls", 0)),
+        ("Fallback evidence used", retrieval.get("fallback_used", False)),
+    ]
+    url_rows = "".join(f"<li>{escape(url)}</li>" for url in retrieval.get("retrieved_urls", []))
+    table = "<table><tbody>" + "".join(f"<tr><th>{escape(str(left))}</th><td>{escape(str(right))}</td></tr>" for left, right in rows) + "</tbody></table>"
+    if url_rows:
+        table += f"<h3>Retrieved Sources</h3><ul>{url_rows}</ul>"
+    return table
 
 
 def _iteration_history_table(metrics: RunMetrics) -> str:

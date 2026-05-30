@@ -30,10 +30,14 @@ def main(argv: list[str] | None = None) -> int:
     run_parser.add_argument("--out", default="gt_repo", type=Path)
     run_parser.add_argument("--max-iterations", default=4, type=int)
     run_parser.add_argument("--seed-text", action="append", default=[])
+    run_parser.add_argument("--source-url", action="append", default=[], help="Additional live source URL to retrieve.")
+    run_parser.add_argument("--offline", action="store_true", help="Disable live retrieval and use local fallback evidence.")
 
     demo_parser = subparsers.add_parser("demo", help="Run the built-in legal research demo.")
     demo_parser.add_argument("--out", default="demo_gt_repo", type=Path)
     demo_parser.add_argument("--max-iterations", default=4, type=int)
+    demo_parser.add_argument("--source-url", action="append", default=[], help="Additional live source URL to retrieve.")
+    demo_parser.add_argument("--offline", action="store_true", help="Disable live retrieval and use local fallback evidence.")
 
     args = parser.parse_args(argv)
 
@@ -44,7 +48,7 @@ def main(argv: list[str] | None = None) -> int:
         goal = args.goal
         seed_texts = args.seed_text
 
-    runtime = ResearchRuntime(args.out, max_iterations=args.max_iterations)
+    runtime = ResearchRuntime(args.out, max_iterations=args.max_iterations, live_retrieval=not args.offline, source_urls=args.source_url)
     evaluation = runtime.run(goal, seed_texts=seed_texts)
     metrics_path = args.out / "metrics.json"
     html_path = (args.out / "final_report.html").resolve()
@@ -80,6 +84,13 @@ def _format_metrics(metrics: dict) -> str:
         ("Final confidence", f"{metrics['final_confidence']:.0%}"),
         ("Stop conditions met", metrics["stop_conditions_met"]),
     ]
+    retrieval = metrics.get("retrieval_metrics", {})
+    retrieval_rows = [
+        ("Live retrieval", "enabled" if retrieval.get("enabled") else "disabled"),
+        ("URLs attempted", retrieval.get("attempted_urls", 0)),
+        ("URLs retrieved", retrieval.get("successful_urls", 0)),
+        ("Fallback used", retrieval.get("fallback_used", False)),
+    ]
     agent_rows = [(name, count) for name, count in metrics["agent_breakdown"].items()]
     history_rows = [
         (
@@ -100,6 +111,9 @@ def _format_metrics(metrics: dict) -> str:
             "",
             f"{BOLD}{CYAN}Convergence Progress{RESET}",
             _wide_table(("Iter", "Confidence", "Objective", "Citations", "Open Qs", "Status"), history_rows),
+            "",
+            f"{BOLD}{CYAN}Live Retrieval{RESET}",
+            _table(("Metric", "Value"), retrieval_rows),
             "",
             f"{BOLD}{YELLOW}Agent Breakdown{RESET}",
             _table(("Agent", "Count"), agent_rows),

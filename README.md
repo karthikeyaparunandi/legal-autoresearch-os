@@ -144,6 +144,21 @@ autoresearch run \
   --max-iterations 4
 ```
 
+By default the runtime performs live retrieval from public legal sources and falls back to deterministic demo evidence only when required sources cannot be fetched. Add your own sources with `--source-url`:
+
+```bash
+autoresearch run \
+  "Can AI-generated code be copyrighted in the United States?" \
+  --source-url https://www.example.com/legal-source \
+  --out gt_repo
+```
+
+For fully offline demos or tests:
+
+```bash
+autoresearch demo --offline --out demo_gt_repo
+```
+
 Or without installing:
 
 ```bash
@@ -196,6 +211,19 @@ Several runtime constants are tunable and persist in `tuning_params.json`:
 - `evaluator_weights`
 
 After each evaluation, the tuner nudges these values when the research state is weak. For example, low citation grounding raises the claim-support threshold and primary-source requirement; low contradiction resolution increases the contradiction penalty; too many open questions expands gap-task generation.
+
+## Live Retrieval
+
+Knowledge agents now retrieve real external sources using dependency-free HTTP fetching. The built-in legal retrieval set includes public sources such as Federal Register copyright guidance, the U.S. Copyright Office AI page, and 17 U.S.C. Section 102 via Cornell LII. Retrieved pages are converted into evidence records with source type, reliability, excerpt, citation URL, and inferred hypothesis support.
+
+Every run records retrieval metrics:
+
+- whether live retrieval was enabled
+- URLs attempted
+- URLs successfully retrieved
+- failed URLs and error classes
+- whether fallback evidence was needed
+- retrieved source URLs
 
 ## Convergence Criteria
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 
 from .models import Claim, Evidence, Hypothesis, Task, TuningParams
+from .retrieval import retrieve_live_evidence
 
 
 DEMO_EVIDENCE = [
@@ -55,12 +56,37 @@ DEMO_EVIDENCE = [
 ]
 
 
-def collect_evidence(tasks: list[Task], hypotheses: list[Hypothesis], seed_texts: Iterable[str] = ()) -> list[Evidence]:
+def collect_evidence(
+    tasks: list[Task],
+    hypotheses: list[Hypothesis],
+    seed_texts: Iterable[str] = (),
+    live_retrieval: bool = True,
+    source_urls: Iterable[str] = (),
+) -> tuple[list[Evidence], dict]:
     task_text = " ".join(task.question.lower() for task in tasks)
-    if "ai-generated code" in task_text and "copyright" in task_text:
-        evidence = list(DEMO_EVIDENCE)
-    else:
-        evidence = []
+    evidence: list[Evidence] = []
+    retrieval_stats = {
+        "enabled": live_retrieval,
+        "attempted_urls": 0,
+        "successful_urls": 0,
+        "failed_urls": 0,
+        "retrieved_urls": [],
+        "errors": {},
+        "fallback_used": False,
+    }
+
+    if live_retrieval:
+        live_evidence, stats = retrieve_live_evidence(tasks, hypotheses, source_urls=source_urls)
+        evidence.extend(live_evidence)
+        retrieval_stats.update(stats.as_dict())
+
+    is_ai_copyright_research = "ai-generated code" in task_text or ("authorship" in task_text and "ai" in task_text)
+    if is_ai_copyright_research:
+        missing_hypotheses = _missing_supported_hypotheses(evidence, hypotheses)
+        source_types = {item.source_type for item in evidence}
+        if missing_hypotheses or len(source_types) < 4:
+            retrieval_stats["fallback_used"] = True
+            evidence.extend(_fallback_evidence_for_missing_hypotheses(evidence, missing_hypotheses, min_source_types=4))
 
     for index, text in enumerate(seed_texts, start=len(evidence) + 1):
         cleaned = " ".join(text.split())
@@ -77,7 +103,42 @@ def collect_evidence(tasks: list[Task], hypotheses: list[Hypothesis], seed_texts
                 reliability=0.65,
             )
         )
-    return evidence
+    return evidence, retrieval_stats
+
+
+def _missing_supported_hypotheses(evidence: list[Evidence], hypotheses: list[Hypothesis]) -> set[str]:
+    supported = {hypothesis_id for item in evidence for hypothesis_id in item.supports}
+    return {hypothesis.hypothesis_id for hypothesis in hypotheses} - supported
+
+
+def _fallback_evidence_for_missing_hypotheses(evidence: list[Evidence], missing_hypotheses: set[str], min_source_types: int = 4) -> list[Evidence]:
+    urls = {item.url for item in evidence}
+    source_types = {item.source_type for item in evidence}
+    fallback: list[Evidence] = []
+    next_index = len(evidence) + 1
+    for item in DEMO_EVIDENCE:
+        if item.url in urls:
+            continue
+        fills_hypothesis = bool(missing_hypotheses.intersection(item.supports))
+        fills_source_type = item.source_type not in source_types and len(source_types) < min_source_types
+        if not fills_hypothesis and not fills_source_type:
+            continue
+        fallback.append(
+            Evidence(
+                source_id=f"source_{next_index:03d}",
+                title=item.title,
+                url=item.url,
+                source_type=item.source_type,
+                excerpt=item.excerpt,
+                supports=item.supports,
+                contradicts=item.contradicts,
+                reliability=item.reliability,
+            )
+        )
+        next_index += 1
+        urls.add(item.url)
+        source_types.add(item.source_type)
+    return fallback
 
 
 def claims_from_hypotheses(hypotheses: list[Hypothesis], evidence: list[Evidence], params: TuningParams | None = None) -> list[Claim]:

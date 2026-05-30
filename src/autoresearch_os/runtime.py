@@ -37,9 +37,11 @@ BASE_AGENT_BREAKDOWN = {
 
 
 class ResearchRuntime:
-    def __init__(self, out_dir: Path, max_iterations: int = 4) -> None:
+    def __init__(self, out_dir: Path, max_iterations: int = 4, live_retrieval: bool = True, source_urls: list[str] | None = None) -> None:
         self.out_dir = out_dir
         self.max_iterations = max_iterations
+        self.live_retrieval = live_retrieval
+        self.source_urls = source_urls or []
 
     def run(self, goal: str, seed_texts: list[str] | None = None) -> Evaluation:
         started_at = time.perf_counter()
@@ -78,13 +80,28 @@ class ResearchRuntime:
         evaluation: Evaluation | None = None
         iterations_completed = 0
         iteration_history: list[dict[str, float | int | str | bool]] = []
+        retrieval_metrics = {
+            "enabled": self.live_retrieval,
+            "attempted_urls": 0,
+            "successful_urls": 0,
+            "failed_urls": 0,
+            "retrieved_urls": [],
+            "errors": {},
+            "fallback_used": False,
+        }
 
         self._write_program_state(program, tasks, hypotheses)
 
         for iteration in range(1, self.max_iterations + 1):
             iterations_completed = iteration
             timer = time.perf_counter()
-            evidence = collect_evidence(tasks, hypotheses, seed_texts)
+            evidence, retrieval_metrics = collect_evidence(
+                tasks,
+                hypotheses,
+                seed_texts,
+                live_retrieval=self.live_retrieval,
+                source_urls=self.source_urls,
+            )
             component_seconds["evidence_collection"] += time.perf_counter() - timer
             timer = time.perf_counter()
             claims = claims_from_hypotheses(hypotheses, evidence, tuning_params)
@@ -157,6 +174,7 @@ class ResearchRuntime:
             final_artifacts,
             component_seconds,
             iteration_history,
+            retrieval_metrics,
         )
         timer = time.perf_counter()
         self._write_final_outputs(program, claims, evidence, contradictions, open_questions, evaluation, metrics)
@@ -177,6 +195,7 @@ class ResearchRuntime:
             final_artifacts,
             component_seconds,
             iteration_history,
+            retrieval_metrics,
         )
         write_json(self.out_dir / "metrics.json", metrics)
         self._write_final_outputs(program, claims, evidence, contradictions, open_questions, evaluation, metrics)
@@ -242,6 +261,7 @@ class ResearchRuntime:
         final_artifacts,
         component_seconds,
         iteration_history,
+        retrieval_metrics,
     ) -> RunMetrics:
         one_shot_agents = {"program_generator", "planner_orchestrator", "hypothesis_agent", "report_generator"}
         agent_breakdown = {
@@ -279,6 +299,7 @@ class ResearchRuntime:
             total_runtime_seconds=round(elapsed, 3),
             component_metrics=component_metrics,
             iteration_history=iteration_history,
+            retrieval_metrics=retrieval_metrics,
             iterations_completed=iterations_completed,
             agents_spun_off=sum(agent_breakdown.values()),
             agent_breakdown=agent_breakdown,

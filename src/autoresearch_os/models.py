@@ -132,6 +132,7 @@ class RunMetrics:
     total_runtime_seconds: float
     component_metrics: dict[str, dict[str, float | int]]
     iteration_history: list[dict[str, float | int | str | bool]]
+    retrieval_metrics: dict[str, int | bool | list[str] | dict[str, str]]
     iterations_completed: int
     agents_spun_off: int
     agent_breakdown: dict[str, int]
