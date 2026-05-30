@@ -13,62 +13,79 @@ def build_report(
     metrics: RunMetrics | None = None,
 ) -> str:
     evidence_by_id = {item.source_id: item for item in evidence}
+    supported_claims = [claim for claim in claims if claim.status == "supported"]
     lines = [
-        "# Grounded Research Report",
+        "# Legal Research Report",
         "",
-        "## Executive Summary",
-        _executive_summary(claims, evaluation),
-        "",
-        "## Objective",
+        "## Question Presented",
         program.objective,
         "",
-        "## Findings",
+        "## Short Answer",
+        _executive_summary(claims, evaluation),
+        "",
+        "## Key Findings",
     ]
 
-    for claim in claims:
-        lines.extend(
-            [
-                f"### {claim.claim_id}: {claim.claim}",
-                f"- Status: {claim.status}",
-                f"- Confidence: {claim.confidence:.0%}",
-                f"- Supporting sources: {', '.join(claim.supporting_sources) or 'None'}",
-                f"- Contradicting sources: {', '.join(claim.contradicting_sources) or 'None'}",
-                "",
-            ]
-        )
-
-    lines.extend(["## Evidence Table", "| Source | Type | Reliability | Excerpt |", "| --- | --- | ---: | --- |"])
-    for item in evidence:
-        lines.append(f"| {item.source_id}: [{item.title}]({item.url}) | {item.source_type} | {item.reliability:.0%} | {item.excerpt} |")
-
-    lines.extend(["", "## Contradictions"])
-    if contradictions:
-        for item in contradictions:
-            lines.append(f"- {item.claim}: {item.resolution_status}. {item.note}")
-    else:
-        lines.append("- No explicit contradictions detected.")
+    display_claims = supported_claims or claims
+    for index, claim in enumerate(display_claims, start=1):
+        citations = ", ".join(f"[{_citation_label(source_id)}]" for source_id in claim.supporting_sources) or "no citation"
+        lines.append(f"{index}. {claim.claim} ({claim.confidence:.0%} confidence; {citations}).")
 
     lines.extend(
         [
             "",
-            "## Confidence Scores",
-            f"- Objective completion: {evaluation.objective_completion:.0%}",
-            f"- Evidence coverage: {evaluation.evidence_coverage:.0%}",
-            f"- Source diversity: {evaluation.source_diversity:.0%}",
-            f"- Primary authority coverage: {evaluation.primary_authority_coverage:.0%}",
-            f"- Contradiction resolution: {evaluation.contradiction_resolution:.0%}",
-            f"- Citation grounding: {evaluation.citation_grounding:.0%}",
-            f"- Mean claim confidence: {evaluation.mean_claim_confidence:.0%}",
-            f"- Weakest claim confidence: {evaluation.weakest_claim_confidence:.0%}",
-            f"- Confidence stability: {evaluation.confidence_stability:.0%}",
-            f"- Open-question penalty: -{evaluation.open_question_penalty:.0%}",
-            f"- Blocked-source penalty: -{evaluation.blocked_source_penalty:.0%}",
-            f"- Confidence cap: {evaluation.confidence_cap:.0%}",
-            f"- Overall confidence: {evaluation.overall_confidence:.0%}",
+            "## Reasoning Rationale",
+            (
+                "The system generated hypotheses, collected legal evidence, criticized the claims for "
+                "contradictions, evaluated citation grounding and source quality, then repeated the loop "
+                "until the research state stopped improving or satisfied the configured objectives."
+            ),
             "",
-            "## Run Metrics",
+            "## Sources",
         ]
     )
+    for source_id, item in evidence_by_id.items():
+        lines.append(f"- [{_citation_label(source_id)}] {item.title}. {item.url}")
+
+    lines.extend(
+        [
+            "",
+            "## Open Questions",
+        ]
+    )
+    lines.extend([f"- {question}" for question in open_questions] or ["- None."])
+
+    lines.extend(
+        [
+            "",
+            "## Appendix: Research Trace",
+            f"- Overall confidence: {evaluation.overall_confidence:.0%}",
+            f"- Objective completion: {evaluation.objective_completion:.0%}",
+            f"- Evidence coverage: {evaluation.evidence_coverage:.0%}",
+            f"- Citation grounding: {evaluation.citation_grounding:.0%}",
+            f"- Primary authority coverage: {evaluation.primary_authority_coverage:.0%}",
+            f"- Contradiction resolution: {evaluation.contradiction_resolution:.0%}",
+            f"- Mean claim confidence: {evaluation.mean_claim_confidence:.0%}",
+        ]
+    )
+
+    if contradictions:
+        lines.extend(["", "### Contradictions"])
+        for item in contradictions:
+            lines.append(f"- {item.claim}: {item.resolution_status}. {item.note}")
+    else:
+        lines.extend(["", "### Contradictions", "- No explicit contradictions detected."])
+
+    lines.extend(["", "### All Claims"])
+    for claim in claims:
+        lines.extend(
+            [
+                f"- {claim.claim_id}: {claim.claim}",
+                f"  Status: {claim.status}; confidence: {claim.confidence:.0%}; supporting sources: {', '.join(f'[{_citation_label(source_id)}]' for source_id in claim.supporting_sources) or 'none'}.",
+            ]
+        )
+
+    lines.extend(["", "### Metrics"])
     if metrics:
         lines.extend(
             [
@@ -96,28 +113,29 @@ def build_report(
     lines.extend(
         [
             "",
-            "## Limitations",
-            "- This prototype uses deterministic baseline agents and a small built-in evidence fixture for the demo domain.",
-            "- A production deployment should replace the fixture with live legal, academic, web, and company-intelligence search agents.",
-            "",
-            "## Open Questions",
+            "## Legal Metadata",
+            f"- Jurisdiction: {program.legal_metadata.jurisdiction}",
+            f"- Practice area: {program.legal_metadata.practice_area}",
+            f"- Risk posture: {program.legal_metadata.risk_posture}",
+            f"- Authority hierarchy: {', '.join(program.legal_metadata.authority_hierarchy)}",
+            f"- Required source types: {', '.join(program.legal_metadata.required_source_types)}",
         ]
     )
-    lines.extend([f"- {question}" for question in open_questions] or ["- None."])
-
-    lines.extend(["", "## Source List"])
-    for source_id, item in evidence_by_id.items():
-        lines.append(f"- {source_id}: {item.title}. {item.url}")
 
     return "\n".join(lines) + "\n"
-
 
 def _executive_summary(claims: list[Claim], evaluation: Evaluation) -> str:
     supported = [claim.claim for claim in claims if claim.status == "supported"]
     if not supported:
         return "The runtime did not reach a well-supported conclusion yet."
+    answer = " ".join(supported[:2])
     return (
-        f"The current research state supports {len(supported)} core findings with "
-        f"{evaluation.overall_confidence:.0%} overall confidence. The strongest answer is: "
-        + " ".join(supported[:2])
+        f"Based on the cited authorities, the answer is supported at "
+        f"{evaluation.overall_confidence:.0%} confidence: {answer}"
     )
+
+
+def _citation_label(source_id: str) -> str:
+    if source_id.startswith("source_"):
+        return str(int(source_id.removeprefix("source_")))
+    return source_id

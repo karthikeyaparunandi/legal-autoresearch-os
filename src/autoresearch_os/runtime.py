@@ -310,7 +310,7 @@ class ResearchRuntime:
             evaluation,
             metrics,
         )
-        write_pdf(self.out_dir / "final_report.pdf", "AutoResearch OS Grounded Legal Research Report", report)
+        write_pdf(self.out_dir / "final_report.pdf", "AutoResearch OS Legal Research Report", report)
 
     def _write_program_state(self, program, tasks, hypotheses) -> None:
         (self.out_dir / "program.md").write_text(program_to_markdown(program), encoding="utf-8")

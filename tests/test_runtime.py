@@ -42,15 +42,19 @@ def test_runtime_writes_truth_maintenance_repo(tmp_path):
     assert (tmp_path / "gt_repo" / "claims.json").exists()
     assert (tmp_path / "gt_repo" / "evidence" / "iteration_001.json").exists()
     report = (tmp_path / "gt_repo" / "final_report.md").read_text(encoding="utf-8")
-    assert report.startswith("# Grounded Research Report")
-    assert "## Run Metrics" in report
+    assert report.startswith("# Legal Research Report")
+    assert "## Question Presented" in report
+    assert "Can AI-generated code be copyrighted in the United States?" in report
+    assert "## Appendix: Research Trace" in report
     html = (tmp_path / "gt_repo" / "final_report.html").read_text(encoding="utf-8")
-    assert "<title>AutoResearch OS Grounded Legal Research Report</title>" in html
+    assert "<title>AutoResearch OS Legal Research Report</title>" in html
+    assert "Question Presented" in html
+    assert "Short Answer" in html
     assert "Reasoning and rationale path" in html
-    assert "<h2>Convergence Progress</h2>" in html
-    assert "<h2>Component Metrics</h2>" in html
-    assert "<h2>Agent Tool Loops</h2>" in html
-    assert "<h2>Live Retrieval</h2>" in html
+    assert "<h3>Convergence Progress</h3>" in html
+    assert "<h3>Component Metrics</h3>" in html
+    assert "<h3>Agent Tool Loops</h3>" in html
+    assert "<h3>Live Retrieval</h3>" in html
     assert 'href="#source_001"' in html
     assert 'id="source_001"' in html
     assert (tmp_path / "gt_repo" / "final_report.pdf").read_bytes().startswith(b"%PDF")

@@ -114,15 +114,22 @@ def write_research_html(
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AutoResearch OS Grounded Legal Research Report</title>
+  <title>AutoResearch OS Legal Research Report</title>
   <style>{_report_css()}</style>
 </head>
 <body>
 <main>
-  <header class="report-header">
-    <p class="eyebrow">AutoResearch OS Legal Runtime</p>
-    <h1>Grounded Legal Research Report</h1>
-    <p class="lede">{escape(_executive_summary(claims, evaluation))}</p>
+  <header class="memo-header">
+    <p class="eyebrow">AutoResearch OS · Legal Research Memo</p>
+    <h1>Legal Research Report</h1>
+    <section class="question-panel" aria-label="Question presented">
+      <span>Question Presented</span>
+      <p>{escape(program.objective)}</p>
+    </section>
+    <section class="short-answer" aria-label="Short answer">
+      <h2>Short Answer</h2>
+      <p>{escape(_executive_summary(claims, evaluation))}</p>
+    </section>
     <div class="artifact-links">
       <a href="final_report.md">Markdown</a>
       <a href="final_report.pdf">PDF</a>
@@ -130,61 +137,50 @@ def write_research_html(
     </div>
   </header>
 
-  <section>
-    <h2>Research Objective</h2>
-    <p>{escape(program.objective)}</p>
-    <div class="meta-grid">
-      {_metric_card("Final confidence", f"{metrics.final_confidence:.0%}")}
-      {_metric_card("Mean claim confidence", f"{evaluation.mean_claim_confidence:.0%}")}
-      {_metric_card("Primary authority coverage", f"{evaluation.primary_authority_coverage:.0%}")}
-      {_metric_card("Agents spun off", str(metrics.agents_spun_off))}
-      {_metric_card("Hypotheses", str(metrics.hypotheses_count))}
-      {_metric_card("Runtime", f"{metrics.total_runtime_seconds:.3f}s")}
-      {_metric_card("Contradictions", f"{metrics.resolved_contradictions_count}/{metrics.contradictions_count} resolved")}
-      {_metric_card("Open questions", str(metrics.open_questions_count))}
-      {_metric_card("Blocked sources", str(metrics.retrieval_metrics.get("blocked_sources", 0)))}
-    </div>
+  <section class="summary-strip" aria-label="Research metrics summary">
+    {_metric_card("Confidence", f"{metrics.final_confidence:.0%}")}
+    {_metric_card("Iterations", str(metrics.iterations_completed))}
+    {_metric_card("Agents", str(metrics.agents_spun_off))}
+    {_metric_card("Sources", str(metrics.evidence_count))}
+    {_metric_card("Contradictions", f"{metrics.resolved_contradictions_count}/{metrics.contradictions_count} resolved")}
   </section>
 
-  <section>
-    <h2>How The Answer Was Deduced</h2>
-    <p class="section-note">The diagram shows the legal reasoning path from user goal to final answer. Each stage includes agent count and measured runtime.</p>
+  <section class="memo-section">
+    <h2>Key Findings</h2>
+    {_findings_list(claims, evidence_by_id)}
+  </section>
+
+  <section class="memo-section">
+    <h2>Reasoning Rationale</h2>
+    <p>The runtime tested candidate legal hypotheses against retrieved evidence, challenged the claims through a critic pass, tracked contradictions in the truth-maintenance repo, and re-entered the research loop when the evaluator found gaps.</p>
     {_reasoning_svg(metrics, evaluation)}
   </section>
 
-  <section>
-    <h2>Convergence Progress</h2>
-    <p class="section-note">The system continues researching until objective completion, citation grounding, contradiction resolution, and open-question thresholds are satisfied.</p>
+  <section class="memo-section">
+    <h2>Open Questions</h2>
+    {_list_block(open_questions or ["None."])}
+  </section>
+
+  <section class="memo-section">
+    <h2>Sources</h2>
+    <ol class="sources">
+      {"".join(_source_item(item) for item in evidence)}
+    </ol>
+  </section>
+
+  <details class="appendix">
+    <summary>Research Trace And Metrics</summary>
+    <h3>Convergence Progress</h3>
     {_iteration_history_table(metrics)}
-  </section>
-
-  <section>
-    <h2>Component Metrics</h2>
+    <h3>Component Metrics</h3>
     {_component_table(metrics)}
-  </section>
-
-  <section>
-    <h2>Agent Tool Loops</h2>
+    <h3>Agent Tool Loops</h3>
     {_agent_trace_table(metrics)}
-  </section>
-
-  <section>
-    <h2>Live Retrieval</h2>
+    <h3>Live Retrieval</h3>
     {_retrieval_table(metrics)}
-  </section>
-
-  <section>
-    <h2>Hypotheses And Claim Rationale</h2>
-    {_claims_table(claims, evidence_by_id)}
-  </section>
-
-  <section>
-    <h2>Contradiction Analysis</h2>
+    <h3>Contradiction Analysis</h3>
     {_contradiction_block(contradictions)}
-  </section>
-
-  <section>
-    <h2>Legal Metadata</h2>
+    <h3>Legal Metadata</h3>
     <table>
       <tbody>
         <tr><th>Jurisdiction</th><td>{escape(program.legal_metadata.jurisdiction)}</td></tr>
@@ -194,19 +190,7 @@ def write_research_html(
         <tr><th>Required source types</th><td>{escape(", ".join(program.legal_metadata.required_source_types))}</td></tr>
       </tbody>
     </table>
-  </section>
-
-  <section>
-    <h2>Open Questions</h2>
-    {_list_block(open_questions or ["None."])}
-  </section>
-
-  <section>
-    <h2>Sources</h2>
-    <ol class="sources">
-      {"".join(_source_item(item) for item in evidence)}
-    </ol>
-  </section>
+  </details>
 </main>
 </body>
 </html>
@@ -218,44 +202,57 @@ def write_research_html(
 def _report_css() -> str:
     return """
 :root {
-  --ink: #17202a;
-  --muted: #647080;
-  --line: #d9e0ea;
-  --panel: #f7f9fc;
-  --accent: #1f6feb;
-  --accent-2: #0f766e;
-  --warn: #a16207;
+  --paper: #fffdf9;
+  --ink: #20242a;
+  --muted: #66707c;
+  --line: #ded7cc;
+  --panel: #f8f4ed;
+  --accent: #245f73;
+  --accent-2: #6f5335;
+  --warn: #9a5b17;
 }
 * { box-sizing: border-box; }
 body {
   margin: 0;
-  font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font: 17px/1.68 Charter, Georgia, "Times New Roman", serif;
   color: var(--ink);
-  background: #fff;
+  background: var(--paper);
 }
 main {
-  max-width: 1120px;
+  max-width: 920px;
   margin: 0 auto;
-  padding: 44px 24px 72px;
+  padding: 54px 24px 78px;
 }
-.report-header {
+.memo-header {
   border-bottom: 1px solid var(--line);
-  padding-bottom: 22px;
-  margin-bottom: 30px;
+  padding-bottom: 28px;
+  margin-bottom: 24px;
 }
 .eyebrow {
   margin: 0 0 8px;
-  color: var(--accent-2);
+  color: var(--accent);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-weight: 700;
-  letter-spacing: .02em;
+  letter-spacing: .08em;
   text-transform: uppercase;
   font-size: 12px;
 }
 h1, h2, h3 { line-height: 1.2; }
-h1 { margin: 0 0 12px; font-size: 36px; }
-h2 { margin: 34px 0 12px; font-size: 22px; }
-h3 { margin: 22px 0 8px; font-size: 17px; }
-.lede { max-width: 900px; color: #293241; font-size: 17px; }
+h1 {
+  margin: 0 0 22px;
+  font-size: 42px;
+  font-weight: 500;
+}
+h2 {
+  margin: 34px 0 12px;
+  font: 700 19px/1.25 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #15191f;
+}
+h3 {
+  margin: 24px 0 8px;
+  font: 700 15px/1.25 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+p { margin: 0 0 16px; }
 .section-note { color: var(--muted); margin-top: -4px; }
 .artifact-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
 .artifact-links a, .cite {
@@ -265,28 +262,77 @@ h3 { margin: 22px 0 8px; font-size: 17px; }
 }
 .artifact-links a {
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 4px;
   padding: 6px 10px;
   background: var(--panel);
+  font: 13px/1.3 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
-.meta-grid {
+.question-panel {
+  border-left: 4px solid var(--accent);
+  background: #fffaf1;
+  padding: 16px 18px;
+  margin: 0 0 22px;
+}
+.question-panel span {
+  display: block;
+  color: var(--muted);
+  font: 700 12px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.question-panel p {
+  font-size: 21px;
+  line-height: 1.42;
+  margin: 0;
+}
+.short-answer h2 { margin-top: 0; }
+.short-answer p {
+  font-size: 19px;
+  line-height: 1.62;
+}
+.summary-strip {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
   gap: 10px;
-  margin: 18px 0 4px;
+  margin: 0 0 28px;
 }
 .metric-card {
   border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: 4px;
+  padding: 10px 12px;
   background: var(--panel);
 }
-.metric-card strong { display: block; font-size: 22px; }
-.metric-card span { color: var(--muted); font-size: 13px; }
+.metric-card strong {
+  display: block;
+  font: 700 20px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+.metric-card span {
+  color: var(--muted);
+  font: 12px/1.25 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+.memo-section {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 22px;
+  margin-bottom: 8px;
+}
+.findings {
+  padding-left: 24px;
+}
+.findings li {
+  margin-bottom: 16px;
+}
+.claim-meta {
+  display: block;
+  color: var(--muted);
+  font: 13px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin-top: 4px;
+}
 table {
   width: 100%;
   border-collapse: collapse;
   margin: 14px 0 24px;
+  font: 13px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 th, td {
   border: 1px solid var(--line);
@@ -298,9 +344,34 @@ th { background: var(--panel); }
 .status-supported { color: var(--accent-2); font-weight: 700; }
 .status-contested, .status-weak { color: var(--warn); font-weight: 700; }
 .sources li { margin-bottom: 12px; }
-.source-meta { color: var(--muted); display: block; font-size: 13px; }
-.diagram-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: #fbfcfe; padding: 12px; }
+.source-meta {
+  color: var(--muted);
+  display: block;
+  font: 13px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+.diagram-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #fffaf1;
+  padding: 12px;
+}
 svg text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.appendix {
+  margin-top: 28px;
+  border-top: 2px solid var(--ink);
+  padding-top: 16px;
+}
+.appendix summary {
+  cursor: pointer;
+  color: var(--accent);
+  font: 700 16px/1.3 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+@media (max-width: 640px) {
+  main { padding: 32px 18px 56px; }
+  h1 { font-size: 34px; }
+  .question-panel p { font-size: 18px; }
+}
 """
 
 
@@ -408,6 +479,22 @@ def _claims_table(claims: list[Claim], evidence_by_id: dict[str, Evidence]) -> s
     )
 
 
+def _findings_list(claims: list[Claim], evidence_by_id: dict[str, Evidence]) -> str:
+    display_claims = [claim for claim in claims if claim.status == "supported"] or claims
+    rows = []
+    for claim in display_claims:
+        citations = " ".join(_citation(source_id, evidence_by_id) for source_id in claim.supporting_sources) or "No cited support"
+        rows.append(
+            "<li>"
+            f"{escape(claim.claim)}"
+            f'<span class="claim-meta">{escape(claim.status.title())} | confidence {claim.confidence:.0%} | {citations}</span>'
+            "</li>"
+        )
+    if not rows:
+        return "<p>No claims were generated.</p>"
+    return '<ol class="findings">' + "".join(rows) + "</ol>"
+
+
 def _citation(source_id: str, evidence_by_id: dict[str, Evidence]) -> str:
     source = evidence_by_id.get(source_id)
     label = _citation_label(source_id)
@@ -446,9 +533,10 @@ def _executive_summary(claims: list[Claim], evaluation: Evaluation) -> str:
     supported = [claim.claim for claim in claims if claim.status == "supported"]
     if not supported:
         return "The runtime did not reach a well-supported conclusion yet."
+    answer = " ".join(supported[:2])
     return (
-        f"The research state supports {len(supported)} legal findings with {evaluation.overall_confidence:.0%} "
-        f"overall confidence. Core rationale: {supported[0]}"
+        f"Based on the cited authorities, the answer is supported at "
+        f"{evaluation.overall_confidence:.0%} confidence: {answer}"
     )
 
 
