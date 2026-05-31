@@ -59,7 +59,9 @@ def test_runtime_writes_truth_maintenance_repo(tmp_path):
     assert "<h3>Convergence Progress</h3>" in html
     assert "<h3>Component Metrics</h3>" in html
     assert "<h3>Agent Tool Loops</h3>" in html
-    assert "<h3>Live Retrieval</h3>" in html
+    assert "Raindrop Workshop" in html
+    assert "tracing disabled" in html
+    assert "<h3>Live Web Retrieval</h3>" in html
     assert 'href="#source_001"' in html
     assert 'id="source_001"' in html
     assert (tmp_path / "gt_repo" / "final_report.pdf").read_bytes().startswith(b"%PDF")

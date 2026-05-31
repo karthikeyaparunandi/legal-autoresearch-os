@@ -142,7 +142,7 @@ def write_research_html(
     {_metric_card("Iterations", str(metrics.iterations_completed))}
     {_metric_card("Agents", str(metrics.agents_spun_off))}
     {_metric_card("Sources", str(metrics.evidence_count))}
-    {_metric_card("Raindrop", "enabled" if metrics.raindrop_tracing_enabled else "disabled")}
+    {_metric_card("Raindrop Workshop", _raindrop_summary(metrics))}
     {_metric_card("Contradictions", f"{metrics.resolved_contradictions_count}/{metrics.contradictions_count} resolved")}
   </section>
 
@@ -184,7 +184,7 @@ def write_research_html(
     {_component_table(metrics)}
     <h3>Agent Tool Loops</h3>
     {_agent_trace_table(metrics)}
-    <h3>Live Retrieval</h3>
+    <h3>Live Web Retrieval</h3>
     {_retrieval_table(metrics)}
     <h3>Contradiction Analysis</h3>
     {_contradiction_block(contradictions)}
@@ -418,7 +418,7 @@ def _agent_trace_table(metrics: RunMetrics) -> str:
 def _retrieval_table(metrics: RunMetrics) -> str:
     retrieval = metrics.retrieval_metrics
     rows = [
-        ("Live retrieval", "enabled" if retrieval.get("enabled") else "disabled"),
+        ("Live web retrieval", "enabled" if retrieval.get("enabled") else "disabled"),
         ("Modal URL agents", retrieval.get("modal_url_fetch_agents", 0)),
         ("Web search", "enabled" if retrieval.get("search_enabled") else "disabled"),
         ("Search queries", len(retrieval.get("search_queries", []))),
@@ -445,15 +445,29 @@ def _retrieval_table(metrics: RunMetrics) -> str:
     return table
 
 
+def _raindrop_summary(metrics: RunMetrics) -> str:
+    if not metrics.raindrop_tracing_enabled:
+        return "tracing disabled"
+    if metrics.raindrop_target:
+        return f"enabled ({metrics.raindrop_target})"
+    return "enabled"
+
+
 def _raindrop_feedback_block(metrics: RunMetrics) -> str:
     feedback = metrics.raindrop_feedback
     if not feedback:
-        return "<p>No Raindrop feedback was generated for this run.</p>"
+        return (
+            "<table><tbody>"
+            f"<tr><th>Tracing status</th><td>{escape(_raindrop_summary(metrics))}</td></tr>"
+            "</tbody></table>"
+            "<p>No Raindrop feedback was generated for this run.</p>"
+        )
     trace_focus = ", ".join(feedback.get("trace_focus", [])) or "none"
     findings = _list_block([str(item) for item in feedback.get("findings", [])])
     recommendations = _list_block([str(item) for item in feedback.get("recommendations", [])])
     return (
         "<table><tbody>"
+        f"<tr><th>Tracing status</th><td>{escape(_raindrop_summary(metrics))}</td></tr>"
         f"<tr><th>Verdict</th><td>{escape(str(feedback.get('verdict', 'unknown')))}</td></tr>"
         f"<tr><th>Summary</th><td>{escape(str(feedback.get('summary', '')))}</td></tr>"
         f"<tr><th>Trace focus</th><td>{escape(trace_focus)}</td></tr>"
