@@ -1,0 +1,20 @@
+[
+  {
+    "hypothesis_id": "h001",
+    "statement": "In the U.S. context, whether AI-generated customer-facing loan explanations or adverse action notices satisfy legal requirements will turn primarily on the quality and authoritative weight of legal sources relied on (federal statutes, implementing regulations, CFPB/FTC guidance, material case law and state statutes), not on the number of sources cited.",
+    "rationale": "Compliance depends on binding authorities (ECOA/Reg B, FCRA/Reg V, CFPB rules and interpretive guidance, controlling circuit precedent, state consumer protection laws); weaker secondary sources (blog posts, nonbinding commentary) carry little weight. Research should prioritize primary federal and controlling-state authorities and agency enforcement/staff opinions to assess legal sufficiency.",
+    "status": "open"
+  },
+  {
+    "hypothesis_id": "h002",
+    "statement": "Identifying contradictions among statutes, agency guidance, and case law (e.g., what constitutes a 'specific reason' or 'clear and specific' adverse-action explanation, versus model-interpretability expectations) will surface the critical follow-up legal questions needed to assess regulatory and liability risk for AI-generated explanations.",
+    "rationale": "Conflicting or ambiguous statements by agencies, divergent circuit rulings, and tension between statutory notice requirements and emerging AI explainability expectations likely reveal whether AI outputs can satisfy notice content and nondiscrimination obligations; resolving these conflicts will determine research priorities (e.g., adequacy of 'basis' statements, required human review, recordkeeping and validation standards).",
+    "status": "open"
+  },
+  {
+    "hypothesis_id": "h003",
+    "statement": "A usable, decision-grade answer must state specific limits and uncertainties: which jurisdictions and facts are covered, what authoritative rules are settled versus unsettled, what enforcement and private-liability exposures remain, and which mitigations (e.g., human oversight, disclosures, model validation, recordkeeping) reduce but do not eliminate risk.",
+    "rationale": "Regulatory and liability analysis of AI-generated adverse action notices involves unsettled agency expectations and evolving case law; practitioners need bounded conclusions that identify residual risks, recommended controls, and areas requiring further primary-authority research or policy guidance.",
+    "status": "open"
+  }
+]

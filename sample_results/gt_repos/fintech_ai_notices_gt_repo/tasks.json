@@ -1,0 +1,93 @@
+[
+  {
+    "task_id": "t001",
+    "title": "What legal issue is raised by: Can a U.S. fintech startup use AI to generate cus",
+    "question": "What legal issue is raised by: Can a U.S. fintech startup use AI to generate customer-facing loan explanations and adverse action notices, and what regulatory or liability risks arise if those explanations are inaccurate??",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "task_id": "t002",
+    "title": "Which jurisdiction, governing law, and authority hierarchy control the analysis",
+    "question": "Which jurisdiction, governing law, and authority hierarchy control the analysis?",
+    "depends_on": [
+      "t001"
+    ],
+    "status": "pending"
+  },
+  {
+    "task_id": "t003",
+    "title": "Which primary legal authorities support or contradict the likely answer",
+    "question": "Which primary legal authorities support or contradict the likely answer?",
+    "depends_on": [
+      "t001"
+    ],
+    "status": "pending"
+  },
+  {
+    "task_id": "t004",
+    "title": "What practical legal risks, compliance duties, or liability exposure follow",
+    "question": "What practical legal risks, compliance duties, or liability exposure follow?",
+    "depends_on": [
+      "t001"
+    ],
+    "status": "pending"
+  },
+  {
+    "task_id": "t005",
+    "title": "Which unsettled legal questions or factual assumptions could change the answer",
+    "question": "Which unsettled legal questions or factual assumptions could change the answer?",
+    "depends_on": [
+      "t001"
+    ],
+    "status": "pending"
+  },
+  {
+    "task_id": "t006",
+    "title": "Synthesize grounded answer",
+    "question": "Which answer is best supported once claims, evidence, and contradictions are considered?",
+    "depends_on": [
+      "t001",
+      "t002",
+      "t003",
+      "t004",
+      "t005"
+    ],
+    "status": "pending"
+  },
+  {
+    "task_id": "t007",
+    "title": "Resolve knowledge gap",
+    "question": "Are all program subquestions represented by explicit claims?",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "task_id": "t008",
+    "title": "Resolve knowledge gap",
+    "question": "Critic follow-up: Claims lack citation to controlling primary authorities (specific federal statutes/regulations like ECOA/Reg B, FCRA/Reg V, and key CFPB/FTC rules) and to pivotal case law\u2014relying on unidentified source IDs is insufficient to assess legal weight.",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "task_id": "t009",
+    "title": "Resolve knowledge gap",
+    "question": "Critic follow-up: The term \u201cU.S. context\u201d is too broad: the analysis needs jurisdictional granularity (federal vs state, and note circuit/supreme court splits or preemption issues) to be legally usable.",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "task_id": "t010",
+    "title": "Resolve knowledge gap",
+    "question": "Critic follow-up: c001 is directionally correct but too general\u2014cite specific primary authorities (e.g., ECOA/Reg B, FCRA, controlling statutes/regulations and leading cases) and analyze state-law variance and preemption rather than relying on opaque supporting_sources.",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "task_id": "t011",
+    "title": "Resolve knowledge gap",
+    "question": "Critic follow-up: Assess the authoritative weight of cited agency materials\u2014distinguish binding regulations and statutory text from nonbinding guidance, supervisory guidance, or consent orders when evaluating compliance of AI-generated explanations.",
+    "depends_on": [],
+    "status": "pending"
+  }
+]

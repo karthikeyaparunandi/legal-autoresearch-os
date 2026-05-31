@@ -1,0 +1,41 @@
+[
+  {
+    "claim_id": "c001",
+    "claim": "In the U.S. context, whether AI-generated customer-facing loan explanations or adverse action notices satisfy legal requirements will turn primarily on the quality and authoritative weight of legal sources relied on (federal statutes, implementing regulations, CFPB/FTC guidance, material case law and state statutes), not on the number of sources cited.",
+    "supporting_sources": [
+      "source_001",
+      "source_002",
+      "source_004"
+    ],
+    "contradicting_sources": [],
+    "confidence": 0.94,
+    "status": "supported",
+    "objective_refs": []
+  },
+  {
+    "claim_id": "c002",
+    "claim": "Identifying contradictions among statutes, agency guidance, and case law (e.g., what constitutes a 'specific reason' or 'clear and specific' adverse-action explanation, versus model-interpretability expectations) will surface the critical follow-up legal questions needed to assess regulatory and liability risk for AI-generated explanations.",
+    "supporting_sources": [
+      "source_001",
+      "source_002",
+      "source_004"
+    ],
+    "contradicting_sources": [],
+    "confidence": 0.94,
+    "status": "supported",
+    "objective_refs": []
+  },
+  {
+    "claim_id": "c003",
+    "claim": "A usable, decision-grade answer must state specific limits and uncertainties: which jurisdictions and facts are covered, what authoritative rules are settled versus unsettled, what enforcement and private-liability exposures remain, and which mitigations (e.g., human oversight, disclosures, model validation, recordkeeping) reduce but do not eliminate risk.",
+    "supporting_sources": [
+      "source_001",
+      "source_002",
+      "source_004"
+    ],
+    "contradicting_sources": [],
+    "confidence": 0.94,
+    "status": "supported",
+    "objective_refs": []
+  }
+]

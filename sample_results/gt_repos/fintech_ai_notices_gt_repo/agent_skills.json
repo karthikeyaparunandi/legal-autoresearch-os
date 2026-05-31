@@ -1,0 +1,28 @@
+{
+  "skills": {
+    "hypothesis_agent": [
+      "Separate pure AI output from AI-assisted human expression.",
+      "State legal hypotheses with jurisdiction, authority level, and uncertainty boundaries."
+    ],
+    "knowledge_agent_pool": [
+      "Prefer statutes, cases, agency guidance, and official materials over secondary commentary.",
+      "Treat CAPTCHA, access-denied, navigation-only, and empty pages as blocked retrieval, not evidence.",
+      "When retrieval is blocked or low-signal, replace the source with an accessible primary authority before evaluating confidence.",
+      "Do not mark a claim citation-grounded unless it has enough supporting sources and at least one primary authority."
+    ],
+    "critic_agent": [
+      "Scope apparent contradictions before marking them unresolved.",
+      "Criticize claims for missing primary authority, weak source diversity, or unsupported practical-risk assertions.",
+      "When all material claims are supported and no critical questions remain, avoid inventing extra follow-up questions."
+    ],
+    "hypothesis_refinement_agent": [
+      "Turn repeated open questions into narrower, testable hypotheses.",
+      "Preserve valid hypothesis IDs when refining scope rather than replacing the whole theory.",
+      "Map unresolved open questions back to the exact claim or hypothesis they can repair."
+    ],
+    "modal_hypothesis_agent": [
+      "Evaluate one hypothesis end-to-end: retrieve evidence, synthesize one claim, critique it, and return concise gaps.",
+      "Return blocked retrieval reasons separately from evidence so the orchestrator can avoid false citation grounding."
+    ]
+  }
+}

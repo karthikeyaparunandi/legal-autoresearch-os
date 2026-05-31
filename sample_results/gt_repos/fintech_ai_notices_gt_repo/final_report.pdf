@@ -1,0 +1,387 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 4 0 R 5 0 R 6 0 R] /Count 4 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 11 0 R >> >> /Contents 7 0 R >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 11 0 R >> >> /Contents 8 0 R >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 11 0 R >> >> /Contents 9 0 R >>
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 11 0 R >> >> /Contents 10 0 R >>
+endobj
+7 0 obj
+<< /Length 3316 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(Legal AutoResearch OS Research Report) Tj
+T*
+() Tj
+T*
+(LEGAL RESEARCH REPORT) Tj
+T*
+() Tj
+T*
+(QUESTION PRESENTED) Tj
+T*
+(Can a U.S. fintech startup use AI to generate customer-facing loan explanations and adverse) Tj
+T*
+(action notices, and what regulatory or liability risks arise if those explanations are) Tj
+T*
+(inaccurate?) Tj
+T*
+() Tj
+T*
+(SHORT ANSWER) Tj
+T*
+(Based on the cited authorities, the answer is supported at 63% confidence: In the U.S.) Tj
+T*
+(context, whether AI-generated customer-facing loan explanations or adverse action notices) Tj
+T*
+(satisfy legal requirements will turn primarily on the quality and authoritative weight of) Tj
+T*
+(legal sources relied on \(federal statutes, implementing regulations, CFPB/FTC guidance,) Tj
+T*
+(material case law and state statutes\), not on the number of sources cited. [1] [2] [4]) Tj
+T*
+(Identifying contradictions among statutes, agency guidance, and case law \(e.g., what) Tj
+T*
+(constitutes a 'specific reason' or 'clear and specific' adverse-action explanation, versus) Tj
+T*
+(model-interpretability expectations\) will surface the critical follow-up legal questions) Tj
+T*
+(needed to assess regulatory and liability risk for AI-generated explanations. [1] [2] [4]) Tj
+T*
+() Tj
+T*
+(KEY FINDINGS) Tj
+T*
+(1. In the U.S. context, whether AI-generated customer-facing loan explanations or adverse) Tj
+T*
+(action notices satisfy legal requirements will turn primarily on the quality and) Tj
+T*
+(authoritative weight of legal sources relied on \(federal statutes, implementing regulations,) Tj
+T*
+(CFPB/FTC guidance, material case law and state statutes\), not on the number of sources) Tj
+T*
+(cited. \(94% confidence; [1], [2], [4]\).) Tj
+T*
+(2. Identifying contradictions among statutes, agency guidance, and case law \(e.g., what) Tj
+T*
+(constitutes a 'specific reason' or 'clear and specific' adverse-action explanation, versus) Tj
+T*
+(model-interpretability expectations\) will surface the critical follow-up legal questions) Tj
+T*
+(needed to assess regulatory and liability risk for AI-generated explanations. \(94%) Tj
+T*
+(confidence; [1], [2], [4]\).) Tj
+T*
+(3. A usable, decision-grade answer must state specific limits and uncertainties: which) Tj
+T*
+(jurisdictions and facts are covered, what authoritative rules are settled versus unsettled,) Tj
+T*
+(what enforcement and private-liability exposures remain, and which mitigations \(e.g., human) Tj
+T*
+(oversight, disclosures, model validation, recordkeeping\) reduce but do not eliminate risk.) Tj
+T*
+(\(94% confidence; [1], [2], [4]\).) Tj
+T*
+() Tj
+T*
+(REASONING RATIONALE) Tj
+T*
+(The system generated hypotheses, collected legal evidence, criticized the claims for) Tj
+T*
+(contradictions, evaluated citation grounding and source quality, then repeated the loop) Tj
+T*
+(until the research state stopped improving or satisfied the configured objectives.) Tj
+T*
+() Tj
+T*
+(SOURCES) Tj
+T*
+(  - [1] warranty    Wex    US Law    LII / Legal Information Institute.) Tj
+T*
+(https://www.law.cornell.edu/wex/warranty) Tj
+T*
+(  - [2] misrepresentation    Wex    US Law    LII / Legal Information Institute.) Tj
+T*
+(https://www.law.cornell.edu/wex/misrepresentation) Tj
+T*
+(  - [4] § 2-313. Express Warranties by Affirmation, Promise, Description, Sample.    Uniform) Tj
+T*
+ET
+endstream
+endobj
+8 0 obj
+<< /Length 2683 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(Commercial Code    US Law    LII / Legal Information Institute.) Tj
+T*
+(https://www.law.cornell.edu/ucc/2/2-313) Tj
+T*
+() Tj
+T*
+(OPEN QUESTIONS) Tj
+T*
+(  - Are all program subquestions represented by explicit claims?) Tj
+T*
+(  - Critic follow-up: Claims emphasize authoritative weight but fail to cite controlling) Tj
+T*
+(primary authorities \(e.g., ECOA/FCRA provisions, Reg B/Reg V, controlling circuit precedent,) Tj
+T*
+(or specific CFPB/FTC rules\), undermining their practical legal force.) Tj
+T*
+(  - Critic follow-up: Assertions of ?contradictions? are not scoped or mapped to concrete) Tj
+T*
+(provisions?the record lacks identification of which statutes/regulations/cases conflict and) Tj
+T*
+(which jurisdictions control, so the supposed tensions remain unresolved.) Tj
+T*
+() Tj
+T*
+(RAINDROP FEEDBACK) Tj
+T*
+(  - Verdict: plateaued) Tj
+T*
+(  - Summary: The run stopped because confidence and evidence coverage stopped improving.) Tj
+T*
+(  - Trace focus: evaluator_agent, knowledge_gap_detector, auto_tuner) Tj
+T*
+() Tj
+T*
+(Recommended Next Steps) Tj
+T*
+(  - Increase max iterations or add seed/source material for the unresolved gaps.) Tj
+T*
+(  - Inspect evaluator_agent and knowledge_gap_detector spans to see which quality gate) Tj
+T*
+(failed.) Tj
+T*
+() Tj
+T*
+(APPENDIX: RESEARCH TRACE) Tj
+T*
+(  - Overall confidence: 63%) Tj
+T*
+(  - Deterministic confidence: 70%) Tj
+T*
+(  - LLM scoring adjustment: -7%) Tj
+T*
+(  - Objective completion: 75%) Tj
+T*
+(  - Evidence coverage: 60%) Tj
+T*
+(  - Citation grounding: 100%) Tj
+T*
+(  - Primary authority coverage: 100%) Tj
+T*
+(  - Contradiction resolution: 100%) Tj
+T*
+(  - Mean claim confidence: 94%) Tj
+T*
+() Tj
+T*
+(LLM Scoring Audit) Tj
+T*
+(Significant mismatch between claims and cited support. The three claims are conceptually) Tj
+T*
+(sound \(authority quality matters; contradictions surface critical follow-ups; decision-grade) Tj
+T*
+(answers require scope, settled/unsettled rules, exposures, and mitigations\) but the provided) Tj
+T*
+(supporting excerpts are irrelevant or non?controlling for the objective \(they are LII) Tj
+T*
+(encyclopedia/UCC/misrepresentation snippets about warranties and opinion liability\) and do) Tj
+T*
+(not address the central regulatory authorities f) Tj
+T*
+() Tj
+T*
+(Contradictions) Tj
+T*
+(  - No explicit contradictions detected.) Tj
+T*
+() Tj
+T*
+(All Claims) Tj
+T*
+(  - c001: In the U.S. context, whether AI-generated customer-facing loan explanations or) Tj
+T*
+(adverse action notices satisfy legal requirements will turn primarily on the quality and) Tj
+T*
+(authoritative weight of legal sources relied on \(federal statutes, implementing regulations,) Tj
+T*
+ET
+endstream
+endobj
+9 0 obj
+<< /Length 2285 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(CFPB/FTC guidance, material case law and state statutes\), not on the number of sources) Tj
+T*
+(cited.) Tj
+T*
+(Status: supported; confidence: 94%; supporting sources: [1], [2], [4].) Tj
+T*
+(  - c002: Identifying contradictions among statutes, agency guidance, and case law \(e.g.,) Tj
+T*
+(what constitutes a 'specific reason' or 'clear and specific' adverse-action explanation,) Tj
+T*
+(versus model-interpretability expectations\) will surface the critical follow-up legal) Tj
+T*
+(questions needed to assess regulatory and liability risk for AI-generated explanations.) Tj
+T*
+(Status: supported; confidence: 94%; supporting sources: [1], [2], [4].) Tj
+T*
+(  - c003: A usable, decision-grade answer must state specific limits and uncertainties:) Tj
+T*
+(which jurisdictions and facts are covered, what authoritative rules are settled versus) Tj
+T*
+(unsettled, what enforcement and private-liability exposures remain, and which mitigations) Tj
+T*
+(\(e.g., human oversight, disclosures, model validation, recordkeeping\) reduce but do not) Tj
+T*
+(eliminate risk.) Tj
+T*
+(Status: supported; confidence: 94%; supporting sources: [1], [2], [4].) Tj
+T*
+() Tj
+T*
+(Metrics) Tj
+T*
+(  - Total runtime: 137.647 seconds) Tj
+T*
+(  - Iterations completed: 3) Tj
+T*
+(  - Agents spun off: 39) Tj
+T*
+(  - Tasks generated: 11) Tj
+T*
+(  - Hypotheses generated: 3) Tj
+T*
+(  - Evidence records collected: 3) Tj
+T*
+(  - Source categories: 2) Tj
+T*
+(  - Claims evaluated: 3) Tj
+T*
+(  - Supported claims: 3) Tj
+T*
+(  - Contradictions detected: 0) Tj
+T*
+(  - Contradictions resolved: 0) Tj
+T*
+(  - Open questions remaining: 3) Tj
+T*
+(  - Stop conditions met: False) Tj
+T*
+(  - Raindrop tracing: disabled) Tj
+T*
+() Tj
+T*
+(Agent Breakdown) Tj
+T*
+(  - program_generator: 1) Tj
+T*
+(  - planner_orchestrator: 1) Tj
+T*
+(  - hypothesis_agent: 1) Tj
+T*
+(  - hypothesis_refinement_agent: 0) Tj
+T*
+(  - web_search_agent: 3) Tj
+T*
+(  - academic_agent: 3) Tj
+T*
+(  - legal_agent: 3) Tj
+T*
+(  - company_intelligence_agent: 3) Tj
+T*
+(  - social_signal_agent: 3) Tj
+T*
+(  - extraction_agent: 3) Tj
+T*
+(  - critic_agent: 3) Tj
+T*
+(  - evaluator_agent: 3) Tj
+T*
+(  - knowledge_gap_detector: 3) Tj
+T*
+(  - auto_tuner: 3) Tj
+T*
+(  - raindrop_feedback_agent: 1) Tj
+T*
+(  - report_generator: 1) Tj
+T*
+ET
+endstream
+endobj
+10 0 obj
+<< /Length 469 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(  - modal_url_fetch_agent: 4) Tj
+T*
+() Tj
+T*
+(LEGAL METADATA) Tj
+T*
+(  - Jurisdiction: United States) Tj
+T*
+(  - Practice area: copyright and software) Tj
+T*
+(  - Risk posture: startup decision support, not legal advice) Tj
+T*
+(  - Authority hierarchy: statute, binding_case_law, agency_guidance, persuasive_case_law,) Tj
+T*
+(secondary_source, expert_analysis) Tj
+T*
+(  - Required source types: statute, case_law, agency_guidance) Tj
+T*
+ET
+endstream
+endobj
+11 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 12
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000133 00000 n 
+0000000260 00000 n 
+0000000387 00000 n 
+0000000514 00000 n 
+0000000642 00000 n 
+0000004010 00000 n 
+0000006745 00000 n 
+0000009082 00000 n 
+0000009603 00000 n 
+trailer
+<< /Size 12 /Root 1 0 R >>
+startxref
+9674
+%%EOF
