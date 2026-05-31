@@ -1,0 +1,44 @@
+[
+  {
+    "source_id": "source_001",
+    "title": "warranty | Wex | US Law | LII / Legal Information Institute",
+    "url": "https://www.law.cornell.edu/wex/warranty",
+    "source_type": "case_law",
+    "excerpt": "Help out Give Sponsor Advertise Create Promote Join Lawyer Directory LII Wex warranty warranty In general, a warranty is a promise, assurance, or statement made by the warrantor regarding the existence or accuracy of specific facts or the condition, quality, quantity, or nature of a good or property.",
+    "supports": [
+      "h001",
+      "h002",
+      "h003"
+    ],
+    "contradicts": [],
+    "reliability": 0.95
+  },
+  {
+    "source_id": "source_002",
+    "title": "misrepresentation | Wex | US Law | LII / Legal Information Institute",
+    "url": "https://www.law.cornell.edu/wex/misrepresentation",
+    "source_type": "case_law",
+    "excerpt": "175 (2015) , the Court ruled that opinions such as \u201cwe believe\u201d can be actionable if the speaker does not sincerely hold the belief or if the statement includes false implied facts.",
+    "supports": [
+      "h001",
+      "h002",
+      "h003"
+    ],
+    "contradicts": [],
+    "reliability": 0.95
+  },
+  {
+    "source_id": "source_003",
+    "title": "\u00a7 2-313. Express Warranties by Affirmation, Promise, Description, Sample. | Uniform Commercial Code | US Law | LII / Legal Information Institute",
+    "url": "https://www.law.cornell.edu/ucc/2/2-313",
+    "source_type": "uniform_code",
+    "excerpt": "(2) It is not necessary to the creation of an express warranty that the seller use formal words such as \"warrant\" or \"guarantee\" or that he have a specific intention to make a warranty, but an affirmation merely of the value of the goods or a statement purporting to be merely the seller's opinion or commendation of the goods does not create a warranty.",
+    "supports": [
+      "h001",
+      "h002",
+      "h003"
+    ],
+    "contradicts": [],
+    "reliability": 0.95
+  }
+]

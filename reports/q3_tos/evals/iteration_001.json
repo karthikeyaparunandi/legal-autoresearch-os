@@ -1,0 +1,21 @@
+{
+  "iteration": 1,
+  "objective_completion": 0.5,
+  "evidence_coverage": 0.6,
+  "source_diversity": 0.5,
+  "primary_authority_coverage": 0.67,
+  "contradiction_resolution": 1.0,
+  "citation_grounding": 0.33,
+  "mean_claim_confidence": 0.6,
+  "weakest_claim_confidence": 0.0,
+  "confidence_stability": 0.0,
+  "open_question_penalty": 0.2,
+  "blocked_source_penalty": 0.0,
+  "confidence_cap": 0.82,
+  "open_question_count": 4,
+  "overall_confidence": 0.29,
+  "deterministic_confidence": 0.36,
+  "llm_scoring_enabled": true,
+  "llm_score_adjustment": -0.07,
+  "llm_score_rationale": "Reduce score because the claims do not meaningfully answer the objective and the cited excerpts fail to support them. c001 (rated supported) relies on an irrelevant LII \u201cwarranty\u201d excerpt rather than the controlling contract and online-consent authorities (e.g., ProCD v. Zeidenberg; Specht v. Netscape; Nguyen v. Barnes & Noble) about browsewrap vs. clickwrap, conspicuousness, and assent. c002 is unsubstantiated (no sources) despite claiming critical follow-up questions; this is a material omissi"
+}

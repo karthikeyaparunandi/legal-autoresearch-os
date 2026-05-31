@@ -1,0 +1,39 @@
+[
+  {
+    "source_id": "source_001",
+    "title": "warranty | Wex | US Law | LII / Legal Information Institute",
+    "url": "https://www.law.cornell.edu/wex/warranty",
+    "source_type": "case_law",
+    "excerpt": "In contracts , a warranty is a stipulation that makes part of the contract.",
+    "supports": [
+      "h001",
+      "h003"
+    ],
+    "contradicts": [],
+    "reliability": 0.92
+  },
+  {
+    "source_id": "source_002",
+    "title": "misrepresentation | Wex | US Law | LII / Legal Information Institute",
+    "url": "https://www.law.cornell.edu/wex/misrepresentation",
+    "source_type": "case_law",
+    "excerpt": "Forms of Misrepresentation A misrepresentation may occur through an affirmative false statement, a half-truth, or a failure to disclose material facts when there is a duty to speak.",
+    "supports": [
+      "h003"
+    ],
+    "contradicts": [],
+    "reliability": 0.92
+  },
+  {
+    "source_id": "source_003",
+    "title": "\u00a7 2-313. Express Warranties by Affirmation, Promise, Description, Sample. | Uniform Commercial Code | US Law | LII / Legal Information Institute",
+    "url": "https://www.law.cornell.edu/ucc/2/2-313",
+    "source_type": "uniform_code",
+    "excerpt": "(1) Express warranties by the seller are created as follows: (a) Any affirmation of fact or promise made by the seller to the buyer which relates to the goods and becomes part of the basis of the bargain creates an express warranty that the goods shall conform to the affirmation or promise.",
+    "supports": [
+      "h003"
+    ],
+    "contradicts": [],
+    "reliability": 0.84
+  }
+]

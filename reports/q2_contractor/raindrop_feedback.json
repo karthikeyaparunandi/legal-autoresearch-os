@@ -1,0 +1,28 @@
+{
+  "agent": "raindrop_feedback_agent",
+  "verdict": "plateaued",
+  "summary": "The run stopped because confidence and evidence coverage stopped improving.",
+  "trace_focus": [
+    "evaluator_agent",
+    "knowledge_gap_detector",
+    "auto_tuner"
+  ],
+  "findings": [
+    "3 open question(s) remained.",
+    "Final confidence was 63%, below the default 85% target."
+  ],
+  "recommendations": [
+    "Increase max iterations or add seed/source material for the unresolved gaps.",
+    "Inspect evaluator_agent and knowledge_gap_detector spans to see which quality gate failed."
+  ],
+  "next_run": {
+    "enable_live_retrieval": false,
+    "increase_max_iterations": true,
+    "add_source_urls": false,
+    "inspect_spans": [
+      "evaluator_agent",
+      "knowledge_gap_detector",
+      "auto_tuner"
+    ]
+  }
+}

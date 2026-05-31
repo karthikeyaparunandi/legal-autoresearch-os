@@ -41,6 +41,17 @@ PYTHONPATH=src .venv/bin/python scripts/legalbench/single_shot.py \
 ```
 → `legalbench_runs/single_shot/summary_<task>.json` + `findings_<task>.md`
 
+## 2a-jason. Jason agent benchmark
+
+Runs Jason's truth-repo loop for each item, then maps Jason's report to the
+LegalBench label set with the requested model.
+
+```bash
+PYTHONPATH=src .venv/bin/python scripts/legalbench/jason_agent.py \
+    --task hearsay --model gpt-5.5 --concurrency 24
+```
+→ `legalbench_runs/jason_agent/summary_<task>.json` + `findings_<task>.md`
+
 ## 2b. With-research comparison (AutoResearch OS vs direct baseline)
 
 Runs BOTH conditions per item and scores them head-to-head. The agent makes
@@ -68,6 +79,7 @@ PYTHONPATH=src .venv/bin/python scripts/legalbench/final_report.py --task hearsa
 | `tasks.py` | Task registry: labels, goal/seed templates per LegalBench task |
 | `download.py` | Balanced sampler via HF datasets-server (no `datasets` lib) |
 | `single_shot.py` | One model call per question → label (no-research benchmark) |
+| `jason_agent.py` | Jason truth-repo loop + constrained label adapter |
 | `compare_hearsay.py` | AutoResearch OS + adapter vs direct baseline, paired per item |
 | `run_benchmark.py` | Full-agent run over the 4-task mix (adapter scoring) |
 | `final_report.py` | Merge single-shot + compare summaries into one report |

@@ -1,0 +1,20 @@
+[
+  {
+    "hypothesis_id": "h001",
+    "statement": "In the United States, authoritative resolution of whether non\u2011compete agreements are enforceable depends on primary law\u2014state statutes and state supreme/court of appeals decisions\u2014and recent federal action (statute or agency rule); therefore high\u2011confidence conclusions require citing the controlling state authority and any binding federal developments; uncertainty: outcomes are state\u2011specific and time\u2011sensitive (legislative changes or pending federal litigation may alter enforceability).",
+    "rationale": "Primary sources (state statutes and controlling appellate decisions) govern enforceability; federal statutes or agency rules can preempt or change enforcement but are subject to judicial review, so source quality and currency determine research confidence.",
+    "status": "open"
+  },
+  {
+    "hypothesis_id": "h002",
+    "statement": "Apparent contradictions among sources (e.g., differing state statutes, conflicting state appellate rulings, or a federal rule in flux) will reveal the most important follow\u2011up questions: which jurisdiction controls, which authority is highest in that jurisdiction, whether exceptions apply (sale of business, trade secrets, executives), and whether any federal action preempts state law; uncertainty: expect doctrinal splits across states and evolving case law/statutes.",
+    "rationale": "Identifying conflicts pinpoints where jurisdictional choice, authority hierarchy, and statutory exceptions matter most and directs targeted research to controlling precedent and legislative history.",
+    "status": "open"
+  },
+  {
+    "hypothesis_id": "h003",
+    "statement": "A sufficient, decision\u2011grade answer must state enforceability by jurisdiction with citations to controlling state statutes and highest\u2011court rulings, note common exceptions and enforcement practices, and quantify uncertainty (confidence level per state, date of last authoritative change, and dependencies such as employee category or choice\u2011of\u2011law); authority level: state legislative and appellate authorities primary, supplemented by federal developments.",
+    "rationale": "Decision\u2011quality legal conclusions require jurisdiction\u2011specific primary authorities, transparent limits and confidence assessments, and explicit identification of factual or doctrinal factors that could change the outcome.",
+    "status": "open"
+  }
+]

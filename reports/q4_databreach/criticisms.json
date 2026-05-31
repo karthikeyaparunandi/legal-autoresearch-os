@@ -1,0 +1,8 @@
+[
+  "c002: no supporting evidence yet.",
+  "c002: confidence below support threshold (0%).",
+  "c001: Supporting sources are generic labels (source_001, etc.)\u2014no shown controlling primary authority (statute, binding appellate/supreme precedent, or agency enforcement) or jurisdictional specification to substantiate the 0.89 confidence.",
+  "c001: Claim asserts quality-over-quantity but provides no mapping from named sources to controlling-authority hierarchy; risk of circular support if sources are secondary or nonbinding.",
+  "c002: No supporting sources and 0.0 confidence\u2014this is an unresolved checklist rather than researched conclusions; per learned skill, scope contradictions should be identified before leaving issues open.",
+  "c002: The listed follow-up questions (duty type, foreseeability/proximate cause definitions, contract effects, standing) lack cited primary authorities or jurisdictional framing and therefore do not guide decisive legal analysis."
+]

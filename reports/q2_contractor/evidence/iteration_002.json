@@ -1,0 +1,44 @@
+[
+  {
+    "source_id": "source_001",
+    "title": "warranty | Wex | US Law | LII / Legal Information Institute",
+    "url": "https://www.law.cornell.edu/wex/warranty",
+    "source_type": "case_law",
+    "excerpt": "In contracts , a warranty is a stipulation that makes part of the contract.",
+    "supports": [
+      "h001",
+      "h002",
+      "h003"
+    ],
+    "contradicts": [],
+    "reliability": 0.92
+  },
+  {
+    "source_id": "source_002",
+    "title": "misrepresentation | Wex | US Law | LII / Legal Information Institute",
+    "url": "https://www.law.cornell.edu/wex/misrepresentation",
+    "source_type": "case_law",
+    "excerpt": "Forms of Misrepresentation A misrepresentation may occur through an affirmative false statement, a half-truth, or a failure to disclose material facts when there is a duty to speak.",
+    "supports": [
+      "h001",
+      "h002",
+      "h003"
+    ],
+    "contradicts": [],
+    "reliability": 0.95
+  },
+  {
+    "source_id": "source_003",
+    "title": "\u00a7 2-313. Express Warranties by Affirmation, Promise, Description, Sample. | Uniform Commercial Code | US Law | LII / Legal Information Institute",
+    "url": "https://www.law.cornell.edu/ucc/2/2-313",
+    "source_type": "uniform_code",
+    "excerpt": "(2) It is not necessary to the creation of an express warranty that the seller use formal words such as \"warrant\" or \"guarantee\" or that he have a specific intention to make a warranty, but an affirmation merely of the value of the goods or a statement purporting to be merely the seller's opinion or commendation of the goods does not create a warranty.",
+    "supports": [
+      "h001",
+      "h002",
+      "h003"
+    ],
+    "contradicts": [],
+    "reliability": 0.9
+  }
+]

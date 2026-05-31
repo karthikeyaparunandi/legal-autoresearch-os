@@ -1,0 +1,86 @@
+[
+  {
+    "task_id": "t001",
+    "title": "What legal issue is raised by: How enforceable are terms of service agreements w",
+    "question": "What legal issue is raised by: How enforceable are terms of service agreements when users do not actively click \"I agree\"??",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "task_id": "t002",
+    "title": "Which jurisdiction, governing law, and authority hierarchy control the analysis",
+    "question": "Which jurisdiction, governing law, and authority hierarchy control the analysis?",
+    "depends_on": [
+      "t001"
+    ],
+    "status": "pending"
+  },
+  {
+    "task_id": "t003",
+    "title": "Which primary legal authorities support or contradict the likely answer",
+    "question": "Which primary legal authorities support or contradict the likely answer?",
+    "depends_on": [
+      "t001"
+    ],
+    "status": "pending"
+  },
+  {
+    "task_id": "t004",
+    "title": "What practical legal risks, compliance duties, or liability exposure follow",
+    "question": "What practical legal risks, compliance duties, or liability exposure follow?",
+    "depends_on": [
+      "t001"
+    ],
+    "status": "pending"
+  },
+  {
+    "task_id": "t005",
+    "title": "Which unsettled legal questions or factual assumptions could change the answer",
+    "question": "Which unsettled legal questions or factual assumptions could change the answer?",
+    "depends_on": [
+      "t001"
+    ],
+    "status": "pending"
+  },
+  {
+    "task_id": "t006",
+    "title": "Synthesize grounded answer",
+    "question": "Which answer is best supported once claims, evidence, and contradictions are considered?",
+    "depends_on": [
+      "t001",
+      "t002",
+      "t003",
+      "t004",
+      "t005"
+    ],
+    "status": "pending"
+  },
+  {
+    "task_id": "t007",
+    "title": "Resolve knowledge gap",
+    "question": "What additional authoritative evidence would resolve claim c002: Apparent contradictions among authorities will identify the critical follow-up questions needed to resolve enforceability\u2014primarily whether notice was reasonably conspicuous, whether user conduct manifestly indicated assent, and which contractual form (browsewrap, clickwrap, sign-in wrap) was at issue.",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "task_id": "t008",
+    "title": "Resolve knowledge gap",
+    "question": "Are all program subquestions represented by explicit claims?",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "task_id": "t009",
+    "title": "Resolve knowledge gap",
+    "question": "Critic follow-up: c002: no supporting evidence yet.",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "task_id": "t010",
+    "title": "Resolve knowledge gap",
+    "question": "Critic follow-up: c002: confidence below support threshold (0%).",
+    "depends_on": [],
+    "status": "pending"
+  }
+]

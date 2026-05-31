@@ -1,0 +1,20 @@
+[
+  {
+    "hypothesis_id": "h001",
+    "statement": "Whether a company is liable for a vendor-caused data breach depends primarily on the quality and authoritativeness of controlling sources (applicable statutes, binding appellate/supreme court precedent, and agency enforcement decisions) in the relevant jurisdiction, rather than the sheer number of sources.",
+    "rationale": "Jurisdiction: specify target U.S. state or federal forum. Authority level: binding primary authorities (statute, controlling case law, regulator orders) have priority; persuasive secondary or out\u2011of\u2011jurisdiction decisions lower weight. Uncertainty boundaries: if controlling authority is absent or ambiguous, outcome becomes fact-intensive (duty, foreseeability, contract allocation, regulatory standard of care); flag as low/medium/high confidence tied to presence of controlling authority and factual gaps.",
+    "status": "open"
+  },
+  {
+    "hypothesis_id": "h002",
+    "statement": "Identified contradictions among statutes, case law, and regulator guidance will reveal the decisive follow\u2011up questions (e.g., whether duty is statutory or common law, how foreseeability and proximate cause are defined, the effect of contractual indemnities and notice clauses, and standing for injured parties).",
+    "rationale": "Jurisdiction: U.S. state and federal sources may conflict. Authority level: resolve by following binding hierarchy (local controlling case law > state statutes > federal statutes where preemption applies > agency guidance). Uncertainty boundaries: where binding authorities conflict or are silent, expect fact-specific adjudication and regulatory discretion; list required factual inquiries and note confidence ranges contingent on resolving the conflict.",
+    "status": "open"
+  },
+  {
+    "hypothesis_id": "h003",
+    "statement": "A sufficient research answer must state the conclusion and explicitly identify its limits: the precise jurisdiction(s) analyzed, the controlling authorities relied on, the legal standards/burden of proof, the material factual predicates, and a quantified uncertainty assessment tied to source quality.",
+    "rationale": "Jurisdiction: always specify which state(s)/federal forum(s) govern. Authority level: cite controlling statutes/cases and note persuasive authorities used. Uncertainty boundaries: enumerate missing facts and legal ambiguities required to change the conclusion and provide a confidence level (e.g., high/medium/low) with justification based on source authority and factual completeness.",
+    "status": "open"
+  }
+]

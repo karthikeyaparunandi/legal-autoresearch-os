@@ -1,0 +1,20 @@
+[
+  {
+    "hypothesis_id": "h001",
+    "statement": "Enforceability of terms-of-service (ToS) provisions when users do not click an explicit \"I agree\" turns principally on controlling primary authorities (statutes and binding case law) and the specific notice/assent facts, so source quality matters more than source volume.",
+    "rationale": "Contract-formation doctrine (browsewrap vs. clickwrap), notice/conspicuity standards, and controlling precedents determine outcomes; therefore prioritize high-authority, on-point decisions over numerous low-value citations.",
+    "status": "open"
+  },
+  {
+    "hypothesis_id": "h002",
+    "statement": "Apparent contradictions among authorities will identify the critical follow-up questions needed to resolve enforceability\u2014primarily whether notice was reasonably conspicuous, whether user conduct manifestly indicated assent, and which contractual form (browsewrap, clickwrap, sign-in wrap) was at issue.",
+    "rationale": "Differences in holdings typically reflect distinct fact patterns or legal tests; mapping those distinctions pinpoints what additional factual or jurisdictional research is necessary.",
+    "status": "open"
+  },
+  {
+    "hypothesis_id": "h003",
+    "statement": "A decision-grade answer must state the legal standards, identify jurisdictional splits and limiting facts, and quantify uncertainty rather than offering just a binary conclusion about enforceability.",
+    "rationale": "Practically useful research requires actionable limits (which facts matter, how strongly they influence outcomes, and where legal uncertainty remains) so clients can assess risk and fact-gathering priorities.",
+    "status": "open"
+  }
+]

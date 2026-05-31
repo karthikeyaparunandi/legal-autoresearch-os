@@ -1,0 +1,41 @@
+[
+  {
+    "claim_id": "c001",
+    "claim": "For a U.S. startup, assessing legal risk from classifying workers as independent contractors depends primarily on high-authority sources in the relevant jurisdiction (federal statutes and agencies like DOL/IRS, state statutes and supreme/appellate decisions) rather than the number of secondary sources; source quality determines the controlling test (e.g., IRS common-law, DOL economic\u2011realities, state ABC/Borello variants).",
+    "supporting_sources": [
+      "source_001",
+      "source_002",
+      "source_003"
+    ],
+    "contradicting_sources": [],
+    "confidence": 0.95,
+    "status": "supported",
+    "objective_refs": []
+  },
+  {
+    "claim_id": "c002",
+    "claim": "Conflicting authority or tests (e.g., differing federal agency standards, divergent state tests, or split appellate rulings) will reveal the critical follow\u2011up questions: which jurisdiction and authority controls, which legal test applies to the worker facts, what factual issues are determinative (control, opportunity for profit, permanency), and whether past enforcement or private litigation trends increase exposure.",
+    "supporting_sources": [
+      "source_001",
+      "source_002",
+      "source_003"
+    ],
+    "contradicting_sources": [],
+    "confidence": 0.95,
+    "status": "supported",
+    "objective_refs": []
+  },
+  {
+    "claim_id": "c003",
+    "claim": "A decision\u2011grade answer must (1) specify jurisdiction(s) and governing authorities, (2) identify applicable legal tests and predicates for liability (statutory penalties, back wages, payroll taxes, interest, civil/administrative fines), (3) state assumptions and factual gaps, and (4) provide an uncertainty/confidence range tied to source authority levels and fact sensitivity.",
+    "supporting_sources": [
+      "source_001",
+      "source_002",
+      "source_003"
+    ],
+    "contradicting_sources": [],
+    "confidence": 0.95,
+    "status": "supported",
+    "objective_refs": []
+  }
+]

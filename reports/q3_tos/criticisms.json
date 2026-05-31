@@ -1,0 +1,8 @@
+[
+  "c002: no supporting evidence yet.",
+  "c002: confidence below support threshold (0%).",
+  "c001: Overrelies on a single supporting source (source_001); lacks citations to controlling statutes or leading appellate decisions and fails to specify applicable jurisdiction(s) and key notice/assent facts.",
+  "c002: Unsupported\u2014no primary authority cited and confidence=0; must supply governing cases (e.g., browsewrap vs. clickwrap precedent), concrete factual permutations, and concrete follow-up questions before claiming contradictions resolve enforceability issues.",
+  "c003: Although supported by multiple sources, it does not identify which are primary authorities versus secondary commentary, nor does it map jurisdictional splits or quantify uncertainty with conditional findings tied to facts.",
+  "All claims: objective_refs arrays are empty\u2014add jurisdiction-tagged statutes and binding case law for each claim rather than relying on unlabeled sources."
+]

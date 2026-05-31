@@ -1,0 +1,21 @@
+{
+  "iteration": 3,
+  "objective_completion": 0.5,
+  "evidence_coverage": 0.6,
+  "source_diversity": 0.33,
+  "primary_authority_coverage": 0.67,
+  "contradiction_resolution": 1.0,
+  "citation_grounding": 0.67,
+  "mean_claim_confidence": 0.59,
+  "weakest_claim_confidence": 0.0,
+  "confidence_stability": 0.99,
+  "open_question_penalty": 0.2,
+  "blocked_source_penalty": 0.0,
+  "confidence_cap": 0.82,
+  "open_question_count": 4,
+  "overall_confidence": 0.38,
+  "deterministic_confidence": 0.44,
+  "llm_scoring_enabled": true,
+  "llm_score_adjustment": -0.06,
+  "llm_score_rationale": "Overall the claims do not substantively answer the objective and the cited excerpts do not support the claims. c001 is methodological but its supporting sources (warranty, misrepresentation, UCC \u00a72-313) are not on point to third-party vendor/data-breach liability (negligence, vicarious liability, statutory duties, FTC enforcement). c002 is materially unsupported (no sources; confidence 0.0) despite being central to the legal analysis. c003 likewise cites irrelevant LII/UCC excerpts for a methodo"
+}

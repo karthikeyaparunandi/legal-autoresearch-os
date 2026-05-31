@@ -1,0 +1,21 @@
+{
+  "iteration": 2,
+  "objective_completion": 0.5,
+  "evidence_coverage": 0.6,
+  "source_diversity": 0.4,
+  "primary_authority_coverage": 0.67,
+  "contradiction_resolution": 1.0,
+  "citation_grounding": 0.67,
+  "mean_claim_confidence": 0.59,
+  "weakest_claim_confidence": 0.0,
+  "confidence_stability": 0.99,
+  "open_question_penalty": 0.2,
+  "blocked_source_penalty": 0.0,
+  "confidence_cap": 0.82,
+  "open_question_count": 4,
+  "overall_confidence": 0.38,
+  "deterministic_confidence": 0.45,
+  "llm_scoring_enabled": true,
+  "llm_score_adjustment": -0.07,
+  "llm_score_rationale": "The research overstates support and omits controlling authority for the objective. Claims c001 and c003 rely on LII Wex/UCC excerpts about warranties and misrepresentation (e.g., UCC \u00a72-313, warranty and misrepresentation definitions) that do not address corporate liability for vendor-caused data breaches, jurisdictional duties, foreseeability/proximate cause, indemnities, or standing. Claim c002 is unsubstantiated (no sources, zero confidence). Material controlling authorities (statutes, bindin"
+}

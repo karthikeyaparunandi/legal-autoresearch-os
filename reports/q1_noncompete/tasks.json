@@ -1,0 +1,107 @@
+[
+  {
+    "task_id": "t001",
+    "title": "What legal issue is raised by: Can non-compete agreements still be enforced in t",
+    "question": "What legal issue is raised by: Can non-compete agreements still be enforced in the United States, and how do state laws differ??",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "task_id": "t002",
+    "title": "Which jurisdiction, governing law, and authority hierarchy control the analysis",
+    "question": "Which jurisdiction, governing law, and authority hierarchy control the analysis?",
+    "depends_on": [
+      "t001"
+    ],
+    "status": "pending"
+  },
+  {
+    "task_id": "t003",
+    "title": "Which primary legal authorities support or contradict the likely answer",
+    "question": "Which primary legal authorities support or contradict the likely answer?",
+    "depends_on": [
+      "t001"
+    ],
+    "status": "pending"
+  },
+  {
+    "task_id": "t004",
+    "title": "What practical legal risks, compliance duties, or liability exposure follow",
+    "question": "What practical legal risks, compliance duties, or liability exposure follow?",
+    "depends_on": [
+      "t001"
+    ],
+    "status": "pending"
+  },
+  {
+    "task_id": "t005",
+    "title": "Which unsettled legal questions or factual assumptions could change the answer",
+    "question": "Which unsettled legal questions or factual assumptions could change the answer?",
+    "depends_on": [
+      "t001"
+    ],
+    "status": "pending"
+  },
+  {
+    "task_id": "t006",
+    "title": "Synthesize grounded answer",
+    "question": "Which answer is best supported once claims, evidence, and contradictions are considered?",
+    "depends_on": [
+      "t001",
+      "t002",
+      "t003",
+      "t004",
+      "t005"
+    ],
+    "status": "pending"
+  },
+  {
+    "task_id": "t007",
+    "title": "Resolve knowledge gap",
+    "question": "Are all program subquestions represented by explicit claims?",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "task_id": "t008",
+    "title": "Resolve knowledge gap",
+    "question": "Critic follow-up: Supporting sources are placeholders (e.g., source_001) rather than primary authorities; claims lack citations to specific state statutes, state supreme/court of appeals decisions, or identified federal rules or opinions.",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "task_id": "t009",
+    "title": "Resolve knowledge gap",
+    "question": "Critic follow-up: Time\u2011sensitivity is noted but not operationalized: no dates for last authoritative change, no citation to pending federal litigation or enacted/struck federal rules (e.g., FTC rule developments), leaving practical reliability unquantified.",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "task_id": "t010",
+    "title": "Resolve knowledge gap",
+    "question": "Critic follow-up: Claim c001: Good framing but lacks citation to controlling primary authorities\u2014supporting_sources are placeholders (source_001, etc.) rather than specific state statutes, state supreme/court of appeals decisions, or identified federal statutes/agency rules; time-sensitivity noted but not dated.",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "task_id": "t011",
+    "title": "Resolve knowledge gap",
+    "question": "Critic follow-up: Claim c002: Identifies relevant follow\u2011up questions but fails to specify how to determine which jurisdiction 'controls' (choice\u2011of\u2011law rules) or whether federal preemption applies; contradictions should be scoped to a particular jurisdiction before left 'unresolved.'",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "task_id": "t012",
+    "title": "Resolve knowledge gap",
+    "question": "Critic follow-up: Claims rely on high-level descriptions without citing controlling primary authorities (specific state statutes and leading state high-court or court-of-appeals decisions); add jurisdiction-by-jurisdiction citations.",
+    "depends_on": [],
+    "status": "pending"
+  },
+  {
+    "task_id": "t013",
+    "title": "Resolve knowledge gap",
+    "question": "Critic follow-up: Reference to \u201crecent federal action (statute or agency rule)\u201d is too vague\u2014identify the specific federal statute or agency rule and its current legal status (e.g., challenged, enjoined, vacated) and cite primary federal decisions or dockets.",
+    "depends_on": [],
+    "status": "pending"
+  }
+]

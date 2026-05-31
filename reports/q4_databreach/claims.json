@@ -1,0 +1,37 @@
+[
+  {
+    "claim_id": "c001",
+    "claim": "Whether a company is liable for a vendor-caused data breach depends primarily on the quality and authoritativeness of controlling sources (applicable statutes, binding appellate/supreme court precedent, and agency enforcement decisions) in the relevant jurisdiction, rather than the sheer number of sources.",
+    "supporting_sources": [
+      "source_001",
+      "source_002",
+      "source_003"
+    ],
+    "contradicting_sources": [],
+    "confidence": 0.89,
+    "status": "supported",
+    "objective_refs": []
+  },
+  {
+    "claim_id": "c002",
+    "claim": "Identified contradictions among statutes, case law, and regulator guidance will reveal the decisive follow\u2011up questions (e.g., whether duty is statutory or common law, how foreseeability and proximate cause are defined, the effect of contractual indemnities and notice clauses, and standing for injured parties).",
+    "supporting_sources": [],
+    "contradicting_sources": [],
+    "confidence": 0.0,
+    "status": "weak",
+    "objective_refs": []
+  },
+  {
+    "claim_id": "c003",
+    "claim": "A sufficient research answer must state the conclusion and explicitly identify its limits: the precise jurisdiction(s) analyzed, the controlling authorities relied on, the legal standards/burden of proof, the material factual predicates, and a quantified uncertainty assessment tied to source quality.",
+    "supporting_sources": [
+      "source_001",
+      "source_002",
+      "source_003"
+    ],
+    "contradicting_sources": [],
+    "confidence": 0.89,
+    "status": "supported",
+    "objective_refs": []
+  }
+]

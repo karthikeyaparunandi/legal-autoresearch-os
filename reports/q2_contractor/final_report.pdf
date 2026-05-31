@@ -1,0 +1,393 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 4 0 R 5 0 R 6 0 R] /Count 4 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 11 0 R >> >> /Contents 7 0 R >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 11 0 R >> >> /Contents 8 0 R >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 11 0 R >> >> /Contents 9 0 R >>
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 11 0 R >> >> /Contents 10 0 R >>
+endobj
+7 0 obj
+<< /Length 3352 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(Legal AutoResearch OS Research Report) Tj
+T*
+() Tj
+T*
+(LEGAL RESEARCH REPORT) Tj
+T*
+() Tj
+T*
+(QUESTION PRESENTED) Tj
+T*
+(What legal risks does a startup face when classifying workers as independent contractors) Tj
+T*
+(instead of employees?) Tj
+T*
+() Tj
+T*
+(SHORT ANSWER) Tj
+T*
+(Based on the cited authorities, the answer is supported at 63% confidence: For a U.S.) Tj
+T*
+(startup, assessing legal risk from classifying workers as independent contractors depends) Tj
+T*
+(primarily on high-authority sources in the relevant jurisdiction \(federal statutes and) Tj
+T*
+(agencies like DOL/IRS, state statutes and supreme/appellate decisions\) rather than the) Tj
+T*
+(number of secondary sources; source quality determines the controlling test \(e.g., IRS) Tj
+T*
+(common-law, DOL economic?realities, state ABC/Borello variants\). [1] [2] [3] Conflicting) Tj
+T*
+(authority or tests \(e.g., differing federal agency standards, divergent state tests, or) Tj
+T*
+(split appellate rulings\) will reveal the critical follow?up questions: which jurisdiction) Tj
+T*
+(and authority controls, which legal test applies to the worker facts, what factual issues) Tj
+T*
+(are determinative \(control, opportunity for profit, permanency\), and whether past) Tj
+T*
+(enforcement or private litigation trends increase exposure. [1] [2] [3]) Tj
+T*
+() Tj
+T*
+(KEY FINDINGS) Tj
+T*
+(1. For a U.S. startup, assessing legal risk from classifying workers as independent) Tj
+T*
+(contractors depends primarily on high-authority sources in the relevant jurisdiction) Tj
+T*
+(\(federal statutes and agencies like DOL/IRS, state statutes and supreme/appellate decisions\)) Tj
+T*
+(rather than the number of secondary sources; source quality determines the controlling test) Tj
+T*
+(\(e.g., IRS common-law, DOL economic?realities, state ABC/Borello variants\). \(95% confidence;) Tj
+T*
+([1], [2], [3]\).) Tj
+T*
+(2. Conflicting authority or tests \(e.g., differing federal agency standards, divergent state) Tj
+T*
+(tests, or split appellate rulings\) will reveal the critical follow?up questions: which) Tj
+T*
+(jurisdiction and authority controls, which legal test applies to the worker facts, what) Tj
+T*
+(factual issues are determinative \(control, opportunity for profit, permanency\), and whether) Tj
+T*
+(past enforcement or private litigation trends increase exposure. \(95% confidence; [1], [2],) Tj
+T*
+([3]\).) Tj
+T*
+(3. A decision?grade answer must \(1\) specify jurisdiction\(s\) and governing authorities, \(2\)) Tj
+T*
+(identify applicable legal tests and predicates for liability \(statutory penalties, back) Tj
+T*
+(wages, payroll taxes, interest, civil/administrative fines\), \(3\) state assumptions and) Tj
+T*
+(factual gaps, and \(4\) provide an uncertainty/confidence range tied to source authority) Tj
+T*
+(levels and fact sensitivity. \(95% confidence; [1], [2], [3]\).) Tj
+T*
+() Tj
+T*
+(REASONING RATIONALE) Tj
+T*
+(The system generated hypotheses, collected legal evidence, criticized the claims for) Tj
+T*
+(contradictions, evaluated citation grounding and source quality, then repeated the loop) Tj
+T*
+(until the research state stopped improving or satisfied the configured objectives.) Tj
+T*
+() Tj
+T*
+(SOURCES) Tj
+T*
+(  - [1] warranty    Wex    US Law    LII / Legal Information Institute.) Tj
+T*
+(https://www.law.cornell.edu/wex/warranty) Tj
+T*
+ET
+endstream
+endobj
+8 0 obj
+<< /Length 2650 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(  - [2] misrepresentation    Wex    US Law    LII / Legal Information Institute.) Tj
+T*
+(https://www.law.cornell.edu/wex/misrepresentation) Tj
+T*
+(  - [3] § 2-313. Express Warranties by Affirmation, Promise, Description, Sample.    Uniform) Tj
+T*
+(Commercial Code    US Law    LII / Legal Information Institute.) Tj
+T*
+(https://www.law.cornell.edu/ucc/2/2-313) Tj
+T*
+() Tj
+T*
+(OPEN QUESTIONS) Tj
+T*
+(  - Are all program subquestions represented by explicit claims?) Tj
+T*
+(  - Critic follow-up: Claims cite only opaque labels \(source_001?003\) rather than specific) Tj
+T*
+(primary authorities ? provide statutes, regulations, agency rulings, and controlling) Tj
+T*
+(state/appellate cases \(e.g., IRC/DOL regs, Dynamex/Borello, key circuit decisions\).) Tj
+T*
+(  - Critic follow-up: Claim c001 overgeneralizes: jurisdiction-specific tests differ) Tj
+T*
+(materially \(IRS common-law, DOL economic realities, California ABC/Dynamex\). The claim) Tj
+T*
+(should identify which jurisdiction\(s\) control and cite the controlling texts/cases.) Tj
+T*
+() Tj
+T*
+(RAINDROP FEEDBACK) Tj
+T*
+(  - Verdict: plateaued) Tj
+T*
+(  - Summary: The run stopped because confidence and evidence coverage stopped improving.) Tj
+T*
+(  - Trace focus: evaluator_agent, knowledge_gap_detector, auto_tuner) Tj
+T*
+() Tj
+T*
+(Recommended Next Steps) Tj
+T*
+(  - Increase max iterations or add seed/source material for the unresolved gaps.) Tj
+T*
+(  - Inspect evaluator_agent and knowledge_gap_detector spans to see which quality gate) Tj
+T*
+(failed.) Tj
+T*
+() Tj
+T*
+(APPENDIX: RESEARCH TRACE) Tj
+T*
+(  - Overall confidence: 63%) Tj
+T*
+(  - Deterministic confidence: 70%) Tj
+T*
+(  - LLM scoring adjustment: -7%) Tj
+T*
+(  - Objective completion: 75%) Tj
+T*
+(  - Evidence coverage: 60%) Tj
+T*
+(  - Citation grounding: 100%) Tj
+T*
+(  - Primary authority coverage: 100%) Tj
+T*
+(  - Contradiction resolution: 100%) Tj
+T*
+(  - Mean claim confidence: 95%) Tj
+T*
+() Tj
+T*
+(LLM Scoring Audit) Tj
+T*
+(The claimed conclusions about how to assess independent-contractor risk are reasonable in) Tj
+T*
+(the abstract but the research evidence supplied does not support them. All three claims cite) Tj
+T*
+(unrelated excerpts \(warranty, misrepresentation, UCC §2-313\) rather than primary controlling) Tj
+T*
+(authorities \(IRS common-law test and guidance, DOL/FLSA economic?realities test and regs,) Tj
+T*
+(state precedents like Dynamex/Borello or controlling circuit/appellate decisions, and) Tj
+T*
+(statutes/regulations on taxes and penalties\). Th) Tj
+T*
+() Tj
+T*
+(Contradictions) Tj
+T*
+(  - No explicit contradictions detected.) Tj
+T*
+() Tj
+T*
+(All Claims) Tj
+T*
+ET
+endstream
+endobj
+9 0 obj
+<< /Length 2639 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(  - c001: For a U.S. startup, assessing legal risk from classifying workers as independent) Tj
+T*
+(contractors depends primarily on high-authority sources in the relevant jurisdiction) Tj
+T*
+(\(federal statutes and agencies like DOL/IRS, state statutes and supreme/appellate decisions\)) Tj
+T*
+(rather than the number of secondary sources; source quality determines the controlling test) Tj
+T*
+(\(e.g., IRS common-law, DOL economic?realities, state ABC/Borello variants\).) Tj
+T*
+(Status: supported; confidence: 95%; supporting sources: [1], [2], [3].) Tj
+T*
+(  - c002: Conflicting authority or tests \(e.g., differing federal agency standards,) Tj
+T*
+(divergent state tests, or split appellate rulings\) will reveal the critical follow?up) Tj
+T*
+(questions: which jurisdiction and authority controls, which legal test applies to the worker) Tj
+T*
+(facts, what factual issues are determinative \(control, opportunity for profit, permanency\),) Tj
+T*
+(and whether past enforcement or private litigation trends increase exposure.) Tj
+T*
+(Status: supported; confidence: 95%; supporting sources: [1], [2], [3].) Tj
+T*
+(  - c003: A decision?grade answer must \(1\) specify jurisdiction\(s\) and governing) Tj
+T*
+(authorities, \(2\) identify applicable legal tests and predicates for liability \(statutory) Tj
+T*
+(penalties, back wages, payroll taxes, interest, civil/administrative fines\), \(3\) state) Tj
+T*
+(assumptions and factual gaps, and \(4\) provide an uncertainty/confidence range tied to source) Tj
+T*
+(authority levels and fact sensitivity.) Tj
+T*
+(Status: supported; confidence: 95%; supporting sources: [1], [2], [3].) Tj
+T*
+() Tj
+T*
+(Metrics) Tj
+T*
+(  - Total runtime: 117.652 seconds) Tj
+T*
+(  - Iterations completed: 3) Tj
+T*
+(  - Agents spun off: 35) Tj
+T*
+(  - Tasks generated: 11) Tj
+T*
+(  - Hypotheses generated: 3) Tj
+T*
+(  - Evidence records collected: 3) Tj
+T*
+(  - Source categories: 2) Tj
+T*
+(  - Claims evaluated: 3) Tj
+T*
+(  - Supported claims: 3) Tj
+T*
+(  - Contradictions detected: 0) Tj
+T*
+(  - Contradictions resolved: 0) Tj
+T*
+(  - Open questions remaining: 3) Tj
+T*
+(  - Stop conditions met: False) Tj
+T*
+(  - Raindrop tracing: disabled) Tj
+T*
+() Tj
+T*
+(Agent Breakdown) Tj
+T*
+(  - program_generator: 1) Tj
+T*
+(  - planner_orchestrator: 1) Tj
+T*
+(  - hypothesis_agent: 1) Tj
+T*
+(  - hypothesis_refinement_agent: 0) Tj
+T*
+(  - web_search_agent: 3) Tj
+T*
+(  - academic_agent: 3) Tj
+T*
+(  - legal_agent: 3) Tj
+T*
+(  - company_intelligence_agent: 3) Tj
+T*
+(  - social_signal_agent: 3) Tj
+T*
+(  - extraction_agent: 3) Tj
+T*
+(  - critic_agent: 3) Tj
+T*
+(  - evaluator_agent: 3) Tj
+T*
+ET
+endstream
+endobj
+10 0 obj
+<< /Length 567 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(  - knowledge_gap_detector: 3) Tj
+T*
+(  - auto_tuner: 3) Tj
+T*
+(  - raindrop_feedback_agent: 1) Tj
+T*
+(  - report_generator: 1) Tj
+T*
+() Tj
+T*
+(LEGAL METADATA) Tj
+T*
+(  - Jurisdiction: United States) Tj
+T*
+(  - Practice area: copyright and software) Tj
+T*
+(  - Risk posture: startup decision support, not legal advice) Tj
+T*
+(  - Authority hierarchy: statute, binding_case_law, agency_guidance, persuasive_case_law,) Tj
+T*
+(secondary_source, expert_analysis) Tj
+T*
+(  - Required source types: statute, case_law, agency_guidance) Tj
+T*
+ET
+endstream
+endobj
+11 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 12
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000133 00000 n 
+0000000260 00000 n 
+0000000387 00000 n 
+0000000514 00000 n 
+0000000642 00000 n 
+0000004046 00000 n 
+0000006748 00000 n 
+0000009439 00000 n 
+0000010058 00000 n 
+trailer
+<< /Size 12 /Root 1 0 R >>
+startxref
+10129
+%%EOF

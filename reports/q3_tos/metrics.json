@@ -1,0 +1,339 @@
+{
+  "generated_at": "2026-05-31T00:11:00.509141+00:00",
+  "total_runtime_seconds": 131.951,
+  "component_metrics": {
+    "program_generation": {
+      "seconds": 0.0,
+      "agents": 1
+    },
+    "planning": {
+      "seconds": 0.0004,
+      "agents": 4
+    },
+    "hypothesis_generation": {
+      "seconds": 18.7993,
+      "agents": 1
+    },
+    "evidence_collection": {
+      "seconds": 46.4936,
+      "agents": 18
+    },
+    "claim_synthesis": {
+      "seconds": 0.0001,
+      "agents": 3
+    },
+    "critique": {
+      "seconds": 34.1249,
+      "agents": 3
+    },
+    "gap_detection": {
+      "seconds": 0.0001,
+      "agents": 3
+    },
+    "evaluation": {
+      "seconds": 32.5227,
+      "agents": 3
+    },
+    "auto_tuning": {
+      "seconds": 0.0001,
+      "agents": 3
+    },
+    "raindrop_feedback": {
+      "seconds": 0.0002,
+      "agents": 1
+    },
+    "report_generation": {
+      "seconds": 0.0017,
+      "agents": 1
+    }
+  },
+  "iteration_history": [
+    {
+      "iteration": 1,
+      "overall_confidence": 0.29,
+      "objective_completion": 0.5,
+      "evidence_coverage": 0.6,
+      "citation_grounding": 0.33,
+      "primary_authority_coverage": 0.67,
+      "mean_claim_confidence": 0.6,
+      "weakest_claim_confidence": 0.0,
+      "confidence_stability": 0.0,
+      "open_question_penalty": 0.2,
+      "blocked_source_penalty": 0.0,
+      "confidence_cap": 0.82,
+      "contradiction_resolution": 1.0,
+      "source_diversity": 0.5,
+      "evidence_count": 3,
+      "contradictions": 0,
+      "open_questions": 4,
+      "status": "Continue",
+      "stop_conditions_met": false
+    },
+    {
+      "iteration": 2,
+      "overall_confidence": 0.32,
+      "objective_completion": 0.5,
+      "evidence_coverage": 0.6,
+      "citation_grounding": 0.33,
+      "primary_authority_coverage": 0.67,
+      "mean_claim_confidence": 0.6,
+      "weakest_claim_confidence": 0.0,
+      "confidence_stability": 0.99,
+      "open_question_penalty": 0.2,
+      "blocked_source_penalty": 0.0,
+      "confidence_cap": 0.82,
+      "contradiction_resolution": 1.0,
+      "source_diversity": 0.4,
+      "evidence_count": 3,
+      "contradictions": 0,
+      "open_questions": 4,
+      "status": "Continue",
+      "stop_conditions_met": false
+    },
+    {
+      "iteration": 3,
+      "overall_confidence": 0.32,
+      "objective_completion": 0.5,
+      "evidence_coverage": 0.6,
+      "citation_grounding": 0.33,
+      "primary_authority_coverage": 0.67,
+      "mean_claim_confidence": 0.6,
+      "weakest_claim_confidence": 0.0,
+      "confidence_stability": 0.99,
+      "open_question_penalty": 0.2,
+      "blocked_source_penalty": 0.0,
+      "confidence_cap": 0.82,
+      "contradiction_resolution": 1.0,
+      "source_diversity": 0.33,
+      "evidence_count": 3,
+      "contradictions": 0,
+      "open_questions": 4,
+      "status": "Plateau",
+      "stop_conditions_met": false
+    }
+  ],
+  "retrieval_metrics": {
+    "enabled": true,
+    "attempted_urls": 4,
+    "successful_urls": 3,
+    "failed_urls": 1,
+    "blocked_sources": 0,
+    "blocked_urls": [],
+    "block_reasons": {},
+    "retrieved_urls": [
+      "https://www.law.cornell.edu/wex/warranty",
+      "https://www.law.cornell.edu/wex/misrepresentation",
+      "https://www.law.cornell.edu/ucc/2/2-313"
+    ],
+    "errors": {
+      "https://www.law.cornell.edu/wex/consumer_protection": "HTTPError"
+    },
+    "search_enabled": true,
+    "search_queries": [
+      "issue raised enforceable terms service agreements when users actively click agree jurisdiction statute case law agency guidance",
+      "issue raised enforceable terms service agreements when users actively click agree jurisdiction legal liability primary authority"
+    ],
+    "discovered_urls": [
+      "https://www.law.cornell.edu/wex/warranty",
+      "https://www.law.cornell.edu/wex/misrepresentation",
+      "https://www.law.cornell.edu/wex/consumer_protection",
+      "https://www.law.cornell.edu/ucc/2/2-313"
+    ],
+    "source_scores": {
+      "https://www.law.cornell.edu/wex/warranty": 0.95,
+      "https://www.law.cornell.edu/wex/misrepresentation": 0.95,
+      "https://www.law.cornell.edu/ucc/2/2-313": 0.89
+    },
+    "fallback_used": false,
+    "modal_enabled": false,
+    "modal_url_fetch_agents": 0
+  },
+  "agent_traces": [
+    {
+      "name": "hypothesis_agent",
+      "goal": "Generate and refine candidate legal theories.",
+      "tools": [
+        "generate_baseline_hypotheses"
+      ],
+      "steps": [
+        "tool:generate_baseline_hypotheses",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 3
+    },
+    {
+      "name": "knowledge_agent_pool",
+      "goal": "Retrieve real sources and extract structured evidence.",
+      "tools": [
+        "collect_evidence"
+      ],
+      "steps": [
+        "tool:collect_evidence",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 3
+    },
+    {
+      "name": "critic_agent",
+      "goal": "Attack claims, find gaps, and surface contradictions.",
+      "tools": [
+        "critique_claims"
+      ],
+      "steps": [
+        "tool:critique_claims",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 6
+    },
+    {
+      "name": "knowledge_agent_pool",
+      "goal": "Retrieve real sources and extract structured evidence.",
+      "tools": [
+        "collect_evidence"
+      ],
+      "steps": [
+        "tool:collect_evidence",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 3
+    },
+    {
+      "name": "critic_agent",
+      "goal": "Attack claims, find gaps, and surface contradictions.",
+      "tools": [
+        "critique_claims"
+      ],
+      "steps": [
+        "tool:critique_claims",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 6
+    },
+    {
+      "name": "knowledge_agent_pool",
+      "goal": "Retrieve real sources and extract structured evidence.",
+      "tools": [
+        "collect_evidence"
+      ],
+      "steps": [
+        "tool:collect_evidence",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 3
+    },
+    {
+      "name": "critic_agent",
+      "goal": "Attack claims, find gaps, and surface contradictions.",
+      "tools": [
+        "critique_claims"
+      ],
+      "steps": [
+        "tool:critique_claims",
+        "llm_reasoning"
+      ],
+      "used_llm": true,
+      "llm_model": "gpt-5-mini",
+      "output_count": 6
+    }
+  ],
+  "llm_reasoning_enabled": true,
+  "llm_model": "gpt-5-mini",
+  "raindrop_tracing_enabled": false,
+  "raindrop_target": null,
+  "iterations_completed": 3,
+  "agents_spun_off": 35,
+  "agent_breakdown": {
+    "program_generator": 1,
+    "planner_orchestrator": 1,
+    "hypothesis_agent": 1,
+    "hypothesis_refinement_agent": 0,
+    "web_search_agent": 3,
+    "academic_agent": 3,
+    "legal_agent": 3,
+    "company_intelligence_agent": 3,
+    "social_signal_agent": 3,
+    "extraction_agent": 3,
+    "critic_agent": 3,
+    "evaluator_agent": 3,
+    "knowledge_gap_detector": 3,
+    "auto_tuner": 3,
+    "raindrop_feedback_agent": 1,
+    "report_generator": 1
+  },
+  "tasks_count": 10,
+  "hypotheses_count": 3,
+  "evidence_count": 3,
+  "source_type_count": 2,
+  "claims_count": 3,
+  "supported_claims_count": 2,
+  "contradictions_count": 0,
+  "resolved_contradictions_count": 0,
+  "open_questions_count": 4,
+  "final_confidence": 0.32,
+  "stop_conditions_met": false,
+  "generated_artifacts": [
+    "program.md",
+    "legal_metadata.json",
+    "tuning_params.json",
+    "tasks.json",
+    "hypotheses.json",
+    "claims.json",
+    "evidence/",
+    "contradictions.json",
+    "confidence_scores.json",
+    "open_questions.json",
+    "metrics.json",
+    "agent_skills.json",
+    "raindrop_feedback.json",
+    "final_report.md",
+    "final_report.html",
+    "final_report.pdf"
+  ],
+  "raindrop_feedback": {
+    "agent": "raindrop_feedback_agent",
+    "verdict": "plateaued",
+    "summary": "The run stopped because confidence and evidence coverage stopped improving.",
+    "trace_focus": [
+      "evaluator_agent",
+      "claim_synthesis",
+      "knowledge_gap_detector",
+      "auto_tuner"
+    ],
+    "findings": [
+      "1 claim(s) were not supported.",
+      "4 open question(s) remained.",
+      "Final confidence was 32%, below the default 85% target."
+    ],
+    "recommendations": [
+      "Use the open questions to add targeted retrieval tasks before generating the final report.",
+      "Increase max iterations or add seed/source material for the unresolved gaps.",
+      "Inspect evaluator_agent and knowledge_gap_detector spans to see which quality gate failed."
+    ],
+    "next_run": {
+      "enable_live_retrieval": false,
+      "increase_max_iterations": true,
+      "add_source_urls": false,
+      "inspect_spans": [
+        "evaluator_agent",
+        "claim_synthesis",
+        "knowledge_gap_detector",
+        "auto_tuner"
+      ]
+    }
+  },
+  "deterministic_confidence": 0.39,
+  "llm_scoring_enabled": true,
+  "llm_score_adjustment": -0.07
+}

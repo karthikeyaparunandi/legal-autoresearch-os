@@ -1,0 +1,20 @@
+[
+  {
+    "hypothesis_id": "h001",
+    "statement": "For a U.S. startup, assessing legal risk from classifying workers as independent contractors depends primarily on high-authority sources in the relevant jurisdiction (federal statutes and agencies like DOL/IRS, state statutes and supreme/appellate decisions) rather than the number of secondary sources; source quality determines the controlling test (e.g., IRS common-law, DOL economic\u2011realities, state ABC/Borello variants).",
+    "rationale": "Controlling statutes, agency guidance, and precedent define classification tests and penalties; lower\u2011authority commentary is useful for context but not dispositive. Weighting depends on whether federal or state law governs and on materially disputed facts, so identify applicable jurisdiction and controlling authorities to reduce uncertainty.",
+    "status": "open"
+  },
+  {
+    "hypothesis_id": "h002",
+    "statement": "Conflicting authority or tests (e.g., differing federal agency standards, divergent state tests, or split appellate rulings) will reveal the critical follow\u2011up questions: which jurisdiction and authority controls, which legal test applies to the worker facts, what factual issues are determinative (control, opportunity for profit, permanency), and whether past enforcement or private litigation trends increase exposure.",
+    "rationale": "Apparent contradictions indicate non\u2011uniform risk across forums and drive research priorities: establish controlling precedent, map factual elements to each test, and identify enforcement practices and remedies to quantify exposure and likelihood of adverse findings.",
+    "status": "open"
+  },
+  {
+    "hypothesis_id": "h003",
+    "statement": "A decision\u2011grade answer must (1) specify jurisdiction(s) and governing authorities, (2) identify applicable legal tests and predicates for liability (statutory penalties, back wages, payroll taxes, interest, civil/administrative fines), (3) state assumptions and factual gaps, and (4) provide an uncertainty/confidence range tied to source authority levels and fact sensitivity.",
+    "rationale": "Legal risk is fact\u2011dependent and jurisdictional; explicitly stating limits, assumptions, and a confidence level based on primary authorities enables informed business decisions and identifies where further fact\u2011finding or counsel is required.",
+    "status": "open"
+  }
+]

@@ -1,0 +1,41 @@
+[
+  {
+    "claim_id": "c001",
+    "claim": "In the United States, authoritative resolution of whether non\u2011compete agreements are enforceable depends on primary law\u2014state statutes and state supreme/court of appeals decisions\u2014and recent federal action (statute or agency rule); therefore high\u2011confidence conclusions require citing the controlling state authority and any binding federal developments; uncertainty: outcomes are state\u2011specific and time\u2011sensitive (legislative changes or pending federal litigation may alter enforceability).",
+    "supporting_sources": [
+      "source_001",
+      "source_002",
+      "source_003"
+    ],
+    "contradicting_sources": [],
+    "confidence": 0.95,
+    "status": "supported",
+    "objective_refs": []
+  },
+  {
+    "claim_id": "c002",
+    "claim": "Apparent contradictions among sources (e.g., differing state statutes, conflicting state appellate rulings, or a federal rule in flux) will reveal the most important follow\u2011up questions: which jurisdiction controls, which authority is highest in that jurisdiction, whether exceptions apply (sale of business, trade secrets, executives), and whether any federal action preempts state law; uncertainty: expect doctrinal splits across states and evolving case law/statutes.",
+    "supporting_sources": [
+      "source_001",
+      "source_002",
+      "source_003"
+    ],
+    "contradicting_sources": [],
+    "confidence": 0.95,
+    "status": "supported",
+    "objective_refs": []
+  },
+  {
+    "claim_id": "c003",
+    "claim": "A sufficient, decision\u2011grade answer must state enforceability by jurisdiction with citations to controlling state statutes and highest\u2011court rulings, note common exceptions and enforcement practices, and quantify uncertainty (confidence level per state, date of last authoritative change, and dependencies such as employee category or choice\u2011of\u2011law); authority level: state legislative and appellate authorities primary, supplemented by federal developments.",
+    "supporting_sources": [
+      "source_001",
+      "source_002",
+      "source_003"
+    ],
+    "contradicting_sources": [],
+    "confidence": 0.95,
+    "status": "supported",
+    "objective_refs": []
+  }
+]

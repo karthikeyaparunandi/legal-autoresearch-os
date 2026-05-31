@@ -1,0 +1,93 @@
+[1m[32mResearch complete[0m [2moverall_confidence=32%[0m
+[36mHTML report:[0m ]8;;file:///Users/qinkanglu/Documents/Hackathons/AutoResearch%20Agents/autoresearch-os/reports/q3_tos/final_report.html\[1m/Users/qinkanglu/Documents/Hackathons/AutoResearch Agents/autoresearch-os/reports/q3_tos/final_report.html[0m]8;;\
+[2mMarkdown:[0m /Users/qinkanglu/Documents/Hackathons/AutoResearch Agents/autoresearch-os/reports/q3_tos/final_report.md
+[2mPDF:[0m /Users/qinkanglu/Documents/Hackathons/AutoResearch Agents/autoresearch-os/reports/q3_tos/final_report.pdf
+[2mTruth-maintenance repo:[0m /Users/qinkanglu/Documents/Hackathons/AutoResearch Agents/autoresearch-os/reports/q3_tos
+
+[1m[36mFinal Metrics[0m
++---------------------+----------------------------------+
+| [1mMetric             [0m | [1mValue                           [0m |
++---------------------+----------------------------------+
+| Generated at        | 2026-05-31T00:11:00.509141+00:00 |
+| Runtime             |                         131.951s |
+| Iterations          |                                3 |
+| Agents spun off     |                               35 |
+| Hypotheses          |                                3 |
+| Tasks               |                               10 |
+| Evidence records    |                                3 |
+| Source categories   |                                2 |
+| Claims              |            2 supported / 3 total |
+| Contradictions      |          0 resolved / 0 detected |
+| Open questions      |                                4 |
+| Final confidence    |                              32% |
+| Stop conditions met |                            False |
+| LLM reasoning       |                          enabled |
+| LLM model           |                       gpt-5-mini |
+| Raindrop tracing    |                         disabled |
+| Raindrop target     |                             none |
+| Raindrop feedback   |                        plateaued |
+| Deterministic conf. |                              39% |
+| LLM score adj.      |                              -7% |
++---------------------+----------------------------------+
+
+[1m[36mConvergence Progress[0m
++------+------------+-----------+-----------+---------+------------+---------+----------+
+| [1mIter[0m | [1mConfidence[0m | [1mObjective[0m | [1mCitations[0m | [1mPrimary[0m | [1mClaim Conf[0m | [1mOpen Qs[0m | [1mStatus  [0m |
++------+------------+-----------+-----------+---------+------------+---------+----------+
+|    1 |        29% |       50% |       33% |     67% |        60% |       4 | Continue |
+|    2 |        32% |       50% |       33% |     67% |        60% |       4 | Continue |
+|    3 |        32% |       50% |       33% |     67% |        60% |       4 |  Plateau |
++------+------------+-----------+-----------+---------+------------+---------+----------+
+
+[1m[36mLive Retrieval[0m
++------------------+----------+
+| [1mMetric          [0m | [1mValue   [0m |
++------------------+----------+
+| Live retrieval   |  enabled |
+| Modal fan-out    | disabled |
+| Modal URL agents |        0 |
+| Modal hyp agents | disabled |
+| Modal LLM calls  |        0 |
+| Web search       |  enabled |
+| Search queries   |        2 |
+| URLs discovered  |        4 |
+| URLs attempted   |        4 |
+| URLs retrieved   |        3 |
+| Blocked sources  |        0 |
+| Fallback used    |    False |
++------------------+----------+
+
+[1m[33mAgent Breakdown[0m
++-----------------------------+-------+
+| [1mAgent                      [0m | [1mCount[0m |
++-----------------------------+-------+
+| program_generator           |     1 |
+| planner_orchestrator        |     1 |
+| hypothesis_agent            |     1 |
+| hypothesis_refinement_agent |     0 |
+| web_search_agent            |     3 |
+| academic_agent              |     3 |
+| legal_agent                 |     3 |
+| company_intelligence_agent  |     3 |
+| social_signal_agent         |     3 |
+| extraction_agent            |     3 |
+| critic_agent                |     3 |
+| evaluator_agent             |     3 |
+| knowledge_gap_detector      |     3 |
+| auto_tuner                  |     3 |
+| raindrop_feedback_agent     |     1 |
+| report_generator            |     1 |
++-----------------------------+-------+
+
+[1m[33mAgent Tool Loops[0m
++----------------------+------------------------------+-------+-----+
+| [1mAgent               [0m | [1mTools                       [0m | [1mSteps[0m | [1mLLM[0m |
++----------------------+------------------------------+-------+-----+
+|     hypothesis_agent | generate_baseline_hypotheses |     2 | yes |
+| knowledge_agent_pool |             collect_evidence |     2 | yes |
+|         critic_agent |              critique_claims |     2 | yes |
+| knowledge_agent_pool |             collect_evidence |     2 | yes |
+|         critic_agent |              critique_claims |     2 | yes |
+| knowledge_agent_pool |             collect_evidence |     2 | yes |
+|         critic_agent |              critique_claims |     2 | yes |
++----------------------+------------------------------+-------+-----+

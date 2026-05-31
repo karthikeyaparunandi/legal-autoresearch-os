@@ -1,0 +1,18 @@
+{
+  "supported_claim_threshold": 0.7,
+  "contradiction_penalty_weight": 0.25,
+  "min_primary_sources": 3,
+  "target_source_diversity": 5,
+  "gap_task_limit": 5,
+  "evaluator_weights": {
+    "objective_completion": 0.18,
+    "evidence_coverage": 0.12,
+    "source_diversity": 0.07,
+    "contradiction_resolution": 0.1,
+    "citation_grounding": 0.15,
+    "mean_claim_confidence": 0.18,
+    "primary_authority_coverage": 0.15,
+    "confidence_stability": 0.05
+  },
+  "learning_rate": 0.05
+}

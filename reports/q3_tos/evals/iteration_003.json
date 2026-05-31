@@ -1,0 +1,21 @@
+{
+  "iteration": 3,
+  "objective_completion": 0.5,
+  "evidence_coverage": 0.6,
+  "source_diversity": 0.33,
+  "primary_authority_coverage": 0.67,
+  "contradiction_resolution": 1.0,
+  "citation_grounding": 0.33,
+  "mean_claim_confidence": 0.6,
+  "weakest_claim_confidence": 0.0,
+  "confidence_stability": 0.99,
+  "open_question_penalty": 0.2,
+  "blocked_source_penalty": 0.0,
+  "confidence_cap": 0.82,
+  "open_question_count": 4,
+  "overall_confidence": 0.32,
+  "deterministic_confidence": 0.39,
+  "llm_scoring_enabled": true,
+  "llm_score_adjustment": -0.07,
+  "llm_score_rationale": "Overall the claims address relevant points but the supporting evidence provided does not substantively support them and key controlling authorities and jurisdictional detail are missing. c001 is conceptually correct (enforceability depends on binding authority and notice/assent facts) but its cited excerpt (a Wex entry on \u201cwarranty\u201d) is irrelevant to online assent doctrine, so the support is weak. c002 is marked weak and has no sources; that is a material omission because the claim identifies th"
+}

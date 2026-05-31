@@ -1,0 +1,35 @@
+[
+  {
+    "claim_id": "c001",
+    "claim": "Enforceability of terms-of-service (ToS) provisions when users do not click an explicit \"I agree\" turns principally on controlling primary authorities (statutes and binding case law) and the specific notice/assent facts, so source quality matters more than source volume.",
+    "supporting_sources": [
+      "source_001"
+    ],
+    "contradicting_sources": [],
+    "confidence": 0.92,
+    "status": "supported",
+    "objective_refs": []
+  },
+  {
+    "claim_id": "c002",
+    "claim": "Apparent contradictions among authorities will identify the critical follow-up questions needed to resolve enforceability\u2014primarily whether notice was reasonably conspicuous, whether user conduct manifestly indicated assent, and which contractual form (browsewrap, clickwrap, sign-in wrap) was at issue.",
+    "supporting_sources": [],
+    "contradicting_sources": [],
+    "confidence": 0.0,
+    "status": "weak",
+    "objective_refs": []
+  },
+  {
+    "claim_id": "c003",
+    "claim": "A decision-grade answer must state the legal standards, identify jurisdictional splits and limiting facts, and quantify uncertainty rather than offering just a binary conclusion about enforceability.",
+    "supporting_sources": [
+      "source_001",
+      "source_002",
+      "source_003"
+    ],
+    "contradicting_sources": [],
+    "confidence": 0.89,
+    "status": "supported",
+    "objective_refs": []
+  }
+]

@@ -28,7 +28,7 @@ class CentralReasoner:
         required: bool = False,
     ) -> None:
         self.model = model or os.environ.get("AUTORESEARCH_MODEL", DEFAULT_REASONING_MODEL)
-        self.api_key = api_key or _load_api_key(workspace)
+        self.api_key = _load_api_key(workspace) if api_key is None else api_key
         self.required = required
 
     @property
@@ -81,10 +81,10 @@ def _load_api_key(workspace: Path | None = None) -> str | None:
     for name in API_KEY_ENV_VARS:
         if os.environ.get(name):
             return os.environ[name]
-    candidates = []
     if workspace:
-        candidates.extend([workspace / ".env.local", workspace / ".env"])
-    candidates.extend([Path(".env.local"), Path(".env")])
+        candidates = [workspace / ".env.local", workspace / ".env"]
+    else:
+        candidates = [Path(".env.local"), Path(".env")]
     for path in candidates:
         if not path.exists():
             continue

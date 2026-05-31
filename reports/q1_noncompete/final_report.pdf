@@ -1,0 +1,405 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 4 0 R 5 0 R 6 0 R] /Count 4 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 11 0 R >> >> /Contents 7 0 R >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 11 0 R >> >> /Contents 8 0 R >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 11 0 R >> >> /Contents 9 0 R >>
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 11 0 R >> >> /Contents 10 0 R >>
+endobj
+7 0 obj
+<< /Length 3517 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(Legal AutoResearch OS Research Report) Tj
+T*
+() Tj
+T*
+(LEGAL RESEARCH REPORT) Tj
+T*
+() Tj
+T*
+(QUESTION PRESENTED) Tj
+T*
+(Can non-compete agreements still be enforced in the United States, and how do state laws) Tj
+T*
+(differ?) Tj
+T*
+() Tj
+T*
+(SHORT ANSWER) Tj
+T*
+(Based on the cited authorities, the answer is supported at 64% confidence: In the United) Tj
+T*
+(States, authoritative resolution of whether non?compete agreements are enforceable depends) Tj
+T*
+(on primary law?state statutes and state supreme/court of appeals decisions?and recent) Tj
+T*
+(federal action \(statute or agency rule\); therefore high?confidence conclusions require) Tj
+T*
+(citing the controlling state authority and any binding federal developments; uncertainty:) Tj
+T*
+(outcomes are state?specific and time?sensitive \(legislative changes or pending federal) Tj
+T*
+(litigation may alter enforceability\). [1] [2] [3] Apparent contradictions among sources) Tj
+T*
+(\(e.g., differing state statutes, conflicting state appellate rulings, or a federal rule in) Tj
+T*
+(flux\) will reveal the most important follow?up questions: which jurisdiction controls, which) Tj
+T*
+(authority is highest in that jurisdiction, whether exceptions apply \(sale of business, trade) Tj
+T*
+(secrets, executives\), and whether any federal action preempts state law; uncertainty: expect) Tj
+T*
+(doctrinal splits across states and evolving case law/statutes. [1] [2] [3]) Tj
+T*
+() Tj
+T*
+(KEY FINDINGS) Tj
+T*
+(1. In the United States, authoritative resolution of whether non?compete agreements are) Tj
+T*
+(enforceable depends on primary law?state statutes and state supreme/court of appeals) Tj
+T*
+(decisions?and recent federal action \(statute or agency rule\); therefore high?confidence) Tj
+T*
+(conclusions require citing the controlling state authority and any binding federal) Tj
+T*
+(developments; uncertainty: outcomes are state?specific and time?sensitive \(legislative) Tj
+T*
+(changes or pending federal litigation may alter enforceability\). \(95% confidence; [1], [2],) Tj
+T*
+([3]\).) Tj
+T*
+(2. Apparent contradictions among sources \(e.g., differing state statutes, conflicting state) Tj
+T*
+(appellate rulings, or a federal rule in flux\) will reveal the most important follow?up) Tj
+T*
+(questions: which jurisdiction controls, which authority is highest in that jurisdiction,) Tj
+T*
+(whether exceptions apply \(sale of business, trade secrets, executives\), and whether any) Tj
+T*
+(federal action preempts state law; uncertainty: expect doctrinal splits across states and) Tj
+T*
+(evolving case law/statutes. \(95% confidence; [1], [2], [3]\).) Tj
+T*
+(3. A sufficient, decision?grade answer must state enforceability by jurisdiction with) Tj
+T*
+(citations to controlling state statutes and highest?court rulings, note common exceptions) Tj
+T*
+(and enforcement practices, and quantify uncertainty \(confidence level per state, date of) Tj
+T*
+(last authoritative change, and dependencies such as employee category or choice?of?law\);) Tj
+T*
+(authority level: state legislative and appellate authorities primary, supplemented by) Tj
+T*
+(federal developments. \(95% confidence; [1], [2], [3]\).) Tj
+T*
+() Tj
+T*
+(REASONING RATIONALE) Tj
+T*
+(The system generated hypotheses, collected legal evidence, criticized the claims for) Tj
+T*
+(contradictions, evaluated citation grounding and source quality, then repeated the loop) Tj
+T*
+(until the research state stopped improving or satisfied the configured objectives.) Tj
+T*
+() Tj
+T*
+ET
+endstream
+endobj
+8 0 obj
+<< /Length 2621 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(SOURCES) Tj
+T*
+(  - [1] warranty    Wex    US Law    LII / Legal Information Institute.) Tj
+T*
+(https://www.law.cornell.edu/wex/warranty) Tj
+T*
+(  - [2] misrepresentation    Wex    US Law    LII / Legal Information Institute.) Tj
+T*
+(https://www.law.cornell.edu/wex/misrepresentation) Tj
+T*
+(  - [3] § 2-313. Express Warranties by Affirmation, Promise, Description, Sample.    Uniform) Tj
+T*
+(Commercial Code    US Law    LII / Legal Information Institute.) Tj
+T*
+(https://www.law.cornell.edu/ucc/2/2-313) Tj
+T*
+() Tj
+T*
+(OPEN QUESTIONS) Tj
+T*
+(  - Are all program subquestions represented by explicit claims?) Tj
+T*
+(  - Critic follow-up: Supporting_sources are non?specific identifiers rather than primary) Tj
+T*
+(authorities; no controlling state statutes, state supreme/court of appeals decisions, or) Tj
+T*
+(specific federal statutes/rules with dates are cited.) Tj
+T*
+(  - Critic follow-up: High confidence scores \(e.g., 0.95\) are asserted despite) Tj
+T*
+(time?sensitivity and jurisdictional variation; methodology and currency cutoff \(last?checked) Tj
+T*
+(date\) are missing.) Tj
+T*
+() Tj
+T*
+(RAINDROP FEEDBACK) Tj
+T*
+(  - Verdict: plateaued) Tj
+T*
+(  - Summary: The run stopped because confidence and evidence coverage stopped improving.) Tj
+T*
+(  - Trace focus: evaluator_agent, knowledge_gap_detector, auto_tuner) Tj
+T*
+() Tj
+T*
+(Recommended Next Steps) Tj
+T*
+(  - Increase max iterations or add seed/source material for the unresolved gaps.) Tj
+T*
+(  - Inspect evaluator_agent and knowledge_gap_detector spans to see which quality gate) Tj
+T*
+(failed.) Tj
+T*
+() Tj
+T*
+(APPENDIX: RESEARCH TRACE) Tj
+T*
+(  - Overall confidence: 64%) Tj
+T*
+(  - Deterministic confidence: 70%) Tj
+T*
+(  - LLM scoring adjustment: -6%) Tj
+T*
+(  - Objective completion: 75%) Tj
+T*
+(  - Evidence coverage: 60%) Tj
+T*
+(  - Citation grounding: 100%) Tj
+T*
+(  - Primary authority coverage: 100%) Tj
+T*
+(  - Contradiction resolution: 100%) Tj
+T*
+(  - Mean claim confidence: 95%) Tj
+T*
+() Tj
+T*
+(LLM Scoring Audit) Tj
+T*
+(The claims correctly state the correct framing \(enforceability is state-specific, primary) Tj
+T*
+(authority is state law, federal developments matter, and decision-grade answers require) Tj
+T*
+(jurisdictional citations\). However the provided supporting_sources do not substantiate those) Tj
+T*
+(claims: excerpts are irrelevant \(warranty/misrepresentation/UCC §2-313\) rather than) Tj
+T*
+(controlling state statutes, state supreme/court-of-appeals precedent, or specific federal) Tj
+T*
+(statutes/rules with dates. High confidence levels lack) Tj
+T*
+() Tj
+T*
+(Contradictions) Tj
+T*
+ET
+endstream
+endobj
+9 0 obj
+<< /Length 2730 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(  - No explicit contradictions detected.) Tj
+T*
+() Tj
+T*
+(All Claims) Tj
+T*
+(  - c001: In the United States, authoritative resolution of whether non?compete agreements) Tj
+T*
+(are enforceable depends on primary law?state statutes and state supreme/court of appeals) Tj
+T*
+(decisions?and recent federal action \(statute or agency rule\); therefore high?confidence) Tj
+T*
+(conclusions require citing the controlling state authority and any binding federal) Tj
+T*
+(developments; uncertainty: outcomes are state?specific and time?sensitive \(legislative) Tj
+T*
+(changes or pending federal litigation may alter enforceability\).) Tj
+T*
+(Status: supported; confidence: 95%; supporting sources: [1], [2], [3].) Tj
+T*
+(  - c002: Apparent contradictions among sources \(e.g., differing state statutes, conflicting) Tj
+T*
+(state appellate rulings, or a federal rule in flux\) will reveal the most important follow?up) Tj
+T*
+(questions: which jurisdiction controls, which authority is highest in that jurisdiction,) Tj
+T*
+(whether exceptions apply \(sale of business, trade secrets, executives\), and whether any) Tj
+T*
+(federal action preempts state law; uncertainty: expect doctrinal splits across states and) Tj
+T*
+(evolving case law/statutes.) Tj
+T*
+(Status: supported; confidence: 95%; supporting sources: [1], [2], [3].) Tj
+T*
+(  - c003: A sufficient, decision?grade answer must state enforceability by jurisdiction with) Tj
+T*
+(citations to controlling state statutes and highest?court rulings, note common exceptions) Tj
+T*
+(and enforcement practices, and quantify uncertainty \(confidence level per state, date of) Tj
+T*
+(last authoritative change, and dependencies such as employee category or choice?of?law\);) Tj
+T*
+(authority level: state legislative and appellate authorities primary, supplemented by) Tj
+T*
+(federal developments.) Tj
+T*
+(Status: supported; confidence: 95%; supporting sources: [1], [2], [3].) Tj
+T*
+() Tj
+T*
+(Metrics) Tj
+T*
+(  - Total runtime: 127.058 seconds) Tj
+T*
+(  - Iterations completed: 4) Tj
+T*
+(  - Agents spun off: 45) Tj
+T*
+(  - Tasks generated: 13) Tj
+T*
+(  - Hypotheses generated: 3) Tj
+T*
+(  - Evidence records collected: 3) Tj
+T*
+(  - Source categories: 2) Tj
+T*
+(  - Claims evaluated: 3) Tj
+T*
+(  - Supported claims: 3) Tj
+T*
+(  - Contradictions detected: 0) Tj
+T*
+(  - Contradictions resolved: 0) Tj
+T*
+(  - Open questions remaining: 3) Tj
+T*
+(  - Stop conditions met: False) Tj
+T*
+(  - Raindrop tracing: disabled) Tj
+T*
+() Tj
+T*
+(Agent Breakdown) Tj
+T*
+(  - program_generator: 1) Tj
+T*
+(  - planner_orchestrator: 1) Tj
+T*
+(  - hypothesis_agent: 1) Tj
+T*
+(  - hypothesis_refinement_agent: 0) Tj
+T*
+(  - web_search_agent: 4) Tj
+T*
+(  - academic_agent: 4) Tj
+T*
+ET
+endstream
+endobj
+10 0 obj
+<< /Length 762 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(  - legal_agent: 4) Tj
+T*
+(  - company_intelligence_agent: 4) Tj
+T*
+(  - social_signal_agent: 4) Tj
+T*
+(  - extraction_agent: 4) Tj
+T*
+(  - critic_agent: 4) Tj
+T*
+(  - evaluator_agent: 4) Tj
+T*
+(  - knowledge_gap_detector: 4) Tj
+T*
+(  - auto_tuner: 4) Tj
+T*
+(  - raindrop_feedback_agent: 1) Tj
+T*
+(  - report_generator: 1) Tj
+T*
+() Tj
+T*
+(LEGAL METADATA) Tj
+T*
+(  - Jurisdiction: United States) Tj
+T*
+(  - Practice area: copyright and software) Tj
+T*
+(  - Risk posture: startup decision support, not legal advice) Tj
+T*
+(  - Authority hierarchy: statute, binding_case_law, agency_guidance, persuasive_case_law,) Tj
+T*
+(secondary_source, expert_analysis) Tj
+T*
+(  - Required source types: statute, case_law, agency_guidance) Tj
+T*
+ET
+endstream
+endobj
+11 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 12
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000133 00000 n 
+0000000260 00000 n 
+0000000387 00000 n 
+0000000514 00000 n 
+0000000642 00000 n 
+0000004211 00000 n 
+0000006884 00000 n 
+0000009666 00000 n 
+0000010480 00000 n 
+trailer
+<< /Size 12 /Root 1 0 R >>
+startxref
+10551
+%%EOF

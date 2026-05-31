@@ -1,0 +1,352 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 4 0 R 5 0 R] /Count 3 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 9 0 R >> >> /Contents 6 0 R >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 9 0 R >> >> /Contents 7 0 R >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 9 0 R >> >> /Contents 8 0 R >>
+endobj
+6 0 obj
+<< /Length 3192 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(Legal AutoResearch OS Research Report) Tj
+T*
+() Tj
+T*
+(LEGAL RESEARCH REPORT) Tj
+T*
+() Tj
+T*
+(QUESTION PRESENTED) Tj
+T*
+(Can a company be liable for data breaches caused by third-party vendors?) Tj
+T*
+() Tj
+T*
+(SHORT ANSWER) Tj
+T*
+(Based on the cited authorities, the answer is supported at 38% confidence: Whether a company) Tj
+T*
+(is liable for a vendor-caused data breach depends primarily on the quality and) Tj
+T*
+(authoritativeness of controlling sources \(applicable statutes, binding appellate/supreme) Tj
+T*
+(court precedent, and agency enforcement decisions\) in the relevant jurisdiction, rather than) Tj
+T*
+(the sheer number of sources. [1] [2] [3] A sufficient research answer must state the) Tj
+T*
+(conclusion and explicitly identify its limits: the precise jurisdiction\(s\) analyzed, the) Tj
+T*
+(controlling authorities relied on, the legal standards/burden of proof, the material factual) Tj
+T*
+(predicates, and a quantified uncertainty assessment tied to source quality. [1] [2] [3]) Tj
+T*
+() Tj
+T*
+(KEY FINDINGS) Tj
+T*
+(1. Whether a company is liable for a vendor-caused data breach depends primarily on the) Tj
+T*
+(quality and authoritativeness of controlling sources \(applicable statutes, binding) Tj
+T*
+(appellate/supreme court precedent, and agency enforcement decisions\) in the relevant) Tj
+T*
+(jurisdiction, rather than the sheer number of sources. \(89% confidence; [1], [2], [3]\).) Tj
+T*
+(2. A sufficient research answer must state the conclusion and explicitly identify its) Tj
+T*
+(limits: the precise jurisdiction\(s\) analyzed, the controlling authorities relied on, the) Tj
+T*
+(legal standards/burden of proof, the material factual predicates, and a quantified) Tj
+T*
+(uncertainty assessment tied to source quality. \(89% confidence; [1], [2], [3]\).) Tj
+T*
+() Tj
+T*
+(REASONING RATIONALE) Tj
+T*
+(The system generated hypotheses, collected legal evidence, criticized the claims for) Tj
+T*
+(contradictions, evaluated citation grounding and source quality, then repeated the loop) Tj
+T*
+(until the research state stopped improving or satisfied the configured objectives.) Tj
+T*
+() Tj
+T*
+(SOURCES) Tj
+T*
+(  - [1] warranty    Wex    US Law    LII / Legal Information Institute.) Tj
+T*
+(https://www.law.cornell.edu/wex/warranty) Tj
+T*
+(  - [2] misrepresentation    Wex    US Law    LII / Legal Information Institute.) Tj
+T*
+(https://www.law.cornell.edu/wex/misrepresentation) Tj
+T*
+(  - [3] § 2-313. Express Warranties by Affirmation, Promise, Description, Sample.    Uniform) Tj
+T*
+(Commercial Code    US Law    LII / Legal Information Institute.) Tj
+T*
+(https://www.law.cornell.edu/ucc/2/2-313) Tj
+T*
+() Tj
+T*
+(OPEN QUESTIONS) Tj
+T*
+(  - What additional authoritative evidence would resolve claim c002: Identified) Tj
+T*
+(contradictions among statutes, case law, and regulator guidance will reveal the decisive) Tj
+T*
+(follow?up questions \(e.g., whether duty is statutory or common law, how foreseeability and) Tj
+T*
+(proximate cause are defined, the effect of contractual indemnities and notice clauses, and) Tj
+T*
+(standing for injured parties\).) Tj
+T*
+(  - Are all program subquestions represented by explicit claims?) Tj
+T*
+ET
+endstream
+endobj
+7 0 obj
+<< /Length 2728 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(  - Critic follow-up: c002: no supporting evidence yet.) Tj
+T*
+(  - Critic follow-up: c002: confidence below support threshold \(0%\).) Tj
+T*
+() Tj
+T*
+(RAINDROP FEEDBACK) Tj
+T*
+(  - Verdict: plateaued) Tj
+T*
+(  - Summary: The run stopped because confidence and evidence coverage stopped improving.) Tj
+T*
+(  - Trace focus: evaluator_agent, claim_synthesis, knowledge_gap_detector, auto_tuner) Tj
+T*
+() Tj
+T*
+(Recommended Next Steps) Tj
+T*
+(  - Use the open questions to add targeted retrieval tasks before generating the final) Tj
+T*
+(report.) Tj
+T*
+(  - Increase max iterations or add seed/source material for the unresolved gaps.) Tj
+T*
+(  - Inspect evaluator_agent and knowledge_gap_detector spans to see which quality gate) Tj
+T*
+(failed.) Tj
+T*
+() Tj
+T*
+(APPENDIX: RESEARCH TRACE) Tj
+T*
+(  - Overall confidence: 38%) Tj
+T*
+(  - Deterministic confidence: 44%) Tj
+T*
+(  - LLM scoring adjustment: -6%) Tj
+T*
+(  - Objective completion: 50%) Tj
+T*
+(  - Evidence coverage: 60%) Tj
+T*
+(  - Citation grounding: 67%) Tj
+T*
+(  - Primary authority coverage: 67%) Tj
+T*
+(  - Contradiction resolution: 100%) Tj
+T*
+(  - Mean claim confidence: 59%) Tj
+T*
+() Tj
+T*
+(LLM Scoring Audit) Tj
+T*
+(Overall the claims do not substantively answer the objective and the cited excerpts do not) Tj
+T*
+(support the claims. c001 is methodological but its supporting sources \(warranty,) Tj
+T*
+(misrepresentation, UCC §2-313\) are not on point to third-party vendor/data-breach liability) Tj
+T*
+(\(negligence, vicarious liability, statutory duties, FTC enforcement\). c002 is materially) Tj
+T*
+(unsupported \(no sources; confidence 0.0\) despite being central to the legal analysis. c003) Tj
+T*
+(likewise cites irrelevant LII/UCC excerpts for a methodo) Tj
+T*
+() Tj
+T*
+(Contradictions) Tj
+T*
+(  - No explicit contradictions detected.) Tj
+T*
+() Tj
+T*
+(All Claims) Tj
+T*
+(  - c001: Whether a company is liable for a vendor-caused data breach depends primarily on) Tj
+T*
+(the quality and authoritativeness of controlling sources \(applicable statutes, binding) Tj
+T*
+(appellate/supreme court precedent, and agency enforcement decisions\) in the relevant) Tj
+T*
+(jurisdiction, rather than the sheer number of sources.) Tj
+T*
+(Status: supported; confidence: 89%; supporting sources: [1], [2], [3].) Tj
+T*
+(  - c002: Identified contradictions among statutes, case law, and regulator guidance will) Tj
+T*
+(reveal the decisive follow?up questions \(e.g., whether duty is statutory or common law, how) Tj
+T*
+(foreseeability and proximate cause are defined, the effect of contractual indemnities and) Tj
+T*
+(notice clauses, and standing for injured parties\).) Tj
+T*
+(Status: weak; confidence: 0%; supporting sources: none.) Tj
+T*
+ET
+endstream
+endobj
+8 0 obj
+<< /Length 1965 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(  - c003: A sufficient research answer must state the conclusion and explicitly identify its) Tj
+T*
+(limits: the precise jurisdiction\(s\) analyzed, the controlling authorities relied on, the) Tj
+T*
+(legal standards/burden of proof, the material factual predicates, and a quantified) Tj
+T*
+(uncertainty assessment tied to source quality.) Tj
+T*
+(Status: supported; confidence: 89%; supporting sources: [1], [2], [3].) Tj
+T*
+() Tj
+T*
+(Metrics) Tj
+T*
+(  - Total runtime: 118.522 seconds) Tj
+T*
+(  - Iterations completed: 3) Tj
+T*
+(  - Agents spun off: 35) Tj
+T*
+(  - Tasks generated: 10) Tj
+T*
+(  - Hypotheses generated: 3) Tj
+T*
+(  - Evidence records collected: 3) Tj
+T*
+(  - Source categories: 2) Tj
+T*
+(  - Claims evaluated: 3) Tj
+T*
+(  - Supported claims: 2) Tj
+T*
+(  - Contradictions detected: 0) Tj
+T*
+(  - Contradictions resolved: 0) Tj
+T*
+(  - Open questions remaining: 4) Tj
+T*
+(  - Stop conditions met: False) Tj
+T*
+(  - Raindrop tracing: disabled) Tj
+T*
+() Tj
+T*
+(Agent Breakdown) Tj
+T*
+(  - program_generator: 1) Tj
+T*
+(  - planner_orchestrator: 1) Tj
+T*
+(  - hypothesis_agent: 1) Tj
+T*
+(  - hypothesis_refinement_agent: 0) Tj
+T*
+(  - web_search_agent: 3) Tj
+T*
+(  - academic_agent: 3) Tj
+T*
+(  - legal_agent: 3) Tj
+T*
+(  - company_intelligence_agent: 3) Tj
+T*
+(  - social_signal_agent: 3) Tj
+T*
+(  - extraction_agent: 3) Tj
+T*
+(  - critic_agent: 3) Tj
+T*
+(  - evaluator_agent: 3) Tj
+T*
+(  - knowledge_gap_detector: 3) Tj
+T*
+(  - auto_tuner: 3) Tj
+T*
+(  - raindrop_feedback_agent: 1) Tj
+T*
+(  - report_generator: 1) Tj
+T*
+() Tj
+T*
+(LEGAL METADATA) Tj
+T*
+(  - Jurisdiction: United States) Tj
+T*
+(  - Practice area: copyright and software) Tj
+T*
+(  - Risk posture: startup decision support, not legal advice) Tj
+T*
+(  - Authority hierarchy: statute, binding_case_law, agency_guidance, persuasive_case_law,) Tj
+T*
+(secondary_source, expert_analysis) Tj
+T*
+(  - Required source types: statute, case_law, agency_guidance) Tj
+T*
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000127 00000 n 
+0000000253 00000 n 
+0000000379 00000 n 
+0000000505 00000 n 
+0000003749 00000 n 
+0000006529 00000 n 
+0000008546 00000 n 
+trailer
+<< /Size 10 /Root 1 0 R >>
+startxref
+8616
+%%EOF

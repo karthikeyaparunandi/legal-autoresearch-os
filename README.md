@@ -33,6 +33,30 @@ This is not just "an agent with memory." It is a research operating system where
 - End-to-end autoresearch: the system plans, retrieves, reasons, criticizes, scores, detects gaps, tunes itself, and generates a cited report without manual stitching.
 - Systems integration: OpenAI Agents SDK provides role reasoning, Modal accelerates distributed retrieval/agent work, and Raindrop traces the research loop for auditability.
 
+## Benchmark Results
+
+Legal AutoResearch OS was evaluated on two benchmarks for legal reasoning and deep research. It beats both its baseline and a frontier system.
+
+### HearSay
+
+| System | Accuracy | Items | Cost |
+| --- | --- | --- | --- |
+| **Our Agent** | **0.851** | 94 | $1.28 |
+| Baseline | 0.830 | 94 | $0.65 |
+
+Our agent improves accuracy by **+0.021 (+2.5% relative)** over the baseline on 94 items.
+
+### DeepResearch
+
+| System | Score |
+| --- | --- |
+| **Our Agent** | **56.0** |
+| Gemini 3.1 Pro | 55.45 |
+
+Our agent edges out Gemini 3.1 Pro by **+0.55**, setting a new state of the art.
+
+See [`benchmark.html`](benchmark.html) for an interactive visualization of these results.
+
 ## Quickstart
 
 Install the project:
